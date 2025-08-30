@@ -369,97 +369,6 @@ section#about {
   align-items: center;
   justify-content: center;
 }
-  .cosmos-xp { position: relative; }
-  .xp-track { position: relative; display: grid; gap: 28px; }
-  .xp-node { position: relative; max-width: 740px; }
-  .xp-node.left  { margin-right: auto; }
-  .xp-node.right { margin-left:  auto; }
-
-  /* Star anchor on each card edge */
-  .xp-star {
-    position: absolute;
-    top: 18px;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: radial-gradient(circle, #fff, rgba(122,162,255,.7));
-    box-shadow: 0 0 14px rgba(122,162,255,.9), 0 0 28px rgba(79,240,176,.6);
-    border: 1px solid rgba(255,255,255,.35);
-  }
-  .xp-node.left  .xp-star { right: -18px; }
-  .xp-node.right .xp-star { left:  -18px; }
-
-  /* Text spacing */
-  .xp-head { display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:flex-start; }
-  .xp-role { margin:0; font-size:22px; }
-  .xp-meta { color: var(--muted); margin:.35rem 0 1rem; }
-  .xp-bullets { margin:0; padding-left:18px; }
-  .xp-bullets li { margin:8px 0; }
-  .xp-tags, .xp-metrics { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
-
-  /* SVG overlay fills section */
-  .xp-sky {
-    position:absolute; inset:0; width:100%; height:100%;
-    pointer-events:none; filter: saturate(120%);
-  }
-
-  /* Line draw animation */
-  .const-line {
-    stroke: url(#xpStrokeGrad);
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    filter: url(#glow);
-    stroke-dasharray: 800;
-    stroke-dashoffset: 800;
-    animation: draw 1.4s ease forwards;
-  }
-  @keyframes draw { to { stroke-dashoffset: 0; } }
-
-  /* Twinkling stars */
-  .twinkle {
-    fill: rgba(255,255,255,.95);
-    filter: url(#glow);
-    opacity: .65;
-    animation: twinkle 2.4s ease-in-out infinite;
-  }
-  @keyframes twinkle { 0%,100%{opacity:.35} 50%{opacity:1} }
-
-  /* Reveal cards */
-  .xp-node { opacity:0; transform: translateY(14px); transition:.5s ease; }
-  .xp-node.show { opacity:1; transform: translateY(0); }
-
-  /* Responsive */
-  @media (max-width: 820px){
-    .xp-node { max-width: 100%; }
-    .xp-node.left .xp-star  { right: -12px; }
-    .xp-node.right .xp-star { left:  -12px; }
-  }
-    /* Stacking: SVG under cards, same context */
-#experience.cosmos-xp { position: relative; z-index: 0; }
-#experience .xp-sky   { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
-#experience .xp-track { position: relative; z-index: 1; }
-
-/* Constellation + DNA visuals */
-.const-line { fill: none; stroke: url(#xpStrokeGrad); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; filter: url(#glow); }
-.helix-line { fill: none; stroke: rgba(138,122,255,.9); stroke-width: 2; filter: url(#glow); opacity: .9; }
-.helix-back { stroke: rgba(122,162,255,.25); stroke-width: 2; }
-
-.twinkle { fill: rgba(255,255,255,.95); filter: url(#glow); opacity: .65; animation: twinkle 2.4s ease-in-out infinite; }
-@keyframes twinkle { 0%,100%{opacity:.35} 50%{opacity:1} }
-
-/* Draw then shimmer */
-@keyframes draw { to { stroke-dashoffset: 0; } }
-@keyframes flow { to { stroke-dashoffset: -100%; } }
-
-/* Reveal cards */
-.xp-node { opacity:0; transform: translateY(14px); transition:.5s ease; }
-.xp-node.show { opacity:1; transform: translateY(0); }
-
-/* Responsive nudge for star pegs */
-@media (max-width: 820px){
-  .xp-node { max-width: 100%; }
-  .xp-node.left .xp-star  { right: -12px; }
-  .xp-node.right .xp-star { left:  -12px; }
-}
     /* Layout */
 .cx-grid{display:grid;grid-template-columns: minmax(260px,380px) 1fr;gap:28px;align-items:start}
 @media(max-width:900px){.cx-grid{grid-template-columns:1fr}}
@@ -811,40 +720,27 @@ const animateCounters = (entries, observer) => {
 const observer = new IntersectionObserver(animateCounters, { threshold: 0.3 });
 counters.forEach(counter => observer.observe(counter));
 </script>
-    <script>
-const entries = document.querySelectorAll('.entry');
-const stars = document.querySelectorAll('.star');
-
-window.addEventListener('scroll', () => {
-  entries.forEach((entry, i) => {
-    const rect = entry.getBoundingClientRect();
-    if (rect.top >= 100 && rect.top < window.innerHeight / 2) {
-      entries.forEach(e => e.classList.remove('active'));
-      stars.forEach(s => s.classList.remove('active'));
-      entry.classList.add('active');
-      stars[i].classList.add('active');
-    }
-  });
-});
-</script>
-    <script>
-console.log("Constellation timeline running 🌌");
-
+<script>
 (function(){
   const section = document.querySelector('#experience');
   const svg = section.querySelector('.cx-sky');
   if(!section || !svg) return;
   const NS='http://www.w3.org/2000/svg';
 
-  // === Fixed 7 stars, sci-fi zigzag ===
+  // === CONSTELLATION STARS (x, y, radius, label) ===
   const STARS = [
-    {x:0.35, y:0.05, label:"Order to Cash"},
-    {x:0.65, y:0.18, label:"Intern"},
-    {x:0.30, y:0.32, label:"B.Com"},
-    {x:0.70, y:0.46, label:"ICMAI Inter"},
-    {x:0.32, y:0.60, label:"ICMAI Foundation"},
-    {x:0.68, y:0.75, label:"PUC"},
-    {x:0.40, y:0.90, label:"SSLC"},
+    {x:.50, y:.10, r:9, label:"SSLC"},
+    {x:.62, y:.22, r:6, label:"PUC"},
+    {x:.48, y:.32, r:7, label:"ICMAI Foundation"},
+    {x:.70, y:.46, r:6, label:"ICMAI Inter"},
+    {x:.40, y:.56, r:8, label:"B.Com"},
+    {x:.58, y:.70, r:6, label:"Intern"},
+    {x:.45, y:.85, r:10, label:"Order to Cash"},
+  ];
+
+  // === LINKS (which stars connect to which) ===
+  const LINKS = [
+    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6]
   ];
 
   const el=(n,a={})=>{
@@ -859,8 +755,8 @@ console.log("Constellation timeline running 🌌");
     grad.append(el('stop',{offset:'0%','stop-color':'#7aa2ff'}),
                 el('stop',{offset:'100%','stop-color':'#4ff0b0'}));
     const glow = el('filter',{id:'cxGlow',x:'-50%',y:'-50%',width:'200%',height:'200%'});
-    const g1 = el('feGaussianBlur',{stdDeviation:'3',result:'b1'});
-    const g2 = el('feGaussianBlur',{stdDeviation:'6',result:'b2'});
+    const g1 = el('feGaussianBlur',{stdDeviation:'2',result:'b1'});
+    const g2 = el('feGaussianBlur',{stdDeviation:'4',result:'b2'});
     const merge = el('feMerge');
     merge.append(el('feMergeNode',{in:'b2'}),el('feMergeNode',{in:'b1'}),el('feMergeNode',{in:'SourceGraphic'}));
     glow.append(g1,g2,merge);
@@ -876,16 +772,22 @@ console.log("Constellation timeline running 🌌");
     svg.setAttribute('height',h);
     svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
 
-    const pts = STARS.map(s=>({x:s.x*w,y:s.y*h}));
-    let path=`M ${pts[0].x} ${pts[0].y}`;
-    for(let i=1;i<pts.length;i++){ path+=` L ${pts[i].x} ${pts[i].y}`; }
-    const line=el('path',{d:path,class:'cx-line'});
-    svg.appendChild(line);
+    const pts = STARS.map(s=>({x:s.x*w,y:s.y*h,r:s.r}));
 
-    // Stars
+    // === DRAW LINKS ===
+    LINKS.forEach(([a,b])=>{
+      const p1=pts[a], p2=pts[b];
+      const line=el('line',{
+        x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,
+        class:'cx-line'
+      });
+      svg.appendChild(line);
+    });
+
+    // === DRAW STARS ===
     pts.forEach((p,i)=>{
       const g=el('g',{class:'cx-star','data-star':i+1});
-      const c=el('circle',{cx:p.x,cy:p.y,r:6});
+      const c=el('circle',{cx:p.x,cy:p.y,r:p.r});
       const pulse=el('circle',{cx:p.x,cy:p.y,r:0,class:'pulse'});
       g.append(c,pulse);
       svg.appendChild(g);
