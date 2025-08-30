@@ -372,7 +372,7 @@ section#about {
     /* Layout */
 .cx-grid{display:grid;grid-template-columns: minmax(260px,380px) 1fr;gap:28px;align-items:start}
 @media(max-width:900px){.cx-grid{grid-template-columns:1fr}}
-.cx-left{position:relative;min-height:720px}
+.cx-left{position:relative;min-height:1000px} /* or even 1200px */
 @media(max-width:900px){.cx-left{min-height:440px}}
 .cx-sky{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;filter:saturate(120%)}
 .cx-right{position:relative;z-index:1;display:grid;gap:16px}
@@ -729,19 +729,20 @@ counters.forEach(counter => observer.observe(counter));
 
   // === CONSTELLATION STARS (x, y, radius, label) ===
   const STARS = [
-    {x:.50, y:.10, r:9, label:"SSLC"},
-    {x:.62, y:.22, r:6, label:"PUC"},
-    {x:.48, y:.32, r:7, label:"ICMAI Foundation"},
-    {x:.70, y:.46, r:6, label:"ICMAI Inter"},
-    {x:.40, y:.56, r:8, label:"B.Com"},
-    {x:.58, y:.70, r:6, label:"Intern"},
-    {x:.45, y:.85, r:10, label:"Order to Cash"},
+    {x:.50, y:.10, r:10, label:"Order to Cash"},        // 1
+    {x:.62, y:.24, r:8,  label:"Intern"},               // 2
+    {x:.48, y:.38, r:8,  label:"B.Com"},                // 3
+    {x:.70, y:.52, r:8,  label:"ICMAI Intermediate"},   // 4
+    {x:.40, y:.66, r:8,  label:"ICMAI Foundation"},     // 5
+    {x:.58, y:.80, r:7,  label:"PUC"},                  // 6
+    {x:.45, y:.94, r:9,  label:"SSLC"}                  // 7
   ];
 
   // === LINKS (which stars connect to which) ===
-  const LINKS = [
-    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6]
-  ];
+const LINKS = [
+  [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],
+  [0,2], [2,5], [1,4]   // bonus constellation-style diagonals
+];
 
   const el=(n,a={})=>{
     const e=document.createElementNS(NS,n);
