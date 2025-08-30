@@ -369,11 +369,56 @@ section#about {
   align-items: center;
   justify-content: center;
 }
-  /* Experience tweaks (reuses existing .card, .tilt, .tag) */
-  #experience .exp .meta { color: var(--muted); }
-  #experience .bullets li { margin: 8px 0; }
-  @media (max-width: 900px) {
-    #experience .timeline { grid-template-columns: 1fr !important; }
+  /* Vertical timeline spine */
+  .xp-timeline {
+    position: relative;
+    margin: 24px 0 8px 0;
+    padding-left: 22px;
+  }
+  .xp-timeline::before {
+    content: "";
+    position: absolute;
+    left: 8px; top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, rgba(122,162,255,.8), rgba(79,240,176,.5));
+    border-radius: 2px;
+    opacity: .9;
+  }
+
+  /* Each node */
+  .xp-item { position: relative; margin: 0 0 22px 0; }
+  .xp-dot {
+    position: absolute; left: -1px; top: 14px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: radial-gradient(circle, #fff, rgba(122,162,255,.6));
+    box-shadow: 0 0 14px rgba(122,162,255,.9), 0 0 26px rgba(79,240,176,.6);
+    border: 1px solid rgba(255,255,255,.35);
+  }
+
+  /* Glass cards reuse your .card/.tilt styling */
+  .xp-card { margin-left: 22px; }
+  .xp-head { display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; }
+  .xp-role { margin:0; font-size:22px; }
+  .xp-meta { color: var(--muted); margin: .35rem 0 1rem; }
+  .xp-bullets { margin:0; padding-left: 18px; }
+  .xp-bullets li { margin: 8px 0; }
+  .xp-tags, .xp-metrics { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+
+  /* Subtle entrance animation */
+  .xp-item { opacity: 0; transform: translateY(12px); transition: .45s ease; }
+  .xp-item.show { opacity: 1; transform: translateY(0); }
+
+  /* Alternate side on wide screens (keeps spine centered-left) */
+  @media (min-width: 940px) {
+    .xp-timeline { padding-left: 28px; }
+    .xp-timeline::before { left: 12px; }
+    .xp-dot { left: 5px; }
+    .xp-item:nth-child(odd) .xp-card { margin-left: 28px; margin-right: 22%; }
+    .xp-item:nth-child(even) .xp-card { margin-left: 28px; margin-right: 8px; }
+  }
+
+  @media (max-width: 640px) {
+    .xp-role { font-size: 20px; }
   }
   </style>
 </head>
@@ -523,87 +568,81 @@ and making processes faster, cleaner, and scalable.
   </div>
 </div>
 </section>
-<section id="experience" class="wrap" style="margin-top:40px">
+<section id="experience" class="wrap" style="margin-top:60px">
   <h2 style="font-size:clamp(28px,5vw,40px); margin-bottom:16px; background:linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0); -webkit-background-clip:text; color:transparent;">
     Experience
   </h2>
 
-  <div class="timeline" style="display:grid; grid-template-columns:repeat(12,1fr); gap:18px;">
-    <!-- Accenture — O2C -->
-    <article class="card tilt exp" style="grid-column:span 12;">
-      <div class="inner">
-        <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:flex-start;">
-          <h3 style="margin:0; font-size:22px;">Order to Cash Associate — Accenture</h3>
-          <span class="tag" style="white-space:nowrap;">Oct 2024 — Present • Bengaluru</span>
-        </div>
-        <p class="meta" style="color:var(--muted); margin:.35rem 0 1rem;">
-          O2C • Cash Application • US client • Checks/ACH/Wires • Reconciliations
-        </p>
-        <ul class="bullets" style="margin:0; padding-left:18px;">
-          <li>Cash application across checks, ACH, and wires with strict remittance validation and clean invoice mapping.</li>
-          <li>Own NSF returns, Versapay validations, and demand letters across divisions to keep ledgers accurate and current.</li>
-          <li>Resolve invoicing/statement queries and partner with client, customer, sales, and credit teams for on‑time month‑end closures.</li>
-          <li>Push automation: cut spreadsheet steps and surface exceptions with simple trackers and Power BI views where feasible.</li>
-        </ul>
-
-        <div class="chips" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;">
-          <span class="tag">NSF</span>
-          <span class="tag">Versapay</span>
-          <span class="tag">Demand Letters</span>
-          <span class="tag">Reconciliations</span>
-          <span class="tag">Power BI</span>
-          <span class="tag">Month‑End</span>
-        </div>
-
-        <div class="metrics" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;">
-          <span class="tag">180+ checks handled</span>
-          <span class="tag">100% month‑end closures</span>
-          <span class="tag">Exception‑driven workflows</span>
+  <div class="xp-timeline">
+    <!-- Node 1 -->
+    <div class="xp-item">
+      <div class="xp-dot"></div>
+      <div class="xp-card card tilt">
+        <div class="inner">
+          <div class="xp-head">
+            <h3 class="xp-role">Order to Cash Associate — Accenture</h3>
+            <span class="tag">Oct 2024 — Present • Bengaluru</span>
+          </div>
+          <p class="xp-meta">O2C • Cash Application • US Client • Checks/ACH/Wires • Reconciliations</p>
+          <ul class="xp-bullets">
+            <li>Cash application across checks, ACH, and wires with strict remittance validation and clean invoice mapping.</li>
+            <li>Own NSF returns, Versapay validations, and demand letters across divisions to keep ledgers current.</li>
+            <li>Resolve invoicing/statement queries with client, customer, sales, and credit teams for on‑time month‑end closures.</li>
+            <li>Drive automation: cut spreadsheet steps and surface exceptions with simple trackers and Power BI views.</li>
+          </ul>
+          <div class="xp-tags">
+            <span class="tag">NSF</span><span class="tag">Versapay</span><span class="tag">Demand Letters</span>
+            <span class="tag">Reconciliations</span><span class="tag">Power BI</span><span class="tag">Month‑End</span>
+          </div>
+          <div class="xp-metrics">
+            <span class="tag">180+ checks handled</span>
+            <span class="tag">100% month‑end closures</span>
+            <span class="tag">Exception‑driven workflows</span>
+          </div>
         </div>
       </div>
-    </article>
+    </div>
 
-    <!-- K S Ramkumar & Co — Internship -->
-    <article class="card tilt exp" style="grid-column:span 12;">
-      <div class="inner">
-        <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:flex-start;">
-          <h3 style="margin:0; font-size:22px;">Accounting & Taxation Intern — K S Ramkumar & Co</h3>
-          <span class="tag" style="white-space:nowrap;">Mar 2024 — Aug 2024 • Bengaluru</span>
-        </div>
-        <p class="meta" style="color:var(--muted); margin:.35rem 0 1rem;">
-          Compliance & Audit • GSTR • Workpapers • Stock Verification
-        </p>
-        <ul class="bullets" style="margin:0; padding-left:18px;">
-          <li>Filed GSTR returns on schedule with proper documentation and traceable support.</li>
-          <li>Supported audits and stock verification with reconciliations and clean working papers.</li>
-          <li>Built discipline in controls and documentation ahead of professional studies.</li>
-        </ul>
-
-        <div class="chips" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;">
-          <span class="tag">GSTR</span>
-          <span class="tag">Audit</span>
-          <span class="tag">Stock Verification</span>
+    <!-- Node 2 -->
+    <div class="xp-item">
+      <div class="xp-dot"></div>
+      <div class="xp-card card tilt">
+        <div class="inner">
+          <div class="xp-head">
+            <h3 class="xp-role">Accounting & Taxation Intern — K S Ramkumar & Co</h3>
+            <span class="tag">Mar 2024 — Aug 2024 • Bengaluru</span>
+          </div>
+          <p class="xp-meta">Compliance & Audit • GSTR • Workpapers • Stock Verification</p>
+          <ul class="xp-bullets">
+            <li>Filed GSTR returns on schedule with complete documentation and traceable support.</li>
+            <li>Supported audits and stock verification with reconciliations and clean workpapers.</li>
+            <li>Built discipline in controls and documentation ahead of professional studies.</li>
+          </ul>
+          <div class="xp-tags">
+            <span class="tag">GSTR</span><span class="tag">Audit</span><span class="tag">Stock Verification</span>
+          </div>
         </div>
       </div>
-    </article>
+    </div>
 
-    <!-- Process/Automation Projects -->
-    <article class="card tilt exp" style="grid-column:span 12;">
-      <div class="inner">
-        <div style="display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:flex-start;">
-          <h3 style="margin:0; font-size:22px;">Process Optimization & Automation</h3>
-          <span class="tag" style="white-space:nowrap;">Continuous</span>
+    <!-- Node 3 (Projects thread) -->
+    <div class="xp-item">
+      <div class="xp-dot"></div>
+      <div class="xp-card card tilt">
+        <div class="inner">
+          <div class="xp-head">
+            <h3 class="xp-role">Process Optimization & Automation</h3>
+            <span class="tag">Continuous</span>
+          </div>
+          <p class="xp-meta">Exception handling • Remittance gaps • Unapplied/short‑pay templating</p>
+          <ul class="xp-bullets">
+            <li>Mapped cash‑application steps end‑to‑end and removed non‑value activities to cut handling time.</li>
+            <li>Prototyped Power BI views to replace multi‑sheet trackers and escalate exceptions faster.</li>
+            <li>Standardized demand‑letter and NSF checks to reduce rework and follow‑ups.</li>
+          </ul>
         </div>
-        <p class="meta" style="color:var(--muted); margin:.35rem 0 1rem;">
-          Exception handling • Remittance gaps • Unapplied/short‑pay templating
-        </p>
-        <ul class="bullets" style="margin:0; padding-left:18px;">
-          <li>Mapped cash‑application steps end‑to‑end and removed non‑value activities to cut handling time.</li>
-          <li>Prototyped Power BI views to replace multi‑sheet trackers and escalate exceptions faster.</li>
-          <li>Standardized demand‑letter and NSF checks to reduce rework and follow‑ups.</li>
-        </ul>
       </div>
-    </article>
+    </div>
   </div>
 </section>
   </main>
@@ -716,6 +755,14 @@ window.addEventListener('scroll', () => {
     }
   });
 });
+</script>
+    <script>
+  // Reveal on scroll
+  const xpItems = document.querySelectorAll('.xp-item');
+  const xpObserver = new IntersectionObserver((entries) => {
+    entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('show'); xpObserver.unobserve(en.target); } });
+  }, { threshold: .2 });
+  xpItems.forEach(i => xpObserver.observe(i));
 </script>
 </body>
 </html>
