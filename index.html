@@ -370,13 +370,24 @@ section#about {
   justify-content: center;
 }
     /* Layout */
-.cx-grid{display:grid;grid-template-columns: minmax(260px,380px) 1fr;gap:28px;align-items:start}
-@media(max-width:900px){.cx-grid{grid-template-columns:1fr}}
-.cx-left{position:relative;min-height:1000px} /* or even 1200px */
-@media(max-width:900px){.cx-left{min-height:440px}}
-.cx-sky{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;filter:saturate(120%)}
-.cx-right{position:relative;z-index:1;display:grid;gap:16px}
-
+.cx-grid {
+  display: grid;
+  grid-template-columns: 1fr;   /* single centered column */
+  justify-items: center;
+  gap: 60px;
+}
+.cx-left {
+  position: relative;
+  min-height: 1400px;           /* make it tall */
+  width: 100%;
+  display: flex;
+  justify-content: center;      /* center constellation */
+  align-items: center;
+}
+.cx-sky {
+  max-width: 600px;             /* limit width */
+  height: 100%;
+}
 /* Stars + lines */
 .cx-line{fill:none;stroke:url(#cxGrad);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;filter:url(#cxGlow)}
 .cx-star{filter:url(#cxGlow)}
@@ -396,7 +407,26 @@ section#about {
 /* Twinkles (background dots) */
 .cx-twinkle{fill:rgba(255,255,255,.95);filter:url(#cxGlow);opacity:.65;animation:twinkle 2.4s ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.35}50%{opacity:1}}
-</style>
+/* Position experience cards next to stars */
+.cx-card {
+  position: absolute;
+  width: 300px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px rgba(122,162,255,0.5);
+}
+
+/* Place cards beside each star */
+.cx-card[data-star="1"] { top: 5%;  left: 60%; }
+.cx-card[data-star="2"] { top: 20%; left: -360px; }
+.cx-card[data-star="3"] { top: 35%; left: 60%; }
+.cx-card[data-star="4"] { top: 50%; left: -360px; }
+.cx-card[data-star="5"] { top: 65%; left: 60%; }
+.cx-card[data-star="6"] { top: 80%; left: -360px; }
+.cx-card[data-star="7"] { top: 95%; left: 60%; }
+  </style>
 </head>
 <body>
   <!-- ===== BACKGROUND LAYERS ===== -->
@@ -544,85 +574,20 @@ and making processes faster, cleaner, and scalable.
   </div>
 </div>
 </section>
-<section id="experience" class="wrap cx-exp" style="margin-top:60px; position:relative">
-  <h2 style="font-size:clamp(28px,5vw,40px); margin-bottom:16px; background:linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0); -webkit-background-clip:text; color:transparent;">
-    Experience
-  </h2>
+<section id="experience" class="cx-grid cosmos-xp">
+  <div class="cx-left">
+    <!-- ✅ EMPTY SVG — JS will draw stars + lines -->
+<svg class="cx-sky"></svg>
+  </div>
 
-  <div class="cx-grid">
-    <!-- LEFT: Real constellation (SVG) -->
-    <div class="cx-left">
-      <svg class="cx-sky" aria-hidden="true"></svg>
-    </div>
-
-    <!-- RIGHT: Cards mapped 1:1 to stars -->
-    <div class="cx-right">
-      <!-- 1 -->
-      <article class="cx-card card tilt" data-star="1">
-        <div class="inner">
-          <h3 class="xp-role" style="margin:0 0 6px">Order to Cash Associate — Accenture</h3>
-          <div class="tag">Oct 2024 — Present • Bengaluru</div>
-          <ul class="xp-bullets" style="margin:.6rem 0 0; padding-left:18px">
-            <li>Cash application across checks, ACH, and wires with strict remittance validation and clean invoice mapping.</li>
-            <li>Own NSF returns, Versapay validations, and demand letters across divisions to keep ledgers current.</li>
-            <li>Resolve invoicing/statement queries with client, customer, sales, and credit teams for on‑time month‑end closures.</li>
-            <li>Drive automation: cut spreadsheet steps and surface exceptions with simple trackers and Power BI views.</li>
-          </ul>
-        </div>
-      </article>
-
-      <!-- 2 -->
-      <article class="cx-card card tilt" data-star="2">
-        <div class="inner">
-          <h3 class="xp-role" style="margin:0 0 6px">Accounting & Taxation Intern — K S Ramkumar & Co</h3>
-          <div class="tag">Mar 2024 — Aug 2024 • Bengaluru</div>
-          <ul class="xp-bullets" style="margin:.6rem 0 0; padding-left:18px">
-            <li>Filed GSTR returns on schedule with complete documentation and traceable support.</li>
-            <li>Supported audits and stock verification with reconciliations and clean workpapers.</li>
-          </ul>
-        </div>
-      </article>
-
-      <!-- 3 -->
-      <article class="cx-card card tilt" data-star="3">
-        <div class="inner">
-          <h3 class="xp-role" style="margin:0 0 6px">B.Com — Bangalore University</h3>
-          <div class="tag">Srivani Vidya Kendra • Accounting & Finance</div>
-        </div>
-      </article>
-
-      <!-- 4 -->
-      <article class="cx-card card tilt" data-star="4">
-        <div class="inner">
-          <h3 class="xp-role" style="margin:0 0 6px">ICMAI Intermediate</h3>
-          <div class="tag">Group 1 • Pursuing</div>
-        </div>
-      </article>
-
-      <!-- 5 -->
-      <article class="cx-card card tilt" data-star="5">
-        <div class="inner">
-          <h3 class="xp-role" style="margin:0 0 6px">ICMAI Foundation</h3>
-          <div class="tag">Completed</div>
-        </div>
-      </article>
-
-      <!-- 6 -->
-      <article class="cx-card card tilt" data-star="6">
-        <div class="inner">
-          <h3 class="xp-role" style="margin:0 0 6px">PUC (12th) — Karnataka PU Board</h3>
-          <div class="tag">Srivani Vidya Kendra • SEBA Stream</div>
-        </div>
-      </article>
-
-      <!-- 7 -->
-      <article class="cx-card card tilt" data-star="7">
-        <div class="inner">
-          <h3 class="xp-role" style="margin:0 0 6px">SSLC (10th) — KSEEB</h3>
-          <div class="tag">St. Mira’s Public School</div>
-        </div>
-      </article>
-    </div>
+  <div class="cx-right">
+    <div class="cx-card" data-star="1">Order to Cash – Current Role</div>
+    <div class="cx-card" data-star="2">Internship – Accounting</div>
+    <div class="cx-card" data-star="3">B.Com Graduate</div>
+    <div class="cx-card" data-star="4">ICMAI Intermediate (Ongoing)</div>
+    <div class="cx-card" data-star="5">ICMAI Foundation</div>
+    <div class="cx-card" data-star="6">PUC</div>
+    <div class="cx-card" data-star="7">SSLC</div>
   </div>
 </section>
   </main>
@@ -728,16 +693,15 @@ counters.forEach(counter => observer.observe(counter));
   const NS='http://www.w3.org/2000/svg';
 
   // === CONSTELLATION STARS (x, y, radius, label) ===
-  const STARS = [
-    {x:.50, y:.10, r:10, label:"Order to Cash"},        // 1
-    {x:.62, y:.24, r:8,  label:"Intern"},               // 2
-    {x:.48, y:.38, r:8,  label:"B.Com"},                // 3
-    {x:.70, y:.52, r:8,  label:"ICMAI Intermediate"},   // 4
-    {x:.40, y:.66, r:8,  label:"ICMAI Foundation"},     // 5
-    {x:.58, y:.80, r:7,  label:"PUC"},                  // 6
-    {x:.45, y:.94, r:9,  label:"SSLC"}                  // 7
-  ];
-
+const STARS = [
+  {x:.45, y:.05, r:12, label:"Order to Cash"},
+  {x:.60, y:.18, r:10, label:"Intern"},
+  {x:.40, y:.35, r:10, label:"B.Com"},
+  {x:.65, y:.50, r:10, label:"ICMAI Intermediate"},
+  {x:.50, y:.65, r:10, label:"ICMAI Foundation"},
+  {x:.55, y:.80, r:9,  label:"PUC"},
+  {x:.48, y:.95, r:11, label:"SSLC"},
+];
   // === LINKS (which stars connect to which) ===
   const LINKS = [
     [0,1],[1,2],[2,3],[3,4],[4,5],[5,6]
