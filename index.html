@@ -460,6 +460,33 @@ section#about {
   .xp-node.left .xp-star  { right: -12px; }
   .xp-node.right .xp-star { left:  -12px; }
 }
+    /* Layout */
+.cx-grid{display:grid;grid-template-columns: minmax(260px,380px) 1fr;gap:28px;align-items:start}
+@media(max-width:900px){.cx-grid{grid-template-columns:1fr}}
+.cx-left{position:relative;min-height:720px}
+@media(max-width:900px){.cx-left{min-height:440px}}
+.cx-sky{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;filter:saturate(120%)}
+.cx-right{position:relative;z-index:1;display:grid;gap:16px}
+
+/* Stars + lines */
+.cx-line{fill:none;stroke:url(#cxGrad);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;filter:url(#cxGlow)}
+.cx-star{filter:url(#cxGlow)}
+.cx-star circle{fill:#fff}
+.cx-star .pulse{fill:none;stroke:#7aa2ff;stroke-width:1.5;opacity:.6}
+.cx-star.active circle{fill:#7aa2ff}
+.cx-star.active .pulse{animation:pulse 1.8s ease-out infinite}
+@keyframes pulse{0%{r:0;opacity:.7}80%{r:14;opacity:0}100%{r:14;opacity:0}}
+
+/* Draw + shimmer */
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes flow{to{stroke-dashoffset:-100%}}
+
+/* Card active link */
+.cx-card{transition:box-shadow .3s,transform .2s}
+.cx-card.active{box-shadow:0 0 22px rgba(122,162,255,.5)}
+/* Twinkles (background dots) */
+.cx-twinkle{fill:rgba(255,255,255,.95);filter:url(#cxGlow);opacity:.65;animation:twinkle 2.4s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.35}50%{opacity:1}}
 </style>
 </head>
 <body>
@@ -608,79 +635,85 @@ and making processes faster, cleaner, and scalable.
   </div>
 </div>
 </section>
-<section id="experience" class="wrap cosmos-xp" style="margin-top:60px; position:relative">
+<section id="experience" class="wrap cx-exp" style="margin-top:60px; position:relative">
   <h2 style="font-size:clamp(28px,5vw,40px); margin-bottom:16px; background:linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0); -webkit-background-clip:text; color:transparent;">
     Experience
   </h2>
 
-  <!-- DNA + Constellation overlay -->
-  <svg class="xp-sky" aria-hidden="true"></svg>
+  <div class="cx-grid">
+    <!-- LEFT: Real constellation (SVG) -->
+    <div class="cx-left">
+      <svg class="cx-sky" aria-hidden="true"></svg>
+    </div>
 
-  <!-- Zig-zag cards -->
-  <div class="xp-track">
-    <!-- Node 1 (left) -->
-    <article class="xp-node left card tilt" data-node="1">
-      <div class="inner">
-        <div class="xp-head">
-          <h3 class="xp-role">Order to Cash Associate — Accenture</h3>
-          <span class="tag">Oct 2024 — Present • Bengaluru</span>
+    <!-- RIGHT: Cards mapped 1:1 to stars -->
+    <div class="cx-right">
+      <!-- 1 -->
+      <article class="cx-card card tilt" data-star="1">
+        <div class="inner">
+          <h3 class="xp-role" style="margin:0 0 6px">Order to Cash Associate — Accenture</h3>
+          <div class="tag">Oct 2024 — Present • Bengaluru</div>
+          <ul class="xp-bullets" style="margin:.6rem 0 0; padding-left:18px">
+            <li>Cash application across checks, ACH, and wires with strict remittance validation and clean invoice mapping.</li>
+            <li>Own NSF returns, Versapay validations, and demand letters across divisions to keep ledgers current.</li>
+            <li>Resolve invoicing/statement queries with client, customer, sales, and credit teams for on‑time month‑end closures.</li>
+            <li>Drive automation: cut spreadsheet steps and surface exceptions with simple trackers and Power BI views.</li>
+          </ul>
         </div>
-        <p class="xp-meta">O2C • Cash Application • US Client • Checks/ACH/Wires • Reconciliations</p>
-        <ul class="xp-bullets">
-          <li>Cash application across checks, ACH, and wires with strict remittance validation and clean invoice mapping.</li>
-          <li>Own NSF returns, Versapay validations, and demand letters across divisions to keep ledgers current.</li>
-          <li>Resolve invoicing/statement queries with client, customer, sales, and credit teams for on‑time month‑end closures.</li>
-          <li>Drive automation: cut spreadsheet steps and surface exceptions with simple trackers and Power BI views.</li>
-        </ul>
-        <div class="xp-tags">
-          <span class="tag">NSF</span><span class="tag">Versapay</span><span class="tag">Demand Letters</span>
-          <span class="tag">Reconciliations</span><span class="tag">Power BI</span><span class="tag">Month‑End</span>
-        </div>
-        <div class="xp-metrics">
-          <span class="tag">180+ checks handled</span>
-          <span class="tag">100% month‑end closures</span>
-          <span class="tag">Exception‑driven workflows</span>
-        </div>
-        <span class="xp-star" aria-hidden="true"></span>
-      </div>
-    </article>
+      </article>
 
-    <!-- Node 2 (right) -->
-    <article class="xp-node right card tilt" data-node="2">
-      <div class="inner">
-        <div class="xp-head">
-          <h3 class="xp-role">Accounting & Taxation Intern — K S Ramkumar & Co</h3>
-          <span class="tag">Mar 2024 — Aug 2024 • Bengaluru</span>
+      <!-- 2 -->
+      <article class="cx-card card tilt" data-star="2">
+        <div class="inner">
+          <h3 class="xp-role" style="margin:0 0 6px">Accounting & Taxation Intern — K S Ramkumar & Co</h3>
+          <div class="tag">Mar 2024 — Aug 2024 • Bengaluru</div>
+          <ul class="xp-bullets" style="margin:.6rem 0 0; padding-left:18px">
+            <li>Filed GSTR returns on schedule with complete documentation and traceable support.</li>
+            <li>Supported audits and stock verification with reconciliations and clean workpapers.</li>
+          </ul>
         </div>
-        <p class="xp-meta">Compliance & Audit • GSTR • Workpapers • Stock Verification</p>
-        <ul class="xp-bullets">
-          <li>Filed GSTR returns on schedule with complete documentation and traceable support.</li>
-          <li>Supported audits and stock verification with reconciliations and clean workpapers.</li>
-          <li>Built discipline in controls and documentation ahead of professional studies.</li>
-        </ul>
-        <div class="xp-tags">
-          <span class="tag">GSTR</span><span class="tag">Audit</span><span class="tag">Stock Verification</span>
-        </div>
-        <span class="xp-star" aria-hidden="true"></span>
-      </div>
-    </article>
+      </article>
 
-    <!-- Node 3 (left) -->
-    <article class="xp-node left card tilt" data-node="3">
-      <div class="inner">
-        <div class="xp-head">
-          <h3 class="xp-role">Process Optimization & Automation</h3>
-          <span class="tag">Continuous</span>
+      <!-- 3 -->
+      <article class="cx-card card tilt" data-star="3">
+        <div class="inner">
+          <h3 class="xp-role" style="margin:0 0 6px">B.Com — Bangalore University</h3>
+          <div class="tag">Srivani Vidya Kendra • Accounting & Finance</div>
         </div>
-        <p class="xp-meta">Exception handling • Remittance gaps • Unapplied/short‑pay templating</p>
-        <ul class="xp-bullets">
-          <li>Mapped cash‑application steps end‑to‑end and removed non‑value activities to cut handling time.</li>
-          <li>Prototyped Power BI views to replace multi‑sheet trackers and escalate exceptions faster.</li>
-          <li>Standardized demand‑letter and NSF checks to reduce rework and follow‑ups.</li>
-        </ul>
-        <span class="xp-star" aria-hidden="true"></span>
-      </div>
-    </article>
+      </article>
+
+      <!-- 4 -->
+      <article class="cx-card card tilt" data-star="4">
+        <div class="inner">
+          <h3 class="xp-role" style="margin:0 0 6px">ICMAI Intermediate</h3>
+          <div class="tag">Group 1 • Pursuing</div>
+        </div>
+      </article>
+
+      <!-- 5 -->
+      <article class="cx-card card tilt" data-star="5">
+        <div class="inner">
+          <h3 class="xp-role" style="margin:0 0 6px">ICMAI Foundation</h3>
+          <div class="tag">Completed</div>
+        </div>
+      </article>
+
+      <!-- 6 -->
+      <article class="cx-card card tilt" data-star="6">
+        <div class="inner">
+          <h3 class="xp-role" style="margin:0 0 6px">PUC (12th) — Karnataka PU Board</h3>
+          <div class="tag">Srivani Vidya Kendra • SEBA Stream</div>
+        </div>
+      </article>
+
+      <!-- 7 -->
+      <article class="cx-card card tilt" data-star="7">
+        <div class="inner">
+          <h3 class="xp-role" style="margin:0 0 6px">SSLC (10th) — KSEEB</h3>
+          <div class="tag">St. Mira’s Public School</div>
+        </div>
+      </article>
+    </div>
   </div>
 </section>
   </main>
@@ -797,179 +830,147 @@ window.addEventListener('scroll', () => {
 <script>
 (function(){
   const section = document.querySelector('#experience');
-  const svg = section.querySelector('.xp-sky');
+  const svg = section.querySelector('.cx-sky');
   if(!section || !svg) return;
 
-  const NS = 'http://www.w3.org/2000/svg';
-  const A = 80;          // helix amplitude
-  const W = 260;         // helix wavelength in px
-  const STEP = 70;       // curve step
-  const TWINKLES = 28;   // background stars
-  const ORBS = 6;        // moving glow orbs on helix
+  const NS='http://www.w3.org/2000/svg';
 
-  function el(name, attrs={}){ const n = document.createElementNS(NS, name); for(const k in attrs) n.setAttribute(k, attrs[k]); return n; }
+  // 7-star layout (x,y as percentages of panel for a real-constellation vibe)
+  const STARS = [
+    {x:.65, y:.05}, // 1 O2C
+    {x:.18, y:.16}, // 2 Intern
+    {x:.60, y:.30}, // 3 B.Com
+    {x:.28, y:.44}, // 4 ICMAI Inter
+    {x:.70, y:.58}, // 5 ICMAI Foundation
+    {x:.22, y:.74}, // 6 PUC
+    {x:.55, y:.90}, // 7 SSLC
+  ];
 
+  // Utilities
+  const el=(n,a={})=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+
+  // Defs: glow + gradient
   function ensureDefs(){
     let defs = svg.querySelector('defs'); if(!defs){ defs = el('defs'); svg.appendChild(defs); }
-    let glow = defs.querySelector('#glow');
+    let glow = defs.querySelector('#cxGlow');
     if(!glow){
-      glow = el('filter',{id:'glow', x:'-50%', y:'-50%', width:'200%', height:'200%'});
-      const g1 = el('feGaussianBlur',{ stdDeviation:'2', result:'b1' });
-      const g2 = el('feGaussianBlur',{ stdDeviation:'4', result:'b2' });
+      glow = el('filter',{id:'cxGlow',x:'-50%',y:'-50%',width:'200%',height:'200%'});
+      const g1 = el('feGaussianBlur',{stdDeviation:'2',result:'b1'});
+      const g2 = el('feGaussianBlur',{stdDeviation:'4',result:'b2'});
       const m  = el('feMerge');
-      m.append(el('feMergeNode',{in:'b2'}), el('feMergeNode',{in:'b1'}), el('feMergeNode',{in:'SourceGraphic'}));
+      m.append(el('feMergeNode',{in:'b2'}),el('feMergeNode',{in:'b1'}),el('feMergeNode',{in:'SourceGraphic'}));
       glow.append(g1,g2,m); defs.appendChild(glow);
     }
-    let grad = defs.querySelector('#xpStrokeGrad');
+    let grad = defs.querySelector('#cxGrad');
     if(!grad){
-      grad = el('linearGradient',{id:'xpStrokeGrad', x1:'0%', y1:'0%', x2:'100%', y2:'0%'});
-      grad.append(el('stop',{offset:'0%','stop-color':'#7aa2ff'}), el('stop',{offset:'50%','stop-color':'#8a7aff'}), el('stop',{offset:'100%','stop-color':'#4ff0b0'}));
+      grad = el('linearGradient',{id:'cxGrad',x1:'0%',y1:'0%',x2:'100%',y2:'0%'});
+      grad.append(el('stop',{offset:'0%','stop-color':'#7aa2ff'}),
+                  el('stop',{offset:'50%','stop-color':'#8a7aff'}),
+                  el('stop',{offset:'100%','stop-color':'#4ff0b0'}));
       defs.appendChild(grad);
     }
   }
 
-  function resizeSVG(){
-    const r = section.getBoundingClientRect();
+  function sizeSVG(){
+    const r = section.querySelector('.cx-left').getBoundingClientRect();
     svg.setAttribute('width', r.width);
     svg.setAttribute('height', r.height);
     svg.setAttribute('viewBox', `0 0 ${r.width} ${r.height}`);
+    return {w:r.width, h:r.height};
   }
 
-  function helixX(y, width){ return width/2 + A * Math.sin((2*Math.PI/W) * y); }
+  let starG, lineP, twsG;
+  function build(){
+    svg.innerHTML='';
+    ensureDefs();
+    const {w,h} = sizeSVG();
 
-  function buildHelix(width, height){
-    const pathBack = el('path', { class: 'helix-line helix-back' });
-    const pathFront = el('path', { class: 'helix-line' });
-
-    // Build two intertwined strands using quadratic curves
-    function strand(phase){
-      let d = `M ${helixX(0+phase,width).toFixed(1)} 0`;
-      for(let y = 0+phase; y <= height; y += STEP){
-        const y2 = Math.min(y+STEP, height);
-        const mx = helixX((y+y2)/2,width), my = (y+y2)/2;
-        const x2 = helixX(y2,width);
-        d += ` Q ${mx.toFixed(1)} ${my.toFixed(1)}, ${x2.toFixed(1)} ${y2.toFixed(1)}`;
-      }
-      return d;
+    // groups
+    twsG = el('g'); svg.appendChild(twsG);
+    // twinkles
+    for(let i=0;i<28;i++){
+      const cx = Math.random()*w, cy = Math.random()*h, r = Math.random()*1.6+0.6;
+      const c = el('circle',{cx:cx.toFixed(1),cy:cy.toFixed(1),r:r.toFixed(2),class:'cx-twinkle'});
+      c.style.animationDelay = (Math.random()*2).toFixed(2)+'s';
+      twsG.appendChild(c);
     }
-    pathBack.setAttribute('d', strand(0));
-    pathFront.setAttribute('d', strand(W/4)); // quarter-wave offset for the second strand
 
-    return { pathBack, pathFront };
-  }
+    // constellation path (smooth with gentle bends)
+    const pts = STARS.map(s=>({x: s.x*w, y: s.y*h}));
+    let d = `M ${pts.x.toFixed(1)} ${pts.y.toFixed(1)}`;
+    for(let i=1;i<pts.length;i++){
+      const p=pts[i-1], c=pts[i];
+      const mx=(p.x+c.x)/2, my=(p.y+c.y)/2;
+      const jx=(Math.random()-.5)*14, jy=(Math.random()-.5)*10;
+      d+=` Q ${(mx+jx).toFixed(1)} ${(my+jy).toFixed(1)}, ${c.x.toFixed(1)} ${c.y.toFixed(1)}`;
+    }
+    lineP = el('path',{d,class:'cx-line'});
+    svg.appendChild(lineP);
 
-  function getStarPoints(){
-    const nodes = [...section.querySelectorAll('.xp-node')];
-    const rectS = section.getBoundingClientRect();
-    return nodes.map(n=>{
-      const star = n.querySelector('.xp-star'); const r = star.getBoundingClientRect();
-      const x = (r.left - rectS.left) + r.width/2 + window.scrollX;
-      const y = (r.top  - rectS.top ) + r.height/2 + window.scrollY;
-      return {x,y,node:n};
+    // draw + shimmer based on real length
+    const L = lineP.getTotalLength();
+    lineP.style.strokeDasharray = String(L);
+    lineP.style.strokeDashoffset = String(L);
+    void lineP.getBoundingClientRect();
+    lineP.style.animation = 'draw 1.4s ease forwards, flow 7s linear infinite 1.6s';
+
+    // stars
+    starG = el('g'); svg.appendChild(starG);
+    pts.forEach((p,idx)=>{
+      const g = el('g',{class:'cx-star', 'data-star': String(idx+1)});
+      const c = el('circle',{cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:'4.2'});
+      const pulse = el('circle',{cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:'0', class:'pulse'});
+      g.append(c,pulse);
+      starG.appendChild(g);
     });
   }
 
-  function buildConstellation(points){
-    const vb = svg.getBoundingClientRect();
-    const x0 = vb.left + window.scrollX, y0 = vb.top + window.scrollY;
-    const rel = points.map(pt=>({x: pt.x - x0, y: pt.y - y0}));
-
-    // Smooth zig-zag with gentle bends
-    let d = `M ${rel.x.toFixed(1)} ${rel.y.toFixed(1)}`;
-    for(let i=1;i<rel.length;i++){
-      const prev = rel[i-1], curr = rel[i];
-      const midX = (prev.x + curr.x)/2;
-      const midY = (prev.y + curr.y)/2;
-      const jx = (Math.random() - .5) * 18;
-      const jy = (Math.random() - .5) * 12;
-      d += ` Q ${(midX + jx).toFixed(1)} ${(midY + jy).toFixed(1)}, ${curr.x.toFixed(1)} ${curr.y.toFixed(1)}`;
-    }
-    const path = el('path',{ d, class:'const-line' });
-    return path;
-  }
-
-  function addTwinkles(count){
-    svg.querySelectorAll('.twinkle').forEach(x=>x.remove());
-    const vb = svg.getBoundingClientRect(); const w = vb.width, h = vb.height;
-    for(let i=0;i<count;i++){
-      const cx = Math.random()*w, cy = Math.random()*h;
-      const r = Math.random()*1.6 + 0.6;
-      const c = el('circle',{ cx: cx.toFixed(1), cy: cy.toFixed(1), r: r.toFixed(2), class:'twinkle' });
-      c.style.animationDelay = (Math.random()*2.0).toFixed(2)+'s';
-      svg.appendChild(c);
+  function activate(n, scroll=true){
+    // highlight star
+    svg.querySelectorAll('.cx-star').forEach(s=>s.classList.toggle('active', s.getAttribute('data-star')===String(n)));
+    // highlight card
+    document.querySelectorAll('.cx-card').forEach(c=>c.classList.toggle('active', c.getAttribute('data-star')===String(n)));
+    // scroll card into view
+    if(scroll){
+      const card = document.querySelector(`.cx-card[data-star="${n}"]`);
+      if(card){ card.scrollIntoView({behavior:'smooth', block:'nearest'}); }
     }
   }
 
-  // Moving orbs along the front helix strand
-  function animateOrbs(path, n=ORBS){
-    // Remove previous
-    svg.querySelectorAll('.dna-orb').forEach(x=>x.remove());
-    const len = path.getTotalLength();
-    for(let i=0;i<n;i++){
-      const o = el('circle',{ r:'3.2', class:'dna-orb' });
-      o.style.fill = '#7aa2ff';
-      o.style.filter = 'url(#glow)';
-      svg.appendChild(o);
-      let t = (i/n);
-      const speed = 0.0005 + Math.random()*0.0006;
-      (function loop(){
-        t += speed; if(t>1) t-=1;
-        const p = path.getPointAtLength(t*len);
-        o.setAttribute('cx', p.x.toFixed(1));
-        o.setAttribute('cy', p.y.toFixed(1));
-        requestAnimationFrame(loop);
-      })();
-    }
+  function wire(){
+    // click/hover stars
+    svg.querySelectorAll('.cx-star').forEach(s=>{
+      const n = s.getAttribute('data-star');
+      s.addEventListener('mouseenter', ()=>activate(n,false));
+      s.addEventListener('click', ()=>activate(n,true));
+    });
+    // hover cards -> ping star
+    document.querySelectorAll('.cx-card').forEach(c=>{
+      const n = c.getAttribute('data-star');
+      c.addEventListener('mouseenter', ()=>activate(n,false));
+      c.addEventListener('click', ()=>activate(n,true));
+    });
+    // scroll spy
+    const io = new IntersectionObserver((ents)=>{
+      let topMost = null, topY = Infinity;
+      ents.forEach(en=>{
+        if(en.isIntersecting){
+          const y = en.target.getBoundingClientRect().top;
+          if(y < topY){ topY = y; topMost = en.target; }
+        }
+      });
+      if(topMost){ activate(topMost.getAttribute('data-star'), false); }
+    },{rootMargin:'-40% 0px -50% 0px', threshold:[0, .25, .5, .75, 1]});
+    document.querySelectorAll('.cx-card').forEach(c=>io.observe(c));
   }
 
-  function normalizeDash(path){
-    const len = path.getTotalLength();
-    path.style.strokeDasharray  = String(len);
-    path.style.strokeDashoffset = String(len);
-    void path.getBoundingClientRect();
-    path.style.animation = 'none';
-    requestAnimationFrame(()=>{ path.style.animation = 'draw 1.4s ease forwards, flow 6s linear infinite 1.5s'; });
-  }
+  function init(){ build(); wire(); activate(1,false); }
+  window.addEventListener('load', init);
+  window.addEventListener('resize', build);
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') build(); });
 
-  let dnaFront, constLine;
-  function redraw(){
-    resizeSVG(); ensureDefs();
-
-    // Clear old visuals
-    svg.querySelectorAll('.helix-line, .const-line').forEach(n=>n.remove());
-
-    // Build helix
-    const r = section.getBoundingClientRect(); const width = r.width; const height = r.height;
-    const { pathBack, pathFront } = buildHelix(width, height);
-    svg.appendChild(pathBack); svg.appendChild(pathFront);
-    dnaFront = pathFront;
-
-    // Build constellation
-    const pts = getStarPoints();
-    constLine = buildConstellation(pts);
-    svg.appendChild(constLine);
-
-    // Twinkles + orbs
-    addTwinkles(TWINKLES);
-    animateOrbs(dnaFront, ORBS);
-
-    // Normalize draw animation to real length
-    normalizeDash(constLine);
-  }
-
-  // Reveal cards progressively and redraw
-  const io = new IntersectionObserver((entries)=>{ entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('show'); redraw(); io.unobserve(en.target); } }); },{threshold:.2});
-  document.querySelectorAll('.xp-node').forEach(n=>io.observe(n));
-
-  window.addEventListener('load', redraw);
-  window.addEventListener('resize', redraw);
-  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') redraw(); });
-
-  // Reduced motion
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    const s = document.createElement('style');
-    s.textContent = `.const-line{animation:none; stroke-dasharray:none; stroke-dashoffset:0}`;
-    document.head.appendChild(s);
+    const s=document.createElement('style'); s.textContent='.cx-line{animation:none;stroke-dasharray:none;stroke-dashoffset:0}'; document.head.appendChild(s);
   }
 })();
 </script>
