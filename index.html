@@ -835,23 +835,28 @@ window.addEventListener('scroll', () => {
 
   const NS='http://www.w3.org/2000/svg';
 
-  // 7-star layout (x,y as percentages of panel for a real-constellation vibe)
+  // DNA-like zigzag constellation layout (7 stars)
   const STARS = [
-    {x:.65, y:.05}, // 1 O2C
-    {x:.18, y:.16}, // 2 Intern
-    {x:.60, y:.30}, // 3 B.Com
-    {x:.28, y:.44}, // 4 ICMAI Inter
-    {x:.70, y:.58}, // 5 ICMAI Foundation
-    {x:.22, y:.74}, // 6 PUC
-    {x:.55, y:.90}, // 7 SSLC
+    {x:.30, y:.05}, // 1 O2C
+    {x:.70, y:.15}, // 2 Intern
+    {x:.25, y:.30}, // 3 B.Com
+    {x:.65, y:.42}, // 4 ICMAI Inter
+    {x:.28, y:.56}, // 5 ICMAI Foundation
+    {x:.68, y:.72}, // 6 PUC
+    {x:.32, y:.90}, // 7 SSLC
   ];
 
-  // Utilities
-  const el=(n,a={})=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+  // Utility
+  const el=(n,a={})=>{
+    const e=document.createElementNS(NS,n);
+    for(const k in a) e.setAttribute(k,a[k]);
+    return e;
+  };
 
-  // Defs: glow + gradient
+  // Glow + gradient defs
   function ensureDefs(){
-    let defs = svg.querySelector('defs'); if(!defs){ defs = el('defs'); svg.appendChild(defs); }
+    let defs = svg.querySelector('defs'); 
+    if(!defs){ defs = el('defs'); svg.appendChild(defs); }
     let glow = defs.querySelector('#cxGlow');
     if(!glow){
       glow = el('filter',{id:'cxGlow',x:'-50%',y:'-50%',width:'200%',height:'200%'});
@@ -879,15 +884,13 @@ window.addEventListener('scroll', () => {
     return {w:r.width, h:r.height};
   }
 
-  let starG, lineP, twsG;
   function build(){
     svg.innerHTML='';
     ensureDefs();
     const {w,h} = sizeSVG();
 
-    // groups
-    twsG = el('g'); svg.appendChild(twsG);
     // twinkles
+    const twsG = el('g'); svg.appendChild(twsG);
     for(let i=0;i<28;i++){
       const cx = Math.random()*w, cy = Math.random()*h, r = Math.random()*1.6+0.6;
       const c = el('circle',{cx:cx.toFixed(1),cy:cy.toFixed(1),r:r.toFixed(2),class:'cx-twinkle'});
@@ -895,19 +898,18 @@ window.addEventListener('scroll', () => {
       twsG.appendChild(c);
     }
 
-    // constellation path (smooth with gentle bends)
+    // constellation line
     const pts = STARS.map(s=>({x: s.x*w, y: s.y*h}));
-    let d = `M ${pts.x.toFixed(1)} ${pts.y.toFixed(1)}`;
+    let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`; // ✅ fixed start point
     for(let i=1;i<pts.length;i++){
       const p=pts[i-1], c=pts[i];
       const mx=(p.x+c.x)/2, my=(p.y+c.y)/2;
       const jx=(Math.random()-.5)*14, jy=(Math.random()-.5)*10;
       d+=` Q ${(mx+jx).toFixed(1)} ${(my+jy).toFixed(1)}, ${c.x.toFixed(1)} ${c.y.toFixed(1)}`;
     }
-    lineP = el('path',{d,class:'cx-line'});
+    const lineP = el('path',{d,class:'cx-line'});
     svg.appendChild(lineP);
 
-    // draw + shimmer based on real length
     const L = lineP.getTotalLength();
     lineP.style.strokeDasharray = String(L);
     lineP.style.strokeDashoffset = String(L);
@@ -915,9 +917,9 @@ window.addEventListener('scroll', () => {
     lineP.style.animation = 'draw 1.4s ease forwards, flow 7s linear infinite 1.6s';
 
     // stars
-    starG = el('g'); svg.appendChild(starG);
+    const starG = el('g'); svg.appendChild(starG);
     pts.forEach((p,idx)=>{
-      const g = el('g',{class:'cx-star', 'data-star': String(idx+1)});
+      const g = el('g',{class:'cx-star','data-star': String(idx+1)});
       const c = el('circle',{cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:'4.2'});
       const pulse = el('circle',{cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:'0', class:'pulse'});
       g.append(c,pulse);
@@ -926,11 +928,8 @@ window.addEventListener('scroll', () => {
   }
 
   function activate(n, scroll=true){
-    // highlight star
     svg.querySelectorAll('.cx-star').forEach(s=>s.classList.toggle('active', s.getAttribute('data-star')===String(n)));
-    // highlight card
     document.querySelectorAll('.cx-card').forEach(c=>c.classList.toggle('active', c.getAttribute('data-star')===String(n)));
-    // scroll card into view
     if(scroll){
       const card = document.querySelector(`.cx-card[data-star="${n}"]`);
       if(card){ card.scrollIntoView({behavior:'smooth', block:'nearest'}); }
@@ -938,19 +937,16 @@ window.addEventListener('scroll', () => {
   }
 
   function wire(){
-    // click/hover stars
     svg.querySelectorAll('.cx-star').forEach(s=>{
       const n = s.getAttribute('data-star');
       s.addEventListener('mouseenter', ()=>activate(n,false));
       s.addEventListener('click', ()=>activate(n,true));
     });
-    // hover cards -> ping star
     document.querySelectorAll('.cx-card').forEach(c=>{
       const n = c.getAttribute('data-star');
       c.addEventListener('mouseenter', ()=>activate(n,false));
       c.addEventListener('click', ()=>activate(n,true));
     });
-    // scroll spy
     const io = new IntersectionObserver((ents)=>{
       let topMost = null, topY = Infinity;
       ents.forEach(en=>{
@@ -968,10 +964,6 @@ window.addEventListener('scroll', () => {
   window.addEventListener('load', init);
   window.addEventListener('resize', build);
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') build(); });
-
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    const s=document.createElement('style'); s.textContent='.cx-line{animation:none;stroke-dasharray:none;stroke-dashoffset:0}'; document.head.appendChild(s);
-  }
 })();
 </script>
 </body>
