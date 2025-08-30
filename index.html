@@ -433,6 +433,33 @@ section#about {
     .xp-node.left .xp-star  { right: -12px; }
     .xp-node.right .xp-star { left:  -12px; }
   }
+    /* Stacking: SVG under cards, same context */
+#experience.cosmos-xp { position: relative; z-index: 0; }
+#experience .xp-sky   { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+#experience .xp-track { position: relative; z-index: 1; }
+
+/* Constellation + DNA visuals */
+.const-line { fill: none; stroke: url(#xpStrokeGrad); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; filter: url(#glow); }
+.helix-line { fill: none; stroke: rgba(138,122,255,.9); stroke-width: 2; filter: url(#glow); opacity: .9; }
+.helix-back { stroke: rgba(122,162,255,.25); stroke-width: 2; }
+
+.twinkle { fill: rgba(255,255,255,.95); filter: url(#glow); opacity: .65; animation: twinkle 2.4s ease-in-out infinite; }
+@keyframes twinkle { 0%,100%{opacity:.35} 50%{opacity:1} }
+
+/* Draw then shimmer */
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes flow { to { stroke-dashoffset: -100%; } }
+
+/* Reveal cards */
+.xp-node { opacity:0; transform: translateY(14px); transition:.5s ease; }
+.xp-node.show { opacity:1; transform: translateY(0); }
+
+/* Responsive nudge for star pegs */
+@media (max-width: 820px){
+  .xp-node { max-width: 100%; }
+  .xp-node.left .xp-star  { right: -12px; }
+  .xp-node.right .xp-star { left:  -12px; }
+}
 </style>
 </head>
 <body>
@@ -586,10 +613,10 @@ and making processes faster, cleaner, and scalable.
     Experience
   </h2>
 
-  <!-- Constellation canvas (SVG overlay) -->
+  <!-- DNA + Constellation overlay -->
   <svg class="xp-sky" aria-hidden="true"></svg>
 
-  <!-- Zig-zag track -->
+  <!-- Zig-zag cards -->
   <div class="xp-track">
     <!-- Node 1 (left) -->
     <article class="xp-node left card tilt" data-node="1">
@@ -614,7 +641,6 @@ and making processes faster, cleaner, and scalable.
           <span class="tag">100% month‑end closures</span>
           <span class="tag">Exception‑driven workflows</span>
         </div>
-        <!-- anchor point for line -->
         <span class="xp-star" aria-hidden="true"></span>
       </div>
     </article>
@@ -774,18 +800,17 @@ window.addEventListener('scroll', () => {
   const svg = section.querySelector('.xp-sky');
   if(!section || !svg) return;
 
-  // Create defs: glow + gradient
   const NS = 'http://www.w3.org/2000/svg';
-  function el(name, attrs={}){
-    const n = document.createElementNS(NS, name);
-    for(const k in attrs) n.setAttribute(k, attrs[k]);
-    return n;
-  }
-  function ensureDefs(){
-    let defs = svg.querySelector('defs');
-    if(!defs){ defs = el('defs'); svg.appendChild(defs); }
+  const A = 80;          // helix amplitude
+  const W = 260;         // helix wavelength in px
+  const STEP = 70;       // curve step
+  const TWINKLES = 28;   // background stars
+  const ORBS = 6;        // moving glow orbs on helix
 
-    // Glow filter
+  function el(name, attrs={}){ const n = document.createElementNS(NS, name); for(const k in attrs) n.setAttribute(k, attrs[k]); return n; }
+
+  function ensureDefs(){
+    let defs = svg.querySelector('defs'); if(!defs){ defs = el('defs'); svg.appendChild(defs); }
     let glow = defs.querySelector('#glow');
     if(!glow){
       glow = el('filter',{id:'glow', x:'-50%', y:'-50%', width:'200%', height:'200%'});
@@ -795,70 +820,11 @@ window.addEventListener('scroll', () => {
       m.append(el('feMergeNode',{in:'b2'}), el('feMergeNode',{in:'b1'}), el('feMergeNode',{in:'SourceGraphic'}));
       glow.append(g1,g2,m); defs.appendChild(glow);
     }
-
-    // Stroke gradient
     let grad = defs.querySelector('#xpStrokeGrad');
     if(!grad){
       grad = el('linearGradient',{id:'xpStrokeGrad', x1:'0%', y1:'0%', x2:'100%', y2:'0%'});
-      grad.append(
-        el('stop',{offset:'0%','stop-color':'#7aa2ff'}),
-        el('stop',{offset:'50%','stop-color':'#8a7aff'}),
-        el('stop',{offset:'100%','stop-color':'#4ff0b0'})
-      );
+      grad.append(el('stop',{offset:'0%','stop-color':'#7aa2ff'}), el('stop',{offset:'50%','stop-color':'#8a7aff'}), el('stop',{offset:'100%','stop-color':'#4ff0b0'}));
       defs.appendChild(grad);
-    }
-  }
-
-  // Get anchor points (the glowing stars)
-  function getPoints(){
-    const nodes = [...section.querySelectorAll('.xp-node')];
-    const rectS = section.getBoundingClientRect();
-    return nodes.map(n=>{
-      const star = n.querySelector('.xp-star');
-      const r = star.getBoundingClientRect();
-      // Center of star, relative to section
-      const x = (r.left - rectS.left) + r.width/2 + window.scrollX;
-      const y = (r.top  - rectS.top ) + r.height/2 + window.scrollY;
-      return {x,y, node:n};
-    });
-  }
-
-  // Create a slight zig-zag path with soft bends
-  function buildPath(points){
-    if(points.length < 2) return null;
-    const p = points.map(pt=>({x:pt.x, y:pt.y}));
-    // Convert to relative inside svg viewport
-    const vb = svg.getBoundingClientRect();
-    const x0 = vb.left + window.scrollX, y0 = vb.top + window.scrollY;
-    const rel = p.map(pt=>({x: pt.x - x0, y: pt.y - y0}));
-
-    // Build smooth-ish polyline with slight random offsets for constellation vibe
-    let d = `M ${rel.x.toFixed(1)} ${rel.y.toFixed(1)}`;
-    for(let i=1;i<rel.length;i++){
-      const prev = rel[i-1], curr = rel[i];
-      const midX = (prev.x + curr.x)/2;
-      const midY = (prev.y + curr.y)/2;
-      const jitterX = (Math.random() - .5) * 18;
-      const jitterY = (Math.random() - .5) * 12;
-      // Quadratic curve via a jittered midpoint for a gentle bend
-      d += ` Q ${(midX + jitterX).toFixed(1)} ${(midY + jitterY).toFixed(1)}, ${curr.x.toFixed(1)} ${curr.y.toFixed(1)}`;
-    }
-    const path = el('path',{ d, class:'const-line' });
-    return path;
-  }
-
-  // Random twinkles within the section
-  function addTwinkles(count=28){
-    // Remove old
-    svg.querySelectorAll('.twinkle').forEach(x=>x.remove());
-    const vb = svg.getBoundingClientRect();
-    const w = vb.width, h = vb.height;
-    for(let i=0;i<count;i++){
-      const cx = Math.random()*w, cy = Math.random()*h;
-      const r = Math.random()*1.6 + 0.6;
-      const c = el('circle',{ cx: cx.toFixed(1), cy: cy.toFixed(1), r: r.toFixed(2), class:'twinkle' });
-      c.style.animationDelay = (Math.random()*2.0).toFixed(2)+'s';
-      svg.appendChild(c);
     }
   }
 
@@ -869,41 +835,141 @@ window.addEventListener('scroll', () => {
     svg.setAttribute('viewBox', `0 0 ${r.width} ${r.height}`);
   }
 
-  let linePath;
-  function redraw(){
-    resizeSVG();
-    ensureDefs();
-    if(linePath) linePath.remove();
-    const pts = getPoints();
-    linePath = buildPath(pts);
-    if(linePath) svg.appendChild(linePath);
-    addTwinkles(28);
+  function helixX(y, width){ return width/2 + A * Math.sin((2*Math.PI/W) * y); }
+
+  function buildHelix(width, height){
+    const pathBack = el('path', { class: 'helix-line helix-back' });
+    const pathFront = el('path', { class: 'helix-line' });
+
+    // Build two intertwined strands using quadratic curves
+    function strand(phase){
+      let d = `M ${helixX(0+phase,width).toFixed(1)} 0`;
+      for(let y = 0+phase; y <= height; y += STEP){
+        const y2 = Math.min(y+STEP, height);
+        const mx = helixX((y+y2)/2,width), my = (y+y2)/2;
+        const x2 = helixX(y2,width);
+        d += ` Q ${mx.toFixed(1)} ${my.toFixed(1)}, ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+      }
+      return d;
+    }
+    pathBack.setAttribute('d', strand(0));
+    pathFront.setAttribute('d', strand(W/4)); // quarter-wave offset for the second strand
+
+    return { pathBack, pathFront };
   }
 
-  // Reveal nodes progressively and re-draw when visible
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(en=>{
-      if(en.isIntersecting){
-        en.target.classList.add('show');
-        // Recompute after reveal for accurate positions
-        redraw();
-        io.unobserve(en.target);
-      }
+  function getStarPoints(){
+    const nodes = [...section.querySelectorAll('.xp-node')];
+    const rectS = section.getBoundingClientRect();
+    return nodes.map(n=>{
+      const star = n.querySelector('.xp-star'); const r = star.getBoundingClientRect();
+      const x = (r.left - rectS.left) + r.width/2 + window.scrollX;
+      const y = (r.top  - rectS.top ) + r.height/2 + window.scrollY;
+      return {x,y,node:n};
     });
-  },{threshold:.2});
+  }
+
+  function buildConstellation(points){
+    const vb = svg.getBoundingClientRect();
+    const x0 = vb.left + window.scrollX, y0 = vb.top + window.scrollY;
+    const rel = points.map(pt=>({x: pt.x - x0, y: pt.y - y0}));
+
+    // Smooth zig-zag with gentle bends
+    let d = `M ${rel.x.toFixed(1)} ${rel.y.toFixed(1)}`;
+    for(let i=1;i<rel.length;i++){
+      const prev = rel[i-1], curr = rel[i];
+      const midX = (prev.x + curr.x)/2;
+      const midY = (prev.y + curr.y)/2;
+      const jx = (Math.random() - .5) * 18;
+      const jy = (Math.random() - .5) * 12;
+      d += ` Q ${(midX + jx).toFixed(1)} ${(midY + jy).toFixed(1)}, ${curr.x.toFixed(1)} ${curr.y.toFixed(1)}`;
+    }
+    const path = el('path',{ d, class:'const-line' });
+    return path;
+  }
+
+  function addTwinkles(count){
+    svg.querySelectorAll('.twinkle').forEach(x=>x.remove());
+    const vb = svg.getBoundingClientRect(); const w = vb.width, h = vb.height;
+    for(let i=0;i<count;i++){
+      const cx = Math.random()*w, cy = Math.random()*h;
+      const r = Math.random()*1.6 + 0.6;
+      const c = el('circle',{ cx: cx.toFixed(1), cy: cy.toFixed(1), r: r.toFixed(2), class:'twinkle' });
+      c.style.animationDelay = (Math.random()*2.0).toFixed(2)+'s';
+      svg.appendChild(c);
+    }
+  }
+
+  // Moving orbs along the front helix strand
+  function animateOrbs(path, n=ORBS){
+    // Remove previous
+    svg.querySelectorAll('.dna-orb').forEach(x=>x.remove());
+    const len = path.getTotalLength();
+    for(let i=0;i<n;i++){
+      const o = el('circle',{ r:'3.2', class:'dna-orb' });
+      o.style.fill = '#7aa2ff';
+      o.style.filter = 'url(#glow)';
+      svg.appendChild(o);
+      let t = (i/n);
+      const speed = 0.0005 + Math.random()*0.0006;
+      (function loop(){
+        t += speed; if(t>1) t-=1;
+        const p = path.getPointAtLength(t*len);
+        o.setAttribute('cx', p.x.toFixed(1));
+        o.setAttribute('cy', p.y.toFixed(1));
+        requestAnimationFrame(loop);
+      })();
+    }
+  }
+
+  function normalizeDash(path){
+    const len = path.getTotalLength();
+    path.style.strokeDasharray  = String(len);
+    path.style.strokeDashoffset = String(len);
+    void path.getBoundingClientRect();
+    path.style.animation = 'none';
+    requestAnimationFrame(()=>{ path.style.animation = 'draw 1.4s ease forwards, flow 6s linear infinite 1.5s'; });
+  }
+
+  let dnaFront, constLine;
+  function redraw(){
+    resizeSVG(); ensureDefs();
+
+    // Clear old visuals
+    svg.querySelectorAll('.helix-line, .const-line').forEach(n=>n.remove());
+
+    // Build helix
+    const r = section.getBoundingClientRect(); const width = r.width; const height = r.height;
+    const { pathBack, pathFront } = buildHelix(width, height);
+    svg.appendChild(pathBack); svg.appendChild(pathFront);
+    dnaFront = pathFront;
+
+    // Build constellation
+    const pts = getStarPoints();
+    constLine = buildConstellation(pts);
+    svg.appendChild(constLine);
+
+    // Twinkles + orbs
+    addTwinkles(TWINKLES);
+    animateOrbs(dnaFront, ORBS);
+
+    // Normalize draw animation to real length
+    normalizeDash(constLine);
+  }
+
+  // Reveal cards progressively and redraw
+  const io = new IntersectionObserver((entries)=>{ entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('show'); redraw(); io.unobserve(en.target); } }); },{threshold:.2});
   document.querySelectorAll('.xp-node').forEach(n=>io.observe(n));
 
-  // Initial draw after layout
-  window.addEventListener('load', ()=>{ redraw(); });
-  window.addEventListener('resize', ()=>{ redraw(); });
+  window.addEventListener('load', redraw);
+  window.addEventListener('resize', redraw);
   document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') redraw(); });
 
-  // Respect reduced motion
+  // Reduced motion
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    // Turn off line draw animation; keep static
-    const style = document.createElement('style');
-    style.textContent = `.const-line{animation:none; stroke-dasharray:none; stroke-dashoffset:0}`;
-    document.head.appendChild(style);
+    const s = document.createElement('style');
+    s.textContent = `.const-line{animation:none; stroke-dasharray:none; stroke-dashoffset:0}`;
+    document.head.appendChild(s);
   }
 })();
 </script>
