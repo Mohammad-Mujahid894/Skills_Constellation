@@ -369,55 +369,38 @@ section#about {
   align-items: center;
   justify-content: center;
 }
-    /* Layout */
-.cx-grid {
-  display: grid;
-  grid-template-columns: 1fr;   /* single centered column */
-  justify-items: center;
-  gap: 60px;
+/* EXPERIENCE CONSTELLATION TIMELINE */
+#experience {
+  position: relative;
+  padding: 100px 0;
+  display: flex;
+  justify-content: center;
 }
+
 .cx-left {
   position: relative;
-  min-height: 1400px;           /* make it tall */
-  width: 100%;
-  display: flex;
-  justify-content: center;      /* center constellation */
-  align-items: center;
+  width: 2px;                  /* thin spine line */
+  background: rgba(255,255,255,0.25);
+  min-height: 1400px;          /* make tall */
 }
+
 .cx-sky {
-  max-width: 600px;             /* limit width */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   height: 100%;
+  width: 500px;
 }
-/* Stars + lines */
-.cx-line{fill:none;stroke:url(#cxGrad);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;filter:url(#cxGlow)}
-.cx-star{filter:url(#cxGlow)}
-.cx-star circle{fill:#fff}
-.cx-star .pulse{fill:none;stroke:#7aa2ff;stroke-width:1.5;opacity:.6}
-.cx-star.active circle{fill:#7aa2ff}
-.cx-star.active .pulse{animation:pulse 1.8s ease-out infinite}
-@keyframes pulse{0%{r:0;opacity:.7}80%{r:14;opacity:0}100%{r:14;opacity:0}}
 
-/* Draw + shimmer */
-@keyframes draw{to{stroke-dashoffset:0}}
-@keyframes flow{to{stroke-dashoffset:-100%}}
-
-/* Card active link */
-.cx-card{transition:box-shadow .3s,transform .2s}
-.cx-card.active{box-shadow:0 0 22px rgba(122,162,255,.5)}
-/* Twinkles (background dots) */
-.cx-twinkle{fill:rgba(255,255,255,.95);filter:url(#cxGlow);opacity:.65;animation:twinkle 2.4s ease-in-out infinite}
-@keyframes twinkle{0%,100%{opacity:.35}50%{opacity:1}}
-/* Timeline cards beside constellation */
+/* Timeline cards alternate sides */
 .cx-card {
-  position: relative;   /* not absolute */
-  width: 100%;
-  max-width: 360px;
+  position: absolute;
+  width: 280px;
   background: rgba(255,255,255,0.08);
   border-radius: 16px;
   padding: 18px 22px;
   backdrop-filter: blur(10px);
   box-shadow: 0 0 20px rgba(122,162,255,0.35);
-  margin: 20px 0;   /* spacing between cards */
   transition: transform .3s, box-shadow .3s;
 }
 .cx-card:hover {
@@ -425,31 +408,25 @@ section#about {
   box-shadow: 0 0 30px rgba(122,162,255,.6);
 }
 
-/* Grid layout: constellation left, cards right */
-.cx-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  align-items: start;
-  padding: 60px 40px;
-}
-.cx-left {
-  position: relative;
-  min-height: 1200px;   /* elongated constellation */
-  display: flex;
-  justify-content: center;
-}
-.cx-right {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
+/* Alternate card positions */
+.cx-card[data-star="1"] { top: 5%;  left: calc(50% - 340px); } /* left */
+.cx-card[data-star="2"] { top: 20%; left: calc(50% + 60px); }  /* right */
+.cx-card[data-star="3"] { top: 35%; left: calc(50% - 340px); }
+.cx-card[data-star="4"] { top: 50%; left: calc(50% + 60px); }
+.cx-card[data-star="5"] { top: 65%; left: calc(50% - 340px); }
+.cx-card[data-star="6"] { top: 80%; left: calc(50% + 60px); }
+.cx-card[data-star="7"] { top: 95%; left: calc(50% - 340px); }
 
-/* Mobile view */
+/* Mobile fallback */
 @media(max-width:768px){
-  .cx-grid { grid-template-columns: 1fr; }
-  .cx-left { height: 400px; }
-  .cx-right { margin-top: 20px; }
+  .cx-card {
+    position: relative;
+    left: auto !important;
+    top: auto !important;
+    margin: 20px auto;
+    width: 90%;
+  }
+  .cx-left { min-height: auto; }
 }
   </style>
 </head>
@@ -606,7 +583,6 @@ and making processes faster, cleaner, and scalable.
   </div>
 
   <!-- Right side: timeline cards -->
-  <div class="cx-right">
     <div class="cx-card" data-star="1">Order to Cash – Current Role</div>
     <div class="cx-card" data-star="2">Internship – Accounting</div>
     <div class="cx-card" data-star="3">B.Com Graduate</div>
@@ -614,7 +590,6 @@ and making processes faster, cleaner, and scalable.
     <div class="cx-card" data-star="5">ICMAI Foundation</div>
     <div class="cx-card" data-star="6">PUC</div>
     <div class="cx-card" data-star="7">SSLC</div>
-  </div>
 </section>
   </main>
   <script>
