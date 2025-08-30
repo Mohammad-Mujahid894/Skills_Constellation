@@ -407,25 +407,50 @@ section#about {
 /* Twinkles (background dots) */
 .cx-twinkle{fill:rgba(255,255,255,.95);filter:url(#cxGlow);opacity:.65;animation:twinkle 2.4s ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.35}50%{opacity:1}}
-/* Position experience cards next to stars */
+/* Timeline cards beside constellation */
 .cx-card {
-  position: absolute;
-  width: 300px;
+  position: relative;   /* not absolute */
+  width: 100%;
+  max-width: 360px;
   background: rgba(255,255,255,0.08);
   border-radius: 16px;
-  padding: 16px;
+  padding: 18px 22px;
   backdrop-filter: blur(10px);
-  box-shadow: 0 0 20px rgba(122,162,255,0.5);
+  box-shadow: 0 0 20px rgba(122,162,255,0.35);
+  margin: 20px 0;   /* spacing between cards */
+  transition: transform .3s, box-shadow .3s;
+}
+.cx-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 0 30px rgba(122,162,255,.6);
 }
 
-/* Place cards beside each star */
-.cx-card[data-star="1"] { top: 5%;  left: 60%; }
-.cx-card[data-star="2"] { top: 20%; left: -360px; }
-.cx-card[data-star="3"] { top: 35%; left: 60%; }
-.cx-card[data-star="4"] { top: 50%; left: -360px; }
-.cx-card[data-star="5"] { top: 65%; left: 60%; }
-.cx-card[data-star="6"] { top: 80%; left: -360px; }
-.cx-card[data-star="7"] { top: 95%; left: 60%; }
+/* Grid layout: constellation left, cards right */
+.cx-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+  padding: 60px 40px;
+}
+.cx-left {
+  position: relative;
+  min-height: 1200px;   /* elongated constellation */
+  display: flex;
+  justify-content: center;
+}
+.cx-right {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Mobile view */
+@media(max-width:768px){
+  .cx-grid { grid-template-columns: 1fr; }
+  .cx-left { height: 400px; }
+  .cx-right { margin-top: 20px; }
+}
   </style>
 </head>
 <body>
@@ -574,12 +599,13 @@ and making processes faster, cleaner, and scalable.
   </div>
 </div>
 </section>
-<section id="experience" class="cx-grid cosmos-xp">
+<section id="experience" class="cx-grid">
+  <!-- Left side: constellation -->
   <div class="cx-left">
-    <!-- ✅ EMPTY SVG — JS will draw stars + lines -->
-<svg class="cx-sky"></svg>
+    <svg class="cx-sky"></svg>
   </div>
 
+  <!-- Right side: timeline cards -->
   <div class="cx-right">
     <div class="cx-card" data-star="1">Order to Cash – Current Role</div>
     <div class="cx-card" data-star="2">Internship – Accounting</div>
