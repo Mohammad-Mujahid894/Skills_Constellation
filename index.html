@@ -739,11 +739,9 @@ counters.forEach(counter => observer.observe(counter));
   ];
 
   // === LINKS (which stars connect to which) ===
-const LINKS = [
-  [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],
-  [0,2], [2,5], [1,4]   // bonus constellation-style diagonals
-];
-
+  const LINKS = [
+    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6]
+  ];
   const el=(n,a={})=>{
     const e=document.createElementNS(NS,n);
     for(const k in a) e.setAttribute(k,a[k]);
