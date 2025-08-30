@@ -827,143 +827,100 @@ window.addEventListener('scroll', () => {
   });
 });
 </script>
-<script>
+    <script>
+console.log("Constellation timeline running 🌌");
+
 (function(){
   const section = document.querySelector('#experience');
   const svg = section.querySelector('.cx-sky');
   if(!section || !svg) return;
-
   const NS='http://www.w3.org/2000/svg';
 
-  // DNA-like zigzag constellation layout (7 stars)
+  // === Fixed 7 stars, sci-fi zigzag ===
   const STARS = [
-    {x:.30, y:.05}, // 1 O2C
-    {x:.70, y:.15}, // 2 Intern
-    {x:.25, y:.30}, // 3 B.Com
-    {x:.65, y:.42}, // 4 ICMAI Inter
-    {x:.28, y:.56}, // 5 ICMAI Foundation
-    {x:.68, y:.72}, // 6 PUC
-    {x:.32, y:.90}, // 7 SSLC
+    {x:0.35, y:0.05, label:"Order to Cash"},
+    {x:0.65, y:0.18, label:"Intern"},
+    {x:0.30, y:0.32, label:"B.Com"},
+    {x:0.70, y:0.46, label:"ICMAI Inter"},
+    {x:0.32, y:0.60, label:"ICMAI Foundation"},
+    {x:0.68, y:0.75, label:"PUC"},
+    {x:0.40, y:0.90, label:"SSLC"},
   ];
 
-  // Utility
   const el=(n,a={})=>{
     const e=document.createElementNS(NS,n);
     for(const k in a) e.setAttribute(k,a[k]);
     return e;
   };
 
-  // Glow + gradient defs
-  function ensureDefs(){
-    let defs = svg.querySelector('defs'); 
-    if(!defs){ defs = el('defs'); svg.appendChild(defs); }
-    let glow = defs.querySelector('#cxGlow');
-    if(!glow){
-      glow = el('filter',{id:'cxGlow',x:'-50%',y:'-50%',width:'200%',height:'200%'});
-      const g1 = el('feGaussianBlur',{stdDeviation:'2',result:'b1'});
-      const g2 = el('feGaussianBlur',{stdDeviation:'4',result:'b2'});
-      const m  = el('feMerge');
-      m.append(el('feMergeNode',{in:'b2'}),el('feMergeNode',{in:'b1'}),el('feMergeNode',{in:'SourceGraphic'}));
-      glow.append(g1,g2,m); defs.appendChild(glow);
-    }
-    let grad = defs.querySelector('#cxGrad');
-    if(!grad){
-      grad = el('linearGradient',{id:'cxGrad',x1:'0%',y1:'0%',x2:'100%',y2:'0%'});
-      grad.append(el('stop',{offset:'0%','stop-color':'#7aa2ff'}),
-                  el('stop',{offset:'50%','stop-color':'#8a7aff'}),
-                  el('stop',{offset:'100%','stop-color':'#4ff0b0'}));
-      defs.appendChild(grad);
-    }
-  }
-
-  function sizeSVG(){
-    const r = section.querySelector('.cx-left').getBoundingClientRect();
-    svg.setAttribute('width', r.width);
-    svg.setAttribute('height', r.height);
-    svg.setAttribute('viewBox', `0 0 ${r.width} ${r.height}`);
-    return {w:r.width, h:r.height};
+  function defs(){
+    let defs = el('defs');
+    const grad = el('linearGradient',{id:'cxGrad',x1:'0%',y1:'0%',x2:'100%',y2:'0%'});
+    grad.append(el('stop',{offset:'0%','stop-color':'#7aa2ff'}),
+                el('stop',{offset:'100%','stop-color':'#4ff0b0'}));
+    const glow = el('filter',{id:'cxGlow',x:'-50%',y:'-50%',width:'200%',height:'200%'});
+    const g1 = el('feGaussianBlur',{stdDeviation:'3',result:'b1'});
+    const g2 = el('feGaussianBlur',{stdDeviation:'6',result:'b2'});
+    const merge = el('feMerge');
+    merge.append(el('feMergeNode',{in:'b2'}),el('feMergeNode',{in:'b1'}),el('feMergeNode',{in:'SourceGraphic'}));
+    glow.append(g1,g2,merge);
+    defs.append(grad,glow);
+    svg.appendChild(defs);
   }
 
   function build(){
     svg.innerHTML='';
-    ensureDefs();
-    const {w,h} = sizeSVG();
+    defs();
+    const {width:w,height:h} = section.querySelector('.cx-left').getBoundingClientRect();
+    svg.setAttribute('width',w);
+    svg.setAttribute('height',h);
+    svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
 
-    // twinkles
-    const twsG = el('g'); svg.appendChild(twsG);
-    for(let i=0;i<28;i++){
-      const cx = Math.random()*w, cy = Math.random()*h, r = Math.random()*1.6+0.6;
-      const c = el('circle',{cx:cx.toFixed(1),cy:cy.toFixed(1),r:r.toFixed(2),class:'cx-twinkle'});
-      c.style.animationDelay = (Math.random()*2).toFixed(2)+'s';
-      twsG.appendChild(c);
-    }
+    const pts = STARS.map(s=>({x:s.x*w,y:s.y*h}));
+    let path=`M ${pts[0].x} ${pts[0].y}`;
+    for(let i=1;i<pts.length;i++){ path+=` L ${pts[i].x} ${pts[i].y}`; }
+    const line=el('path',{d:path,class:'cx-line'});
+    svg.appendChild(line);
 
-    // constellation line
-    const pts = STARS.map(s=>({x: s.x*w, y: s.y*h}));
-    let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`; // ✅ fixed start point
-    for(let i=1;i<pts.length;i++){
-      const p=pts[i-1], c=pts[i];
-      const mx=(p.x+c.x)/2, my=(p.y+c.y)/2;
-      const jx=(Math.random()-.5)*14, jy=(Math.random()-.5)*10;
-      d+=` Q ${(mx+jx).toFixed(1)} ${(my+jy).toFixed(1)}, ${c.x.toFixed(1)} ${c.y.toFixed(1)}`;
-    }
-    const lineP = el('path',{d,class:'cx-line'});
-    svg.appendChild(lineP);
-
-    const L = lineP.getTotalLength();
-    lineP.style.strokeDasharray = String(L);
-    lineP.style.strokeDashoffset = String(L);
-    void lineP.getBoundingClientRect();
-    lineP.style.animation = 'draw 1.4s ease forwards, flow 7s linear infinite 1.6s';
-
-    // stars
-    const starG = el('g'); svg.appendChild(starG);
-    pts.forEach((p,idx)=>{
-      const g = el('g',{class:'cx-star','data-star': String(idx+1)});
-      const c = el('circle',{cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:'4.2'});
-      const pulse = el('circle',{cx:p.x.toFixed(1), cy:p.y.toFixed(1), r:'0', class:'pulse'});
+    // Stars
+    pts.forEach((p,i)=>{
+      const g=el('g',{class:'cx-star','data-star':i+1});
+      const c=el('circle',{cx:p.x,cy:p.y,r:6});
+      const pulse=el('circle',{cx:p.x,cy:p.y,r:0,class:'pulse'});
       g.append(c,pulse);
-      starG.appendChild(g);
+      svg.appendChild(g);
     });
   }
 
-  function activate(n, scroll=true){
-    svg.querySelectorAll('.cx-star').forEach(s=>s.classList.toggle('active', s.getAttribute('data-star')===String(n)));
-    document.querySelectorAll('.cx-card').forEach(c=>c.classList.toggle('active', c.getAttribute('data-star')===String(n)));
+  function activate(n,scroll=true){
+    svg.querySelectorAll('.cx-star').forEach(s=>s.classList.toggle('active', s.dataset.star===String(n)));
+    document.querySelectorAll('.cx-card').forEach(c=>c.classList.toggle('active', c.dataset.star===String(n)));
     if(scroll){
-      const card = document.querySelector(`.cx-card[data-star="${n}"]`);
-      if(card){ card.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+      const card=document.querySelector(`.cx-card[data-star="${n}"]`);
+      if(card) card.scrollIntoView({behavior:'smooth',block:'nearest'});
     }
   }
 
   function wire(){
     svg.querySelectorAll('.cx-star').forEach(s=>{
-      const n = s.getAttribute('data-star');
-      s.addEventListener('mouseenter', ()=>activate(n,false));
-      s.addEventListener('click', ()=>activate(n,true));
+      s.addEventListener('mouseenter',()=>activate(s.dataset.star,false));
+      s.addEventListener('click',()=>activate(s.dataset.star,true));
     });
     document.querySelectorAll('.cx-card').forEach(c=>{
-      const n = c.getAttribute('data-star');
-      c.addEventListener('mouseenter', ()=>activate(n,false));
-      c.addEventListener('click', ()=>activate(n,true));
+      c.addEventListener('mouseenter',()=>activate(c.dataset.star,false));
+      c.addEventListener('click',()=>activate(c.dataset.star,true));
     });
-    const io = new IntersectionObserver((ents)=>{
-      let topMost = null, topY = Infinity;
+    const io=new IntersectionObserver(ents=>{
       ents.forEach(en=>{
-        if(en.isIntersecting){
-          const y = en.target.getBoundingClientRect().top;
-          if(y < topY){ topY = y; topMost = en.target; }
-        }
+        if(en.isIntersecting) activate(en.target.dataset.star,false);
       });
-      if(topMost){ activate(topMost.getAttribute('data-star'), false); }
-    },{rootMargin:'-40% 0px -50% 0px', threshold:[0, .25, .5, .75, 1]});
+    },{threshold:.4});
     document.querySelectorAll('.cx-card').forEach(c=>io.observe(c));
   }
 
   function init(){ build(); wire(); activate(1,false); }
-  window.addEventListener('load', init);
-  window.addEventListener('resize', build);
-  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') build(); });
+  addEventListener('load',init);
+  addEventListener('resize',build);
 })();
 </script>
 </body>
