@@ -369,58 +369,71 @@ section#about {
   align-items: center;
   justify-content: center;
 }
-  /* Vertical timeline spine */
-  .xp-timeline {
-    position: relative;
-    margin: 24px 0 8px 0;
-    padding-left: 22px;
-  }
-  .xp-timeline::before {
-    content: "";
-    position: absolute;
-    left: 8px; top: 0; bottom: 0;
-    width: 2px;
-    background: linear-gradient(180deg, rgba(122,162,255,.8), rgba(79,240,176,.5));
-    border-radius: 2px;
-    opacity: .9;
-  }
+  .cosmos-xp { position: relative; }
+  .xp-track { position: relative; display: grid; gap: 28px; }
+  .xp-node { position: relative; max-width: 740px; }
+  .xp-node.left  { margin-right: auto; }
+  .xp-node.right { margin-left:  auto; }
 
-  /* Each node */
-  .xp-item { position: relative; margin: 0 0 22px 0; }
-  .xp-dot {
-    position: absolute; left: -1px; top: 14px;
+  /* Star anchor on each card edge */
+  .xp-star {
+    position: absolute;
+    top: 18px;
     width: 14px; height: 14px; border-radius: 50%;
-    background: radial-gradient(circle, #fff, rgba(122,162,255,.6));
-    box-shadow: 0 0 14px rgba(122,162,255,.9), 0 0 26px rgba(79,240,176,.6);
+    background: radial-gradient(circle, #fff, rgba(122,162,255,.7));
+    box-shadow: 0 0 14px rgba(122,162,255,.9), 0 0 28px rgba(79,240,176,.6);
     border: 1px solid rgba(255,255,255,.35);
   }
+  .xp-node.left  .xp-star { right: -18px; }
+  .xp-node.right .xp-star { left:  -18px; }
 
-  /* Glass cards reuse your .card/.tilt styling */
-  .xp-card { margin-left: 22px; }
-  .xp-head { display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; }
+  /* Text spacing */
+  .xp-head { display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:flex-start; }
   .xp-role { margin:0; font-size:22px; }
-  .xp-meta { color: var(--muted); margin: .35rem 0 1rem; }
-  .xp-bullets { margin:0; padding-left: 18px; }
-  .xp-bullets li { margin: 8px 0; }
+  .xp-meta { color: var(--muted); margin:.35rem 0 1rem; }
+  .xp-bullets { margin:0; padding-left:18px; }
+  .xp-bullets li { margin:8px 0; }
   .xp-tags, .xp-metrics { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
 
-  /* Subtle entrance animation */
-  .xp-item { opacity: 0; transform: translateY(12px); transition: .45s ease; }
-  .xp-item.show { opacity: 1; transform: translateY(0); }
-
-  /* Alternate side on wide screens (keeps spine centered-left) */
-  @media (min-width: 940px) {
-    .xp-timeline { padding-left: 28px; }
-    .xp-timeline::before { left: 12px; }
-    .xp-dot { left: 5px; }
-    .xp-item:nth-child(odd) .xp-card { margin-left: 28px; margin-right: 22%; }
-    .xp-item:nth-child(even) .xp-card { margin-left: 28px; margin-right: 8px; }
+  /* SVG overlay fills section */
+  .xp-sky {
+    position:absolute; inset:0; width:100%; height:100%;
+    pointer-events:none; filter: saturate(120%);
   }
 
-  @media (max-width: 640px) {
-    .xp-role { font-size: 20px; }
+  /* Line draw animation */
+  .const-line {
+    stroke: url(#xpStrokeGrad);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: url(#glow);
+    stroke-dasharray: 800;
+    stroke-dashoffset: 800;
+    animation: draw 1.4s ease forwards;
   }
-  </style>
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  /* Twinkling stars */
+  .twinkle {
+    fill: rgba(255,255,255,.95);
+    filter: url(#glow);
+    opacity: .65;
+    animation: twinkle 2.4s ease-in-out infinite;
+  }
+  @keyframes twinkle { 0%,100%{opacity:.35} 50%{opacity:1} }
+
+  /* Reveal cards */
+  .xp-node { opacity:0; transform: translateY(14px); transition:.5s ease; }
+  .xp-node.show { opacity:1; transform: translateY(0); }
+
+  /* Responsive */
+  @media (max-width: 820px){
+    .xp-node { max-width: 100%; }
+    .xp-node.left .xp-star  { right: -12px; }
+    .xp-node.right .xp-star { left:  -12px; }
+  }
+</style>
 </head>
 <body>
   <!-- ===== BACKGROUND LAYERS ===== -->
@@ -568,81 +581,80 @@ and making processes faster, cleaner, and scalable.
   </div>
 </div>
 </section>
-<section id="experience" class="wrap" style="margin-top:60px">
+<section id="experience" class="wrap cosmos-xp" style="margin-top:60px; position:relative">
   <h2 style="font-size:clamp(28px,5vw,40px); margin-bottom:16px; background:linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0); -webkit-background-clip:text; color:transparent;">
     Experience
   </h2>
 
-  <div class="xp-timeline">
-    <!-- Node 1 -->
-    <div class="xp-item">
-      <div class="xp-dot"></div>
-      <div class="xp-card card tilt">
-        <div class="inner">
-          <div class="xp-head">
-            <h3 class="xp-role">Order to Cash Associate — Accenture</h3>
-            <span class="tag">Oct 2024 — Present • Bengaluru</span>
-          </div>
-          <p class="xp-meta">O2C • Cash Application • US Client • Checks/ACH/Wires • Reconciliations</p>
-          <ul class="xp-bullets">
-            <li>Cash application across checks, ACH, and wires with strict remittance validation and clean invoice mapping.</li>
-            <li>Own NSF returns, Versapay validations, and demand letters across divisions to keep ledgers current.</li>
-            <li>Resolve invoicing/statement queries with client, customer, sales, and credit teams for on‑time month‑end closures.</li>
-            <li>Drive automation: cut spreadsheet steps and surface exceptions with simple trackers and Power BI views.</li>
-          </ul>
-          <div class="xp-tags">
-            <span class="tag">NSF</span><span class="tag">Versapay</span><span class="tag">Demand Letters</span>
-            <span class="tag">Reconciliations</span><span class="tag">Power BI</span><span class="tag">Month‑End</span>
-          </div>
-          <div class="xp-metrics">
-            <span class="tag">180+ checks handled</span>
-            <span class="tag">100% month‑end closures</span>
-            <span class="tag">Exception‑driven workflows</span>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- Constellation canvas (SVG overlay) -->
+  <svg class="xp-sky" aria-hidden="true"></svg>
 
-    <!-- Node 2 -->
-    <div class="xp-item">
-      <div class="xp-dot"></div>
-      <div class="xp-card card tilt">
-        <div class="inner">
-          <div class="xp-head">
-            <h3 class="xp-role">Accounting & Taxation Intern — K S Ramkumar & Co</h3>
-            <span class="tag">Mar 2024 — Aug 2024 • Bengaluru</span>
-          </div>
-          <p class="xp-meta">Compliance & Audit • GSTR • Workpapers • Stock Verification</p>
-          <ul class="xp-bullets">
-            <li>Filed GSTR returns on schedule with complete documentation and traceable support.</li>
-            <li>Supported audits and stock verification with reconciliations and clean workpapers.</li>
-            <li>Built discipline in controls and documentation ahead of professional studies.</li>
-          </ul>
-          <div class="xp-tags">
-            <span class="tag">GSTR</span><span class="tag">Audit</span><span class="tag">Stock Verification</span>
-          </div>
+  <!-- Zig-zag track -->
+  <div class="xp-track">
+    <!-- Node 1 (left) -->
+    <article class="xp-node left card tilt" data-node="1">
+      <div class="inner">
+        <div class="xp-head">
+          <h3 class="xp-role">Order to Cash Associate — Accenture</h3>
+          <span class="tag">Oct 2024 — Present • Bengaluru</span>
         </div>
+        <p class="xp-meta">O2C • Cash Application • US Client • Checks/ACH/Wires • Reconciliations</p>
+        <ul class="xp-bullets">
+          <li>Cash application across checks, ACH, and wires with strict remittance validation and clean invoice mapping.</li>
+          <li>Own NSF returns, Versapay validations, and demand letters across divisions to keep ledgers current.</li>
+          <li>Resolve invoicing/statement queries with client, customer, sales, and credit teams for on‑time month‑end closures.</li>
+          <li>Drive automation: cut spreadsheet steps and surface exceptions with simple trackers and Power BI views.</li>
+        </ul>
+        <div class="xp-tags">
+          <span class="tag">NSF</span><span class="tag">Versapay</span><span class="tag">Demand Letters</span>
+          <span class="tag">Reconciliations</span><span class="tag">Power BI</span><span class="tag">Month‑End</span>
+        </div>
+        <div class="xp-metrics">
+          <span class="tag">180+ checks handled</span>
+          <span class="tag">100% month‑end closures</span>
+          <span class="tag">Exception‑driven workflows</span>
+        </div>
+        <!-- anchor point for line -->
+        <span class="xp-star" aria-hidden="true"></span>
       </div>
-    </div>
+    </article>
 
-    <!-- Node 3 (Projects thread) -->
-    <div class="xp-item">
-      <div class="xp-dot"></div>
-      <div class="xp-card card tilt">
-        <div class="inner">
-          <div class="xp-head">
-            <h3 class="xp-role">Process Optimization & Automation</h3>
-            <span class="tag">Continuous</span>
-          </div>
-          <p class="xp-meta">Exception handling • Remittance gaps • Unapplied/short‑pay templating</p>
-          <ul class="xp-bullets">
-            <li>Mapped cash‑application steps end‑to‑end and removed non‑value activities to cut handling time.</li>
-            <li>Prototyped Power BI views to replace multi‑sheet trackers and escalate exceptions faster.</li>
-            <li>Standardized demand‑letter and NSF checks to reduce rework and follow‑ups.</li>
-          </ul>
+    <!-- Node 2 (right) -->
+    <article class="xp-node right card tilt" data-node="2">
+      <div class="inner">
+        <div class="xp-head">
+          <h3 class="xp-role">Accounting & Taxation Intern — K S Ramkumar & Co</h3>
+          <span class="tag">Mar 2024 — Aug 2024 • Bengaluru</span>
         </div>
+        <p class="xp-meta">Compliance & Audit • GSTR • Workpapers • Stock Verification</p>
+        <ul class="xp-bullets">
+          <li>Filed GSTR returns on schedule with complete documentation and traceable support.</li>
+          <li>Supported audits and stock verification with reconciliations and clean workpapers.</li>
+          <li>Built discipline in controls and documentation ahead of professional studies.</li>
+        </ul>
+        <div class="xp-tags">
+          <span class="tag">GSTR</span><span class="tag">Audit</span><span class="tag">Stock Verification</span>
+        </div>
+        <span class="xp-star" aria-hidden="true"></span>
       </div>
-    </div>
+    </article>
+
+    <!-- Node 3 (left) -->
+    <article class="xp-node left card tilt" data-node="3">
+      <div class="inner">
+        <div class="xp-head">
+          <h3 class="xp-role">Process Optimization & Automation</h3>
+          <span class="tag">Continuous</span>
+        </div>
+        <p class="xp-meta">Exception handling • Remittance gaps • Unapplied/short‑pay templating</p>
+        <ul class="xp-bullets">
+          <li>Mapped cash‑application steps end‑to‑end and removed non‑value activities to cut handling time.</li>
+          <li>Prototyped Power BI views to replace multi‑sheet trackers and escalate exceptions faster.</li>
+          <li>Standardized demand‑letter and NSF checks to reduce rework and follow‑ups.</li>
+        </ul>
+        <span class="xp-star" aria-hidden="true"></span>
+      </div>
+    </article>
   </div>
 </section>
   </main>
@@ -756,13 +768,144 @@ window.addEventListener('scroll', () => {
   });
 });
 </script>
-    <script>
-  // Reveal on scroll
-  const xpItems = document.querySelectorAll('.xp-item');
-  const xpObserver = new IntersectionObserver((entries) => {
-    entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('show'); xpObserver.unobserve(en.target); } });
-  }, { threshold: .2 });
-  xpItems.forEach(i => xpObserver.observe(i));
+<script>
+(function(){
+  const section = document.querySelector('#experience');
+  const svg = section.querySelector('.xp-sky');
+  if(!section || !svg) return;
+
+  // Create defs: glow + gradient
+  const NS = 'http://www.w3.org/2000/svg';
+  function el(name, attrs={}){
+    const n = document.createElementNS(NS, name);
+    for(const k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+  function ensureDefs(){
+    let defs = svg.querySelector('defs');
+    if(!defs){ defs = el('defs'); svg.appendChild(defs); }
+
+    // Glow filter
+    let glow = defs.querySelector('#glow');
+    if(!glow){
+      glow = el('filter',{id:'glow', x:'-50%', y:'-50%', width:'200%', height:'200%'});
+      const g1 = el('feGaussianBlur',{ stdDeviation:'2', result:'b1' });
+      const g2 = el('feGaussianBlur',{ stdDeviation:'4', result:'b2' });
+      const m  = el('feMerge');
+      m.append(el('feMergeNode',{in:'b2'}), el('feMergeNode',{in:'b1'}), el('feMergeNode',{in:'SourceGraphic'}));
+      glow.append(g1,g2,m); defs.appendChild(glow);
+    }
+
+    // Stroke gradient
+    let grad = defs.querySelector('#xpStrokeGrad');
+    if(!grad){
+      grad = el('linearGradient',{id:'xpStrokeGrad', x1:'0%', y1:'0%', x2:'100%', y2:'0%'});
+      grad.append(
+        el('stop',{offset:'0%','stop-color':'#7aa2ff'}),
+        el('stop',{offset:'50%','stop-color':'#8a7aff'}),
+        el('stop',{offset:'100%','stop-color':'#4ff0b0'})
+      );
+      defs.appendChild(grad);
+    }
+  }
+
+  // Get anchor points (the glowing stars)
+  function getPoints(){
+    const nodes = [...section.querySelectorAll('.xp-node')];
+    const rectS = section.getBoundingClientRect();
+    return nodes.map(n=>{
+      const star = n.querySelector('.xp-star');
+      const r = star.getBoundingClientRect();
+      // Center of star, relative to section
+      const x = (r.left - rectS.left) + r.width/2 + window.scrollX;
+      const y = (r.top  - rectS.top ) + r.height/2 + window.scrollY;
+      return {x,y, node:n};
+    });
+  }
+
+  // Create a slight zig-zag path with soft bends
+  function buildPath(points){
+    if(points.length < 2) return null;
+    const p = points.map(pt=>({x:pt.x, y:pt.y}));
+    // Convert to relative inside svg viewport
+    const vb = svg.getBoundingClientRect();
+    const x0 = vb.left + window.scrollX, y0 = vb.top + window.scrollY;
+    const rel = p.map(pt=>({x: pt.x - x0, y: pt.y - y0}));
+
+    // Build smooth-ish polyline with slight random offsets for constellation vibe
+    let d = `M ${rel.x.toFixed(1)} ${rel.y.toFixed(1)}`;
+    for(let i=1;i<rel.length;i++){
+      const prev = rel[i-1], curr = rel[i];
+      const midX = (prev.x + curr.x)/2;
+      const midY = (prev.y + curr.y)/2;
+      const jitterX = (Math.random() - .5) * 18;
+      const jitterY = (Math.random() - .5) * 12;
+      // Quadratic curve via a jittered midpoint for a gentle bend
+      d += ` Q ${(midX + jitterX).toFixed(1)} ${(midY + jitterY).toFixed(1)}, ${curr.x.toFixed(1)} ${curr.y.toFixed(1)}`;
+    }
+    const path = el('path',{ d, class:'const-line' });
+    return path;
+  }
+
+  // Random twinkles within the section
+  function addTwinkles(count=28){
+    // Remove old
+    svg.querySelectorAll('.twinkle').forEach(x=>x.remove());
+    const vb = svg.getBoundingClientRect();
+    const w = vb.width, h = vb.height;
+    for(let i=0;i<count;i++){
+      const cx = Math.random()*w, cy = Math.random()*h;
+      const r = Math.random()*1.6 + 0.6;
+      const c = el('circle',{ cx: cx.toFixed(1), cy: cy.toFixed(1), r: r.toFixed(2), class:'twinkle' });
+      c.style.animationDelay = (Math.random()*2.0).toFixed(2)+'s';
+      svg.appendChild(c);
+    }
+  }
+
+  function resizeSVG(){
+    const r = section.getBoundingClientRect();
+    svg.setAttribute('width', r.width);
+    svg.setAttribute('height', r.height);
+    svg.setAttribute('viewBox', `0 0 ${r.width} ${r.height}`);
+  }
+
+  let linePath;
+  function redraw(){
+    resizeSVG();
+    ensureDefs();
+    if(linePath) linePath.remove();
+    const pts = getPoints();
+    linePath = buildPath(pts);
+    if(linePath) svg.appendChild(linePath);
+    addTwinkles(28);
+  }
+
+  // Reveal nodes progressively and re-draw when visible
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting){
+        en.target.classList.add('show');
+        // Recompute after reveal for accurate positions
+        redraw();
+        io.unobserve(en.target);
+      }
+    });
+  },{threshold:.2});
+  document.querySelectorAll('.xp-node').forEach(n=>io.observe(n));
+
+  // Initial draw after layout
+  window.addEventListener('load', ()=>{ redraw(); });
+  window.addEventListener('resize', ()=>{ redraw(); });
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') redraw(); });
+
+  // Respect reduced motion
+  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    // Turn off line draw animation; keep static
+    const style = document.createElement('style');
+    style.textContent = `.const-line{animation:none; stroke-dasharray:none; stroke-dashoffset:0}`;
+    document.head.appendChild(style);
+  }
+})();
 </script>
 </body>
 </html>
