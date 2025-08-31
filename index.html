@@ -369,68 +369,74 @@ section#about {
   align-items: center;
   justify-content: center;
 }
-    .timeline {
+.timeline {
   position: relative;
   padding: 100px 0;
-  text-align: center;
 }
 .timeline-title {
   font-size: 40px;
-  margin-bottom: 60px;
+  margin-bottom: 80px;
   background: linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0);
   -webkit-background-clip: text;
   color: transparent;
-  text-shadow: 0 0 20px rgba(122,162,255,0.6);
+  text-align: center;
 }
 
 .constellation {
   position: relative;
   width: 100%;
-  margin: 0 auto;
+  max-width: 900px;
+  margin: auto;
+  min-height: 1000px;
 }
 
-.entry {
-  position: relative;
-  width: 50%;
-  padding: 20px 40px;
+.constellation-lines {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
 }
-.entry.left { left: 0; text-align: right; }
-.entry.right { left: 50%; text-align: left; }
 
 .star {
   position: absolute;
-  top: 20px;
   width: 18px; height: 18px;
   background: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 20px #7aa2ff, 0 0 40px #4ff0b0;
-  z-index: 10;
+  box-shadow: 0 0 15px #7aa2ff, 0 0 30px #4ff0b0;
+  z-index: 2;
 }
-.entry.left .star { right: -10px; }
-.entry.right .star { left: -10px; }
+
+.entry {
+  position: absolute;
+  width: 45%;
+  z-index: 3;
+}
+.entry.left { text-align: right; }
+.entry.right { text-align: left; }
 
 .entry .content {
+  display: inline-block;
   background: rgba(255,255,255,0.08);
-  padding: 20px;
+  padding: 18px 20px;
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.2);
-  backdrop-filter: blur(12px);
-  transition: transform 0.3s;
+  backdrop-filter: blur(10px);
+  transition: 0.3s;
 }
-.entry .content:hover { transform: translateY(-6px) scale(1.02); }
+.entry .content:hover { transform: translateY(-6px) scale(1.03); }
 
 .entry button {
-  margin-top: 10px;
+  margin-top: 8px;
   background: linear-gradient(90deg,#7aa2ff,#4ff0b0);
   border: none;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 12px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   color: #fff;
 }
-
-.details { display: none; margin-top: 10px; font-size: 15px; color: #ccc; }
+.details { display: none; margin-top: 10px; color: #ccc; font-size: 14px; }
 .entry.active .details { display: block; }
   </style>
 </head>
@@ -582,73 +588,77 @@ and making processes faster, cleaner, and scalable.
 </section>
 <section id="experience" class="timeline">
   <h2 class="timeline-title">Experience & Education</h2>
-  <div class="constellation">
 
-    <!-- 1st Star -->
-    <div class="entry left">
-      <div class="star"></div>
+  <div class="constellation">
+    <!-- SVG constellation lines -->
+    <svg class="constellation-lines" viewBox="0 0 800 1200" preserveAspectRatio="xMidYMid meet">
+      <polyline points="
+        400,100   350,220 
+        450,360   320,480
+        420,620   300,760
+        380,920
+      " stroke="rgba(122,162,255,0.8)" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="6,6"/>
+    </svg>
+
+    <!-- Stars + Entries -->
+    <div class="entry left" style="top:100px; left:0;">
+      <div class="star" style="top:100px; left:400px;"></div>
       <div class="content">
         <h3>Order to Cash Operations — Accenture</h3>
         <span>2024 – Present</span>
         <button onclick="toggleDetails(this)">View Details</button>
         <div class="details">
-          <p>Specializing in cash application for US Foods Inc. Handling NSF returns, ACH, wires, check payments, Versapay validations, and demand letters.</p>
+          <p>Specializing in cash application for US Foods Inc. Handling NSF returns, ACH, wires, checks, Versapay, demand letters.</p>
         </div>
       </div>
     </div>
 
-    <!-- 2nd Star -->
-    <div class="entry right">
-      <div class="star"></div>
+    <div class="entry right" style="top:220px; left:50%;">
+      <div class="star" style="top:220px; left:350px;"></div>
       <div class="content">
         <h3>Accounting & Taxation Intern</h3>
         <span>Mar 2024 – Aug 2024</span>
         <button onclick="toggleDetails(this)">View Details</button>
         <div class="details">
-          <p>Worked on direct & indirect tax filings, ledger postings, GST compliance, and assisting with audits.</p>
+          <p>Worked on direct & indirect tax filings, ledger postings, GST compliance, audits.</p>
         </div>
       </div>
     </div>
 
-    <!-- 3rd Star -->
-    <div class="entry left">
-      <div class="star"></div>
+    <div class="entry left" style="top:360px; left:0;">
+      <div class="star" style="top:360px; left:450px;"></div>
       <div class="content">
         <h3>B.Com Graduation</h3>
         <span>2020 – 2023</span>
       </div>
     </div>
 
-    <!-- 4th Star -->
-    <div class="entry right">
-      <div class="star"></div>
+    <div class="entry right" style="top:480px; left:50%;">
+      <div class="star" style="top:480px; left:320px;"></div>
       <div class="content">
         <h3>PUC (12th Standard)</h3>
         <span>2018 – 2020</span>
       </div>
     </div>
 
-    <!-- 5th Star -->
-    <div class="entry left">
-      <div class="star"></div>
+    <div class="entry left" style="top:620px; left:0;">
+      <div class="star" style="top:620px; left:420px;"></div>
       <div class="content">
         <h3>SSLC (10th Standard)</h3>
         <span>2018</span>
       </div>
     </div>
 
-    <!-- 6th Star -->
-    <div class="entry right">
-      <div class="star"></div>
+    <div class="entry right" style="top:760px; left:50%;">
+      <div class="star" style="top:760px; left:300px;"></div>
       <div class="content">
         <h3>ICMAI Intermediate</h3>
         <span>Ongoing</span>
       </div>
     </div>
 
-    <!-- 7th Star -->
-    <div class="entry left">
-      <div class="star"></div>
+    <div class="entry left" style="top:920px; left:0;">
+      <div class="star" style="top:920px; left:380px;"></div>
       <div class="content">
         <h3>ICMAI Foundation</h3>
         <span>2022</span>
