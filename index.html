@@ -469,7 +469,12 @@ section#about {
     margin: 20px auto;
     width: 90%;
   }
-  .cx-left { min-height: auto; }
+.cx-left {
+  min-height: 2200px;   /* more breathing room */
+}
+.cx-sky {
+  max-width: 800px;     /* make constellation wider */
+  height: 100%;
 }
   </style>
 </head>
@@ -738,14 +743,15 @@ counters.forEach(counter => observer.observe(counter));
 
   // === CONSTELLATION STARS (x, y, radius, label) ===
 const STARS = [
-  {x:0.50, y:0.05, r:12, label:"Order to Cash"},           // aligns with card 1
-  {x:0.52, y:0.20, r:11, label:"Internship – Accounting"}, // card 2
-  {x:0.48, y:0.35, r:11, label:"B.Com Graduate"},          // card 3
-  {x:0.53, y:0.50, r:11, label:"ICMAI Intermediate"},      // card 4
-  {x:0.47, y:0.65, r:11, label:"ICMAI Foundation"},        // card 5
-  {x:0.52, y:0.80, r:10, label:"PUC"},                     // card 6
-  {x:0.50, y:0.95, r:12, label:"SSLC"}                     // card 7
+  {x:0.35, y:0.05, r:12, label:"Order to Cash – Current Role"}, 
+  {x:0.65, y:0.20, r:11, label:"Internship – Accounting"}, 
+  {x:0.40, y:0.35, r:11, label:"B.Com Graduate"}, 
+  {x:0.70, y:0.50, r:11, label:"ICMAI Intermediate"}, 
+  {x:0.38, y:0.65, r:11, label:"ICMAI Foundation"}, 
+  {x:0.68, y:0.80, r:10, label:"PUC"}, 
+  {x:0.50, y:0.95, r:12, label:"SSLC"} 
 ];
+
   // === LINKS (which stars connect to which) ===
   const LINKS = [
     [0,1],[1,2],[2,3],[3,4],[4,5],[5,6]
