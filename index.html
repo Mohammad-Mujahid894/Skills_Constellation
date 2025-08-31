@@ -470,11 +470,10 @@ section#about {
     width: 90%;
   }
 .cx-left {
-  min-height: 2200px;   /* more breathing room */
+  min-height: 2000px;   /* stretch vertical canvas */
 }
 .cx-sky {
-  max-width: 800px;     /* make constellation wider */
-  height: 100%;
+  max-width: 700px;     /* widen constellation */
 }
   </style>
 </head>
@@ -743,19 +742,22 @@ counters.forEach(counter => observer.observe(counter));
 
   // === CONSTELLATION STARS (x, y, radius, label) ===
 const STARS = [
-  {x:0.35, y:0.05, r:12, label:"Order to Cash – Current Role"}, 
-  {x:0.65, y:0.20, r:11, label:"Internship – Accounting"}, 
-  {x:0.40, y:0.35, r:11, label:"B.Com Graduate"}, 
-  {x:0.70, y:0.50, r:11, label:"ICMAI Intermediate"}, 
-  {x:0.38, y:0.65, r:11, label:"ICMAI Foundation"}, 
-  {x:0.68, y:0.80, r:10, label:"PUC"}, 
-  {x:0.50, y:0.95, r:12, label:"SSLC"} 
+  {x:0.50, y:0.05, r:14, label:"Order to Cash – Current Role"}, 
+  {x:0.54, y:0.20, r:12, label:"Internship – Accounting"}, 
+  {x:0.48, y:0.35, r:13, label:"B.Com Graduate"}, 
+  {x:0.52, y:0.50, r:13, label:"ICMAI Intermediate"}, 
+  {x:0.47, y:0.65, r:12, label:"ICMAI Foundation"}, 
+  {x:0.51, y:0.80, r:12, label:"PUC"}, 
+  {x:0.49, y:0.95, r:14, label:"SSLC"} 
+];
+
+  const LINKS = [
+  [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],
+  [0,2],[2,4],[3,5]  // diagonals for natural feel
 ];
 
   // === LINKS (which stars connect to which) ===
-  const LINKS = [
-    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6]
-  ];
+
   const el=(n,a={})=>{
     const e=document.createElementNS(NS,n);
     for(const k in a) e.setAttribute(k,a[k]);
