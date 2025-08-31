@@ -369,112 +369,6 @@ section#about {
   align-items: center;
   justify-content: center;
 }
-/* EXPERIENCE CONSTELLATION TIMELINE */
-#experience {
-  position: relative;
-  padding: 100px 0;
-  display: flex;
-  justify-content: center;
-}
-
-.cx-left {
-  position: relative;
-  min-height: 1800px;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-.cx-sky {
-  width: 500px;
-  height: 100%;
-}
-
-.cx-sky {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 100%;
-  width: 500px;
-}
-
-/* Timeline cards alternate sides */
-.cx-card {
-  position: absolute;
-  width: 280px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 18px 22px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 0 20px rgba(122,162,255,0.35);
-  transition: transform .3s, box-shadow .3s;
-}
-.cx-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 0 30px rgba(122,162,255,.6);
-}
-/* Constellation styling */
-.cx-line {
-  stroke: url(#cxGrad);
-  stroke-width: 2;
-  opacity: 0.6;
-  filter: url(#cxGlow);
-}
-
-.cx-star circle {
-  fill: #fff;
-  stroke: #7aa2ff;
-  stroke-width: 2;
-  filter: url(#cxGlow);
-  cursor: pointer;
-}
-
-.cx-star.active circle {
-  fill: #4ff0b0;
-  stroke: #fff;
-  r: 14 !important;
-}
-
-.pulse {
-  fill: none;
-  stroke: #4ff0b0;
-  stroke-width: 2;
-  opacity: 0.5;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  from { r: 0; opacity: 0.7; }
-  to { r: 25; opacity: 0; }
-}
-
-.cx-card.active {
-  border: 2px solid #4ff0b0;
-  box-shadow: 0 0 40px rgba(79,240,176,.5);
-}
-/* Alternate card positions */
-.cx-card[data-star="1"] { top: 5%;  left: calc(50% - 340px); } /* left */
-.cx-card[data-star="2"] { top: 20%; left: calc(50% + 60px); }  /* right */
-.cx-card[data-star="3"] { top: 35%; left: calc(50% - 340px); }
-.cx-card[data-star="4"] { top: 50%; left: calc(50% + 60px); }
-.cx-card[data-star="5"] { top: 65%; left: calc(50% - 340px); }
-.cx-card[data-star="6"] { top: 80%; left: calc(50% + 60px); }
-.cx-card[data-star="7"] { top: 95%; left: calc(50% - 340px); }
-
-/* Mobile fallback */
-@media(max-width:768px){
-  .cx-card {
-    position: relative;
-    left: auto !important;
-    top: auto !important;
-    margin: 20px auto;
-    width: 90%;
-  }
-.cx-left {
-  min-height: 2000px;   /* stretch vertical canvas */
-}
-.cx-sky {
-  max-width: 700px;     /* widen constellation */
-}
   </style>
 </head>
 <body>
@@ -623,20 +517,8 @@ and making processes faster, cleaner, and scalable.
   </div>
 </div>
 </section>
-<section id="experience" class="cx-grid">
-  <!-- Left side: constellation -->
-  <div class="cx-left">
-    <svg class="cx-sky"></svg>
-  </div>
-
-  <!-- Right side: timeline cards -->
-    <div class="cx-card" data-star="1">Order to Cash – Current Role</div>
-    <div class="cx-card" data-star="2">Internship – Accounting</div>
-    <div class="cx-card" data-star="3">B.Com Graduate</div>
-    <div class="cx-card" data-star="4">ICMAI Intermediate (Ongoing)</div>
-    <div class="cx-card" data-star="5">ICMAI Foundation</div>
-    <div class="cx-card" data-star="6">PUC</div>
-    <div class="cx-card" data-star="7">SSLC</div>
+<section id="experience">
+  <!-- Experience section intentionally left blank -->
 </section>
   </main>
   <script>
@@ -733,112 +615,21 @@ const animateCounters = (entries, observer) => {
 const observer = new IntersectionObserver(animateCounters, { threshold: 0.3 });
 counters.forEach(counter => observer.observe(counter));
 </script>
-<script>
-(function(){
-  const section = document.querySelector('#experience');
-  const svg = section.querySelector('.cx-sky');
-  if(!section || !svg) return;
-  const NS='http://www.w3.org/2000/svg';
+    <script>
+const entries = document.querySelectorAll('.entry');
+const stars = document.querySelectorAll('.star');
 
-  // === CONSTELLATION STARS (x, y, radius, label) ===
-const STARS = [
-  {x:0.50, y:0.05, r:14, label:"Order to Cash – Current Role"}, 
-  {x:0.54, y:0.20, r:12, label:"Internship – Accounting"}, 
-  {x:0.48, y:0.35, r:13, label:"B.Com Graduate"}, 
-  {x:0.52, y:0.50, r:13, label:"ICMAI Intermediate"}, 
-  {x:0.47, y:0.65, r:12, label:"ICMAI Foundation"}, 
-  {x:0.51, y:0.80, r:12, label:"PUC"}, 
-  {x:0.49, y:0.95, r:14, label:"SSLC"} 
-];
-
-  const LINKS = [
-  [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],
-  [0,2],[2,4],[3,5]  // diagonals for natural feel
-];
-
-  // === LINKS (which stars connect to which) ===
-
-  const el=(n,a={})=>{
-    const e=document.createElementNS(NS,n);
-    for(const k in a) e.setAttribute(k,a[k]);
-    return e;
-  };
-
-  function defs(){
-    let defs = el('defs');
-    const grad = el('linearGradient',{id:'cxGrad',x1:'0%',y1:'0%',x2:'100%',y2:'0%'});
-    grad.append(el('stop',{offset:'0%','stop-color':'#7aa2ff'}),
-                el('stop',{offset:'100%','stop-color':'#4ff0b0'}));
-    const glow = el('filter',{id:'cxGlow',x:'-50%',y:'-50%',width:'200%',height:'200%'});
-    const g1 = el('feGaussianBlur',{stdDeviation:'2',result:'b1'});
-    const g2 = el('feGaussianBlur',{stdDeviation:'4',result:'b2'});
-    const merge = el('feMerge');
-    merge.append(el('feMergeNode',{in:'b2'}),el('feMergeNode',{in:'b1'}),el('feMergeNode',{in:'SourceGraphic'}));
-    glow.append(g1,g2,merge);
-    defs.append(grad,glow);
-    svg.appendChild(defs);
-  }
-
-  function build(){
-    svg.innerHTML='';
-    defs();
-    const {width:w,height:h} = section.querySelector('.cx-left').getBoundingClientRect();
-    svg.setAttribute('width',w);
-    svg.setAttribute('height',h);
-    svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
-
-    const pts = STARS.map(s=>({x:s.x*w,y:s.y*h,r:s.r}));
-
-    // === DRAW LINKS ===
-    LINKS.forEach(([a,b])=>{
-      const p1=pts[a], p2=pts[b];
-      const line=el('line',{
-        x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y,
-        class:'cx-line'
-      });
-      svg.appendChild(line);
-    });
-
-    // === DRAW STARS ===
-    pts.forEach((p,i)=>{
-      const g=el('g',{class:'cx-star','data-star':i+1});
-      const c=el('circle',{cx:p.x,cy:p.y,r:p.r});
-      const pulse=el('circle',{cx:p.x,cy:p.y,r:0,class:'pulse'});
-      g.append(c,pulse);
-      svg.appendChild(g);
-    });
-  }
-
-  function activate(n,scroll=true){
-    svg.querySelectorAll('.cx-star').forEach(s=>s.classList.toggle('active', s.dataset.star===String(n)));
-    document.querySelectorAll('.cx-card').forEach(c=>c.classList.toggle('active', c.dataset.star===String(n)));
-    if(scroll){
-      const card=document.querySelector(`.cx-card[data-star="${n}"]`);
-      if(card) card.scrollIntoView({behavior:'smooth',block:'nearest'});
+window.addEventListener('scroll', () => {
+  entries.forEach((entry, i) => {
+    const rect = entry.getBoundingClientRect();
+    if (rect.top >= 100 && rect.top < window.innerHeight / 2) {
+      entries.forEach(e => e.classList.remove('active'));
+      stars.forEach(s => s.classList.remove('active'));
+      entry.classList.add('active');
+      stars[i].classList.add('active');
     }
-  }
-
-  function wire(){
-    svg.querySelectorAll('.cx-star').forEach(s=>{
-      s.addEventListener('mouseenter',()=>activate(s.dataset.star,false));
-      s.addEventListener('click',()=>activate(s.dataset.star,true));
-    });
-    document.querySelectorAll('.cx-card').forEach(c=>{
-      c.addEventListener('mouseenter',()=>activate(c.dataset.star,false));
-      c.addEventListener('click',()=>activate(c.dataset.star,true));
-    });
-    const io=new IntersectionObserver(ents=>{
-      ents.forEach(en=>{
-        if(en.isIntersecting) activate(en.target.dataset.star,false);
-      });
-    },{threshold:.4});
-    document.querySelectorAll('.cx-card').forEach(c=>io.observe(c));
-  }
-
-  function init(){ build(); wire(); activate(1,false); }
-  addEventListener('load',init);
-  addEventListener('resize',build);
-})();
+  });
+});
 </script>
 </body>
 </html>
