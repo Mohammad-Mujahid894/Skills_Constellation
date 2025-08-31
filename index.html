@@ -369,78 +369,6 @@ section#about {
   align-items: center;
   justify-content: center;
 }
-.timeline {
-  position: relative;
-  padding: 100px 0;
-}
-.timeline-title {
-  font-size: 40px;
-  margin-bottom: 80px;
-  background: linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0);
-  -webkit-background-clip: text;
-  color: transparent;
-  text-align: center;
-}
-
-.constellation {
-  position: relative;
-  width: 100%;
-  max-width: 900px;
-  margin: auto;
-  min-height: 1000px;
-}
-
-.constellation-lines {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.details { display: none; margin-top: 10px; color: #ccc; font-size: 14px; }
-.entry.active .details { display: block; }
-    .timeline-wrap {
-  position: relative;
-  max-width: 900px;
-  margin: auto;
-}
-.constellation-lines {
-  position:absolute;
-  inset:0;
-  z-index:1;
-}
-.cards-layer {
-  position:absolute;
-  inset:0;
-  z-index:2;
-}
-    .entry {
-  position: absolute;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(12px);
-  border-radius: 12px;
-  padding: 12px 16px;
-  width: 40%;
-  color: white;
-}
-.entry.left { right: 55%; text-align: right; }
-.entry.right { left: 55%; text-align: left; }
-.entry button {
-  margin-top: 8px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: #fff;
-  border-radius: 6px;
-  padding: 4px 8px;
-  cursor: pointer;
-}
-.entry .details { display: none; margin-top: 8px; color: #ccc; font-size: 14px; }
-.entry.active .details { display: block; }
-circle.star {
-  filter: drop-shadow(0 0 6px #7aa2ff) drop-shadow(0 0 12px #4ff0b0);
-}
   </style>
 </head>
 <body>
@@ -589,13 +517,8 @@ and making processes faster, cleaner, and scalable.
   </div>
 </div>
 </section>
-<section id="experience" class="timeline">
-  <h2 class="timeline-title">Experience & Education</h2>
-
-  <div id="timelineWrap" class="timeline-wrap">
-    <svg id="constellation" class="constellation-lines"></svg>
-    <div id="cardsLayer" class="cards-layer"></div>
-  </div>
+<section id="experience">
+  <!-- Experience section intentionally left blank -->
 </section>
   </main>
   <script>
@@ -692,92 +615,21 @@ const animateCounters = (entries, observer) => {
 const observer = new IntersectionObserver(animateCounters, { threshold: 0.3 });
 counters.forEach(counter => observer.observe(counter));
 </script>
-<script>
-const nodes = [
-  {
-    side: "left",
-    title: "Order to Cash Operations — Accenture",
-    period: "2024 – Present",
-    details: "Specializing in cash application for US Foods Inc. Handling NSF returns, ACH, wires, checks, Versapay, demand letters."
-  },
-  {
-    side: "right",
-    title: "Accounting & Taxation Intern",
-    period: "Mar 2024 – Aug 2024",
-    details: "Worked on direct & indirect tax filings, ledger postings, GST compliance, audits."
-  },
-  { side: "left", title: "B.Com Graduation", period: "2020 – 2023" },
-  { side: "right", title: "PUC (12th Standard)", period: "2018 – 2020" },
-  { side: "left", title: "SSLC (10th Standard)", period: "2018" },
-  { side: "right", title: "ICMAI Intermediate", period: "Ongoing" },
-  { side: "left", title: "ICMAI Foundation", period: "2022" }
-];
+    <script>
+const entries = document.querySelectorAll('.entry');
+const stars = document.querySelectorAll('.star');
 
-(function drawConstellation(){
-  const wrap = document.getElementById("timelineWrap");
-  const svg  = document.getElementById("constellation");
-  const cards = document.getElementById("cardsLayer");
-
-  const w = wrap.clientWidth;
-  const gapY = 150;
-  const startY = 100;
-  const jitter = [-80,100,-60,90,-70,110,-50]; // zig-zag offsets
-
-  const points = nodes.map((n,i)=>({
-    x: w/2 + jitter[i],
-    y: startY + i*gapY
-  }));
-
-  // set SVG size
-  const height = points[points.length-1].y + 120;
-  svg.setAttribute("viewBox", `0 0 ${w} ${height}`);
-  svg.setAttribute("width", w);
-  svg.setAttribute("height", height);
-
-  // clear
-  svg.innerHTML = "";
-  cards.innerHTML = "";
-
-  // draw polyline
-  const line = document.createElementNS("http://www.w3.org/2000/svg","polyline");
-  line.setAttribute("points", points.map(p=>`${p.x},${p.y}`).join(" "));
-  line.setAttribute("stroke","rgba(122,162,255,0.85)");
-  line.setAttribute("stroke-width","2.5");
-  line.setAttribute("fill","none");
-  line.setAttribute("stroke-linecap","round");
-  line.setAttribute("stroke-dasharray","6,6");
-  svg.appendChild(line);
-
-  // stars + cards
-  points.forEach((p,i)=>{
-    const star = document.createElementNS("http://www.w3.org/2000/svg","circle");
-    star.setAttribute("cx", p.x);
-    star.setAttribute("cy", p.y);
-    star.setAttribute("r", 8);
-    star.setAttribute("fill","#fff");
-    star.setAttribute("class","star");
-    svg.appendChild(star);
-
-    const node = nodes[i];
-    const card = document.createElement("div");
-    card.className = `entry ${node.side}`;
-    card.style.top = p.y + "px";
-    card.innerHTML = `
-      <div class="content">
-        <h3>${node.title}</h3>
-        <span>${node.period}</span>
-        ${node.details ? `<button>View Details</button><div class="details"><p>${node.details}</p></div>`:""}
-      </div>
-    `;
-    cards.appendChild(card);
-
-    if(node.details){
-      card.querySelector("button").addEventListener("click",()=>{
-        card.classList.toggle("active");
-      });
+window.addEventListener('scroll', () => {
+  entries.forEach((entry, i) => {
+    const rect = entry.getBoundingClientRect();
+    if (rect.top >= 100 && rect.top < window.innerHeight / 2) {
+      entries.forEach(e => e.classList.remove('active'));
+      stars.forEach(s => s.classList.remove('active'));
+      entry.classList.add('active');
+      stars[i].classList.add('active');
     }
   });
-})();
+});
 </script>
 </body>
 </html>
