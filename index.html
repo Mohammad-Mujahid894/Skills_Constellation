@@ -369,6 +369,123 @@ section#about {
   align-items: center;
   justify-content: center;
 }
+    :root{
+  --bg:#04060b;
+  --fg:#eaf2ff;
+  --muted:#9fb2d8;
+  --glass:rgba(255,255,255,.08);
+  --stroke:rgba(255,255,255,.18);
+  --grad1:#7aa2ff; --grad2:#4ff0b0; --grad3:#8a7aff;
+}
+
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+}
+
+/* Section wrapper */
+#experience{
+  position:relative;
+  padding:72px 16px 120px;
+}
+
+/* Title */
+.exp-title{
+  text-align:center;
+  font-size:clamp(28px,5vw,40px);
+  margin:0 0 36px;
+  background:linear-gradient(90deg,var(--grad1),var(--grad3),var(--grad2));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  letter-spacing:.4px; font-weight:900;
+}
+
+/* Constellation canvas */
+.constellation{
+  position:relative;
+  width:min(1100px,92vw);
+  margin:0 auto;
+  /* height is set by JS based on star spacing */
+}
+
+/* SVG sits behind stars/cards */
+#constellation-svg{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  overflow:visible; pointer-events:none;
+}
+
+/* One milestone row */
+.entry{
+  position:absolute;
+  left:0; right:0;
+  height:0; /* we center content around the Y coordinate via translateY */
+}
+
+/* The central star */
+.star{
+  position:absolute;
+  top:0; left:50%;
+  transform:translate(-50%,-50%);
+  width:16px; height:16px; border-radius:50%;
+  background: radial-gradient(circle, #fff 20%, var(--grad1) 50%, var(--grad2) 100%);
+  box-shadow:
+    0 0 10px var(--grad1),
+    0 0 18px var(--grad2),
+    0 0 34px rgba(122,162,255,.45);
+  z-index:2;
+}
+
+/* Info card (glass) */
+.card{
+  position:absolute; top:0;
+  transform:translateY(-50%);
+  max-width:360px;
+  background:var(--glass);
+  border:1px solid var(--stroke);
+  border-radius:16px;
+  padding:14px 16px;
+  backdrop-filter: blur(10px) saturate(140%);
+  box-shadow: 0 10px 40px rgba(0,0,0,.35), 0 0 30px rgba(122,162,255,.18) inset;
+}
+.card h3{margin:0 0 6px; font-size:18px; font-weight:800}
+.card p{margin:0; color:var(--muted); line-height:1.5; font-size:14.5px}
+
+/* Alternate left/right placement */
+.entry.right .card{ left: calc(50% + 56px); text-align:left; }
+.entry.left  .card{ right: calc(50% + 56px); text-align:right; }
+
+/* Reveal/active states */
+.entry .card, .entry .star{ opacity:.55; transition:opacity .35s ease, transform .35s ease; }
+.entry.active .star{ transform:translate(-50%,-50%) scale(1.15); opacity:1; }
+.entry.active .card{ opacity:1; }
+
+/* Small screens */
+@media (max-width:700px){
+  .entry.right .card, .entry.left .card{
+    position:static; transform:none; margin:34px auto 0;
+    display:block; max-width:92%;
+    text-align:left;
+  }
+  .star{ position:relative; left:50%; transform:translate(-50%,0); margin-top:28px; }
+}
+
+/* SVG path styling (double stroke for glow + crisp line) */
+path.constellation-glow{
+  stroke: url(#constellationGradient);
+  stroke-width:8;
+  opacity:.18;
+  filter: blur(2px);
+  fill:none;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+path.constellation-line{
+  stroke: url(#constellationGradient);
+  stroke-width:2.2;
+  opacity:.9;
+  fill:none;
+  stroke-linecap:round; stroke-linejoin:round;
+}
   </style>
 </head>
 <body>
@@ -520,6 +637,72 @@ and making processes faster, cleaner, and scalable.
 <section id="experience">
   <!-- Experience section intentionally left blank -->
 </section>
+    <section id="experience">
+  <h2 class="exp-title">Experience & Education</h2>
+
+  <div class="constellation" id="constellation">
+    <!-- SVG path draws the uneven constellation line in the middle -->
+    <svg id="constellation-svg" aria-hidden="true"></svg>
+
+    <!-- Seven milestones (stars) with alternating sides and manual x-offsets -->
+    <!-- You can tweak data-offset to bend the constellation left/right -->
+    <div class="entry right" data-offset="-36">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2018</h3>
+        <p>Commerce Foundations / Early interest in Accounts.</p>
+      </div>
+    </div>
+
+    <div class="entry left" data-offset="22">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2020</h3>
+        <p>Projects & Internships — basic reconciliation, Excel practice.</p>
+      </div>
+    </div>
+
+    <div class="entry right" data-offset="-58">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2021–2022</h3>
+        <p>B.Com studies — accounting, costing, tax basics (edit as needed).</p>
+      </div>
+    </div>
+
+    <div class="entry left" data-offset="18">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2023</h3>
+        <p>ICMAI Intermediate — Group 1 (FA, Cost, Law, Direct/Indirect Tax).</p>
+      </div>
+    </div>
+
+    <div class="entry right" data-offset="-40">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2024</h3>
+        <p>Accenture — O2C (US Foods): NSF, ACH/Wire, Versapay, Demand Letters.</p>
+      </div>
+    </div>
+
+    <div class="entry left" data-offset="34">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2024–2025</h3>
+        <p>Process optimization: Excel automation, dashboards, aging reports.</p>
+      </div>
+    </div>
+
+    <div class="entry right" data-offset="-16">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2025+</h3>
+        <p>Next: SAP FICO + Power BI specialization, leadership track.</p>
+      </div>
+    </div>
+  </div>
+</section>
   </main>
   <script>
     /* ========= Parallax starfields (3 layers for depth) ========= */
@@ -631,5 +814,113 @@ window.addEventListener('scroll', () => {
   });
 });
 </script>
+    <script>
+    // ====== CONFIG ======
+const START_Y = 60;       // first star vertical offset
+const GAP_Y   = 130;      // distance between stars
+// If you want fully manual offsets, edit each entry's data-offset in HTML.
+// These defaults are used if data-offset is missing.
+const DEFAULT_OFFSETS = [-36, 22, -58, 18, -40, 34, -16];
+
+// ====== BUILD ======
+const container   = document.getElementById('constellation');
+const svg         = document.getElementById('constellation-svg');
+const entries     = Array.from(container.querySelectorAll('.entry'));
+
+// Ensure we have seven and set Y positions, star/card placement
+function layout() {
+  const w = container.clientWidth;
+  const midX = Math.round(w / 2);
+
+  const points = [];
+
+  entries.forEach((entry, i) => {
+    const offset = parseInt(entry.dataset.offset ?? DEFAULT_OFFSETS[i] ?? 0, 10);
+    const y = START_Y + i * GAP_Y;
+    const x = midX + offset;
+
+    // Position the entry row (top=y)
+    entry.style.top = `${y}px`;
+
+    // Move the star horizontally (left: 50% + offset via CSS variable)
+    const star = entry.querySelector('.star');
+    star.style.left = `calc(50% + ${offset}px)`;
+
+    // Record point for the constellation path
+    points.push({ x, y });
+  });
+
+  // Update container height to fit last point + padding
+  const totalH = START_Y + (entries.length - 1) * GAP_Y + 60;
+  container.style.height = `${totalH}px`;
+
+  // Draw/Redraw the constellation path
+  drawPath(points);
+}
+
+function drawPath(points) {
+  // Clear previous content
+  svg.innerHTML = '';
+
+  // Set SVG size to container
+  const { width, height } = container.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${Math.max(1, width)} ${Math.max(1, height)}`);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+
+  // Gradients / defs
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const grad = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+  grad.id = 'constellationGradient';
+  grad.setAttribute('x1', '0%'); grad.setAttribute('y1', '0%');
+  grad.setAttribute('x2', '0%'); grad.setAttribute('y2', '100%');
+
+  const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+  stop1.setAttribute('offset', '0%'); stop1.setAttribute('stop-color', '#7aa2ff');
+  const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+  stop2.setAttribute('offset', '60%'); stop2.setAttribute('stop-color', '#8a7aff');
+  const stop3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+  stop3.setAttribute('offset', '100%'); stop3.setAttribute('stop-color', '#4ff0b0');
+
+  grad.append(stop1, stop2, stop3);
+  defs.appendChild(grad);
+  svg.appendChild(defs);
+
+  // Build a polyline-style path (straight segments like real constellations)
+  let d = '';
+  points.forEach((p, i) => {
+    d += (i === 0 ? `M ${p.x} ${p.y}` : ` L ${p.x} ${p.y}`);
+  });
+
+  // Glow stroke
+  const glow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  glow.setAttribute('d', d);
+  glow.setAttribute('class', 'constellation-glow');
+
+  // Crisp line stroke
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  line.setAttribute('d', d);
+  line.setAttribute('class', 'constellation-line');
+
+  svg.append(glow, line);
+}
+
+// Reveal/active on scroll
+const io = new IntersectionObserver((entriesObs) => {
+  entriesObs.forEach(en => {
+    if (en.isIntersecting) {
+      en.target.classList.add('active');
+    }
+  });
+}, { root: null, threshold: 0.35 });
+
+entries.forEach(e => io.observe(e));
+
+// Re-layout on resize
+window.addEventListener('resize', layout);
+
+// Initial layout
+layout();
+    </script>
 </body>
 </html>
