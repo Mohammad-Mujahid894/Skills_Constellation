@@ -378,10 +378,10 @@ section#about {
   --grad1:#7aa2ff; --grad2:#4ff0b0; --grad3:#8a7aff;
 }
 
-#experience{
-  position:relative;
-  padding:72px 16px 120px;
-  background: var(--bg);
+#experience {
+  position: relative;
+  padding: 72px 16px 120px;
+  background: transparent !important; /* keep galaxy visible */
 }
 
 .exp-title{
@@ -397,7 +397,11 @@ section#about {
 .constellation{ position:relative; width:min(1100px,92vw); margin:0 auto; }
 #constellation-svg{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
 
-.entry{ position:absolute; left:0; right:0; height:0; }
+.entry {
+  position: absolute;
+  width: 100%;
+}
+
 .star{
   position:absolute; top:0; left:50%;
   transform:translate(-50%,-50%);
