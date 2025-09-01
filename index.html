@@ -425,17 +425,13 @@ section#about {
   box-shadow: 0 0 15px #7aa2ff, 0 0 30px #8a7aff, 0 0 45px #4ff0b0;
   flex-shrink: 0;
 }
-.star::after {
-  content: '';
+    #constellation-line {
   position: absolute;
-  top: 50%; left: 50%;
-  width: 2px;
-  height: 100px; /* connecting line length */
-  background: rgba(255,255,255,0.2);
-  transform: translate(-50%, -50%);
-  z-index: -1;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
 }
-.entry:last-child .star::after { display: none; }
   </style>
 </head>
 <body>
@@ -587,6 +583,7 @@ and making processes faster, cleaner, and scalable.
     <section id="experience" class="timeline">
   <h2>Experience & Education</h2>
   <div class="timeline-wrapper">
+    <svg id="constellation-line"></svg>
     <div class="star-line">
       <!-- 7 stars with alternating info -->
       <div class="entry left">
@@ -757,6 +754,48 @@ window.addEventListener('scroll', () => {
     }
   });
 });
+</script>
+    <script>
+const svg = document.getElementById("constellation-line");
+const stars = document.querySelectorAll("#experience .star");
+
+function drawConstellation() {
+  const parentRect = svg.getBoundingClientRect();
+  const points = [];
+
+  stars.forEach(star => {
+    const rect = star.getBoundingClientRect();
+    points.push({
+      x: rect.left + rect.width/2 - parentRect.left,
+      y: rect.top + rect.height/2 - parentRect.top
+    });
+  });
+
+  let d = "";
+  points.forEach((p, i) => {
+    d += (i === 0 ? `M ${p.x},${p.y}` : ` L ${p.x},${p.y}`);
+  });
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#7aa2ff"/>
+        <stop offset="50%" stop-color="#8a7aff"/>
+        <stop offset="100%" stop-color="#4ff0b0"/>
+      </linearGradient>
+    </defs>
+    <path d="${d}"
+      stroke="url(#grad)"
+      stroke-width="2.5"
+      fill="none"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      filter="drop-shadow(0 0 6px #7aa2ff)" />
+  `;
+}
+
+window.addEventListener("load", drawConstellation);
+window.addEventListener("resize", drawConstellation);
 </script>
 </body>
 </html>
