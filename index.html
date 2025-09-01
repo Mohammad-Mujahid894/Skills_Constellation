@@ -585,7 +585,7 @@ and making processes faster, cleaner, and scalable.
   <h2 class="exp-title">Experience & Education</h2>
 
   <div class="constellation" id="constellation">
-    <!-- SVG path draws the uneven constellation line -->
+    <!-- SVG path for constellation -->
     <svg id="constellation-svg" aria-hidden="true"></svg>
 
     <div class="entry right" data-offset="-36">
@@ -813,8 +813,14 @@ function drawPath(points) {
   defs.appendChild(grad);
   svg.appendChild(defs);
 
-  let d = '';
-  points.forEach((p,i)=>{ d += (i===0 ? `M ${p.x} ${p.y}` : ` L ${p.x} ${p.y}`); });
+  // CURVED PATH instead of straight line
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i=1; i<points.length; i++) {
+    const prev = points[i-1];
+    const curr = points[i];
+    const cx = (prev.x + curr.x) / 2; // control point in middle
+    d += ` Q ${cx} ${(prev.y + curr.y)/2}, ${curr.x} ${curr.y}`;
+  }
 
   const glow = document.createElementNS('http://www.w3.org/2000/svg','path');
   glow.setAttribute('d', d);
