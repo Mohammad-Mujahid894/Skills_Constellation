@@ -412,8 +412,8 @@ section#about {
 }
 
 .card {
-  position: relative;     /* ✅ align relative to entry */
-  top: 50%;               /* start around the star’s Y */
+  position: absolute;       /* back to absolute */
+  top: 50%;                 /* align vertically with star */
   transform: translateY(-50%);
   max-width: 360px;
   background: var(--glass);
@@ -421,8 +421,20 @@ section#about {
   border-radius: 16px;
   padding: 14px 16px;
   backdrop-filter: blur(10px) saturate(140%);
-  box-shadow: 0 10px 40px rgba(0,0,0,.35), 0 0 30px rgba(122,162,255,.18) inset;
+  box-shadow: 0 10px 40px rgba(0,0,0,.35),
+              0 0 30px rgba(122,162,255,.18) inset;
 }
+
+/* Side placement stays the same */
+.entry.right .card {
+  left: calc(50% + 56px);
+  text-align: left;
+}
+.entry.left .card {
+  right: calc(50% + 56px);
+  text-align: right;
+}
+
 .card h3{ margin:0 0 6px; font-size:18px; font-weight:800 }
 .card p{ margin:0; color:var(--muted); line-height:1.5; font-size:14.5px }
 
