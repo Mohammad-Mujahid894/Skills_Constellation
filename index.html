@@ -369,68 +369,69 @@ section#about {
   align-items: center;
   justify-content: center;
 }
-    /* ===== Timeline Constellation ===== */
-.timeline {
-  margin: 100px auto;
-  text-align: center;
-  color: var(--fg);
+    :root{
+  --bg:#04060b;
+  --fg:#eaf2ff;
+  --muted:#9fb2d8;
+  --glass:rgba(255,255,255,.08);
+  --stroke:rgba(255,255,255,.18);
+  --grad1:#7aa2ff; --grad2:#4ff0b0; --grad3:#8a7aff;
 }
-.timeline h2 {
-  font-size: 36px;
-  margin-bottom: 60px;
-  background: linear-gradient(90deg,#7aa2ff,#4ff0b0,#8a7aff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.timeline-wrapper {
-  position: relative;
-  max-width: 900px;
-  margin: auto;
-}
-.star-line {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 100px; /* uneven gap gives constellation feel */
-}
-.entry {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  position: relative;
-}
-.entry.left { justify-content: flex-start; }
-.entry.right { justify-content: flex-end; }
 
-.entry .info {
-  background: rgba(255,255,255,0.06);
-  padding: 18px 24px;
-  border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.15);
-  width: 300px;
-  text-align: left;
-  box-shadow: var(--shadow);
+#experience{
+  position:relative;
+  padding:72px 16px 120px;
+  background: var(--bg);
 }
-.entry .info h3 {
-  margin: 0 0 8px;
-  font-size: 20px;
-  color: #7aa2ff;
-}
-.entry .info p { margin: 0; font-size: 16px; color: var(--fg); }
 
-.star {
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 15px #7aa2ff, 0 0 30px #8a7aff, 0 0 45px #4ff0b0;
-  flex-shrink: 0;
+.exp-title{
+  text-align:center;
+  font-size:clamp(28px,5vw,40px);
+  margin:0 0 36px;
+  background:linear-gradient(90deg,var(--grad1),var(--grad3),var(--grad2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  font-weight:900;
 }
-    #constellation-line {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 0;
+
+.constellation{ position:relative; width:min(1100px,92vw); margin:0 auto; }
+#constellation-svg{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+
+.entry{ position:absolute; left:0; right:0; height:0; }
+.star{
+  position:absolute; top:0; left:50%;
+  transform:translate(-50%,-50%);
+  width:16px; height:16px; border-radius:50%;
+  background: radial-gradient(circle, #fff 20%, var(--grad1) 50%, var(--grad2) 100%);
+  box-shadow:0 0 10px var(--grad1),0 0 18px var(--grad2),0 0 34px rgba(122,162,255,.45);
+  z-index:2;
+}
+
+.card{
+  position:absolute; top:0; transform:translateY(-50%);
+  max-width:360px;
+  background:var(--glass); border:1px solid var(--stroke);
+  border-radius:16px; padding:14px 16px;
+  backdrop-filter:blur(10px) saturate(140%);
+  box-shadow:0 10px 40px rgba(0,0,0,.35),0 0 30px rgba(122,162,255,.18) inset;
+}
+.card h3{ margin:0 0 6px; font-size:18px; font-weight:800 }
+.card p{ margin:0; color:var(--muted); line-height:1.5; font-size:14.5px }
+
+.entry.right .card{ left: calc(50% + 56px); text-align:left; }
+.entry.left .card{ right: calc(50% + 56px); text-align:right; }
+
+.entry .card, .entry .star{ opacity:.55; transition:opacity .35s ease, transform .35s ease; }
+.entry.active .star{ transform:translate(-50%,-50%) scale(1.15); opacity:1; }
+.entry.active .card{ opacity:1; }
+
+path.constellation-glow{
+  stroke: url(#constellationGradient); stroke-width:8; opacity:.18;
+  filter: blur(2px); fill:none; stroke-linecap:round; stroke-linejoin:round;
+}
+path.constellation-line{
+  stroke: url(#constellationGradient); stroke-width:2.2; opacity:.9;
+  fill:none; stroke-linecap:round; stroke-linejoin:round;
 }
   </style>
 </head>
@@ -580,66 +581,66 @@ and making processes faster, cleaner, and scalable.
   </div>
 </div>
 </section>
-    <section id="experience" class="timeline">
-  <h2>Experience & Education</h2>
-  <div class="timeline-wrapper">
-    <svg id="constellation-line"></svg>
-    <div class="star-line">
-      <!-- 7 stars with alternating info -->
-      <div class="entry left">
-        <div class="info">
-          <h3>2018</h3>
-          <p>B.Com journey begins — foundation of commerce knowledge.</p>
-        </div>
-        <div class="star"></div>
-      </div>
+<section id="experience">
+  <h2 class="exp-title">Experience & Education</h2>
 
-      <div class="entry right">
-        <div class="star"></div>
-        <div class="info">
-          <h3>2023</h3>
-          <p>Joined Accenture — Order to Cash Associate, US Foods project.</p>
-        </div>
-      </div>
+  <div class="constellation" id="constellation">
+    <!-- SVG path draws the uneven constellation line -->
+    <svg id="constellation-svg" aria-hidden="true"></svg>
 
-      <div class="entry left">
-        <div class="info">
-          <h3>2024</h3>
-          <p>ICMAI Intermediate — deep dive into Accounting, Tax & Costing.</p>
-        </div>
-        <div class="star"></div>
+    <div class="entry right" data-offset="-36">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2018</h3>
+        <p>Commerce Foundations / Early interest in Accounts.</p>
       </div>
+    </div>
 
-      <div class="entry right">
-        <div class="star"></div>
-        <div class="info">
-          <h3>2025</h3>
-          <p>Cash Application Specialist — handling NSF, checks, ACH, Versapay.</p>
-        </div>
+    <div class="entry left" data-offset="22">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2020</h3>
+        <p>Projects & Internships — basic reconciliation, Excel practice.</p>
       </div>
+    </div>
 
-      <div class="entry left">
-        <div class="info">
-          <h3>Future Goal</h3>
-          <p>Master SAP FICO, Power BI, automation tools.</p>
-        </div>
-        <div class="star"></div>
+    <div class="entry right" data-offset="-58">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2021–2022</h3>
+        <p>B.Com studies — accounting, costing, tax basics.</p>
       </div>
+    </div>
 
-      <div class="entry right">
-        <div class="star"></div>
-        <div class="info">
-          <h3>Long Term</h3>
-          <p>Move into Financial Planning & Analysis / Consulting.</p>
-        </div>
+    <div class="entry left" data-offset="18">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2023</h3>
+        <p>ICMAI Intermediate — Group 1.</p>
       </div>
+    </div>
 
-      <div class="entry left">
-        <div class="info">
-          <h3>Beyond</h3>
-          <p>Continuous growth — blending finance, tech, and process innovation.</p>
-        </div>
-        <div class="star"></div>
+    <div class="entry right" data-offset="-40">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2024</h3>
+        <p>Accenture — O2C (US Foods): NSF, ACH/Wire, Versapay, Demand Letters.</p>
+      </div>
+    </div>
+
+    <div class="entry left" data-offset="34">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2024–2025</h3>
+        <p>Process optimization: Excel automation, dashboards, aging reports.</p>
+      </div>
+    </div>
+
+    <div class="entry right" data-offset="-16">
+      <span class="star"></span>
+      <div class="card">
+        <h3>2025+</h3>
+        <p>Next: SAP FICO + Power BI specialization, leadership track.</p>
       </div>
     </div>
   </div>
@@ -756,46 +757,83 @@ window.addEventListener('scroll', () => {
 });
 </script>
     <script>
-const svg = document.getElementById("constellation-line");
-const stars = document.querySelectorAll("#experience .star");
+const START_Y = 60;
+const GAP_Y   = 130;
+const DEFAULT_OFFSETS = [-36, 22, -58, 18, -40, 34, -16];
 
-function drawConstellation() {
+const container = document.getElementById('constellation');
+const svg = document.getElementById('constellation-svg');
+const entries = Array.from(container.querySelectorAll('.entry'));
+
+function layout() {
+  const w = container.clientWidth;
+  const midX = Math.round(w / 2);
   const points = [];
-  const parentRect = svg.parentElement.getBoundingClientRect();
 
-  stars.forEach(star => {
-    const rect = star.getBoundingClientRect();
-    points.push({
-      x: rect.left + rect.width / 2 - parentRect.left,
-      y: rect.top + rect.height / 2 - parentRect.top
-    });
+  entries.forEach((entry, i) => {
+    const offset = parseInt(entry.dataset.offset ?? DEFAULT_OFFSETS[i] ?? 0, 10);
+    const y = START_Y + i * GAP_Y;
+    const x = midX + offset;
+
+    entry.style.top = `${y}px`;
+    const star = entry.querySelector('.star');
+    star.style.left = `calc(50% + ${offset}px)`;
+
+    points.push({ x, y });
   });
 
-  let d = "";
-  points.forEach((p, i) => {
-    d += (i === 0 ? `M ${p.x},${p.y}` : ` L ${p.x},${p.y}`);
-  });
+  const totalH = START_Y + (entries.length - 1) * GAP_Y + 60;
+  container.style.height = `${totalH}px`;
 
-  svg.innerHTML = `
-    <defs>
-      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#7aa2ff"/>
-        <stop offset="50%" stop-color="#8a7aff"/>
-        <stop offset="100%" stop-color="#4ff0b0"/>
-      </linearGradient>
-    </defs>
-    <path d="${d}"
-      stroke="url(#grad)"
-      stroke-width="2.5"
-      fill="none"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      filter="drop-shadow(0 0 6px #7aa2ff)" />
-  `;
+  drawPath(points);
 }
 
-window.addEventListener("load", drawConstellation);
-window.addEventListener("resize", drawConstellation);
+function drawPath(points) {
+  svg.innerHTML = '';
+
+  const { width, height } = container.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${Math.max(1,width)} ${Math.max(1,height)}`);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+
+  const defs = document.createElementNS('http://www.w3.org/2000/svg','defs');
+  const grad = document.createElementNS('http://www.w3.org/2000/svg','linearGradient');
+  grad.id = 'constellationGradient';
+  grad.setAttribute('x1','0%'); grad.setAttribute('y1','0%');
+  grad.setAttribute('x2','0%'); grad.setAttribute('y2','100%');
+
+  const stop1 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+  stop1.setAttribute('offset','0%'); stop1.setAttribute('stop-color','#7aa2ff');
+  const stop2 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+  stop2.setAttribute('offset','60%'); stop2.setAttribute('stop-color','#8a7aff');
+  const stop3 = document.createElementNS('http://www.w3.org/2000/svg','stop');
+  stop3.setAttribute('offset','100%'); stop3.setAttribute('stop-color','#4ff0b0');
+
+  grad.append(stop1,stop2,stop3);
+  defs.appendChild(grad);
+  svg.appendChild(defs);
+
+  let d = '';
+  points.forEach((p,i)=>{ d += (i===0 ? `M ${p.x} ${p.y}` : ` L ${p.x} ${p.y}`); });
+
+  const glow = document.createElementNS('http://www.w3.org/2000/svg','path');
+  glow.setAttribute('d', d);
+  glow.setAttribute('class','constellation-glow');
+
+  const line = document.createElementNS('http://www.w3.org/2000/svg','path');
+  line.setAttribute('d', d);
+  line.setAttribute('class','constellation-line');
+
+  svg.append(glow,line);
+}
+
+const io = new IntersectionObserver((obs) => {
+  obs.forEach(en => { if(en.isIntersecting) en.target.classList.add('active'); });
+},{ threshold:0.35 });
+
+entries.forEach(e => io.observe(e));
+window.addEventListener('resize', layout);
+layout();
 </script>
 </body>
 </html>
