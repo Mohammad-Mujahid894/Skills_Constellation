@@ -399,7 +399,9 @@ section#about {
 
 .entry {
   position: absolute;
-  width: 100%;
+  left: 0;
+  right: 0;
+  height: 130px;   /* same as GAP_Y in your JS for spacing */
 }
 
 .star{
@@ -412,8 +414,8 @@ section#about {
 }
 
 .card {
-  position: absolute;       /* back to absolute */
-  top: 50%;                 /* align vertically with star */
+  position: absolute;
+  top: 50%;                 /* anchor around the star */
   transform: translateY(-50%);
   max-width: 360px;
   background: var(--glass);
