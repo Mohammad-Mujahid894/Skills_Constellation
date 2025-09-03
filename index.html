@@ -168,13 +168,6 @@
 
     .timeline { position: relative; width: 100%; margin: 0 auto; }
 
-    /* vertical glowing spine */
-    .timeline::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; transform: translateX(-50%);
-      background: radial-gradient(circle, rgba(255,255,255,.9) 0 30%, rgba(255,255,255,.1) 70%, transparent 100%);
-      box-shadow: 0 0 18px rgba(122,162,255,.55), 0 0 48px rgba(122,162,255,.25);
-      opacity: .6;
-    }
-
     .exp-item { position: relative; display: grid; grid-template-columns: 1fr 160px 1fr; align-items: center; gap: 14px; min-height: 140px; margin: 24px 0; }
     .exp-item .node-wrap { position: relative; height: 140px; display: grid; place-items: center; }
 
@@ -340,6 +333,10 @@
     <!-- ============================ -->
     <section id="experience">
       <h2 class="section-title">Experience • Education — Constellation</h2>
+      <!-- SVG overlay for constellation lines -->
+<svg id="constellation-lines" width="100%" height="100%" 
+     style="position:absolute; top:0; left:0; z-index:-1; pointer-events:none;"></svg>
+      
       <div class="timeline">
         <!-- 1: LEFT -->
         <div class="exp-item left">
@@ -567,5 +564,50 @@
 
     function toggleMenu(){ document.getElementById('navbar').classList.toggle('show'); }
   </script>
+  <script>
+  function drawConstellation() {
+  const svg = document.getElementById("constellation-lines");
+  svg.innerHTML = ""; // clear old lines
+
+  const nodes = document.querySelectorAll(".node-wrap .node");
+  let prev = null;
+
+  nodes.forEach(node=>{
+    const rect = node.getBoundingClientRect();
+    const x = rect.left + rect.width/2 + window.scrollX;
+    const y = rect.top + rect.height/2 + window.scrollY;
+
+    if(prev){
+      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+      line.setAttribute("x1", prev.x);
+      line.setAttribute("y1", prev.y);
+      line.setAttribute("x2", x);
+      line.setAttribute("y2", y);
+      line.setAttribute("stroke", "url(#glow)");
+      line.setAttribute("stroke-width", "2");
+      svg.appendChild(line);
+    }
+    prev = {x,y};
+  });
+
+  // Add glowing gradient once
+  if(!document.getElementById("glow-defs")){
+    const defs = document.createElementNS("http://www.w3.org/2000/svg","defs");
+    defs.id = "glow-defs";
+    defs.innerHTML = `
+      <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="white" stop-opacity="0.9"/>
+        <stop offset="100%" stop-color="rgba(122,162,255,0.6)" stop-opacity="0.6"/>
+      </linearGradient>
+    `;
+    svg.appendChild(defs);
+  }
+}
+
+// Call it on load, resize, and scroll
+window.addEventListener("load", drawConstellation);
+window.addEventListener("resize", drawConstellation);
+window.addEventListener("scroll", drawConstellation);
+        </script>
 </body>
 </html>
