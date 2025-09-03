@@ -220,6 +220,9 @@
       .exp-item.right .left-col .exp-card,
       .exp-item.left  .right-col .exp-card{ display: none; }
     }
+    .connector {
+  display: none !important;
+}
   </style>
 </head>
 <body>
@@ -542,11 +545,12 @@
     expItems.forEach(item=> expIO.observe(item));
 
     /* optional tiny randomness to create uneven path feel */
-    expItems.forEach((item, idx)=>{
-      const nodeWrap = item.querySelector('.node-wrap');
-      const jitter = (idx % 2 === 0 ? 1 : -1) * (6 + Math.random()*8); // px offset left/right
-      nodeWrap.style.transform = `translateX(${jitter}px)`;
-    });
+expItems.forEach((item, idx)=>{
+  const nodeWrap = item.querySelector('.node-wrap');
+  // Bigger zigzag offset (80px left / right)
+  const offset = (idx % 2 === 0 ? -80 : 80); 
+  nodeWrap.style.transform = `translateX(${offset}px)`;
+});
 
     /* expand connector width after slight delay for nicer reveal */
     expItems.forEach((item, i)=>{
