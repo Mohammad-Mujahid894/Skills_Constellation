@@ -569,34 +569,36 @@ expItems.forEach((item, idx)=>{
     function toggleMenu(){ document.getElementById('navbar').classList.toggle('show'); }
   </script>
   <script>
-  function drawConstellation() {
+function drawConstellation() {
   const svg = document.getElementById("constellation-lines");
   svg.innerHTML = ""; // clear old lines
 
   const nodes = document.querySelectorAll(".node-wrap .node");
   let prev = null;
 
-  nodes.forEach(node=>{
+  nodes.forEach(node => {
     const rect = node.getBoundingClientRect();
-    const x = rect.left + rect.width/2 + window.scrollX;
-    const y = rect.top + rect.height/2 + window.scrollY;
+    const x = rect.left + rect.width / 2 + window.scrollX;
+    const y = rect.top + rect.height / 2 + window.scrollY;
 
-    if(prev){
-      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+    if (prev) {
+      // one straight glowing line between stars
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
       line.setAttribute("x1", prev.x);
       line.setAttribute("y1", prev.y);
       line.setAttribute("x2", x);
       line.setAttribute("y2", y);
       line.setAttribute("stroke", "url(#glow)");
-      line.setAttribute("stroke-width", "2");
+      line.setAttribute("stroke-width", "2.5");
+      line.setAttribute("stroke-linecap", "round");
       svg.appendChild(line);
     }
-    prev = {x,y};
+    prev = { x, y };
   });
 
-  // Add glowing gradient once
-  if(!document.getElementById("glow-defs")){
-    const defs = document.createElementNS("http://www.w3.org/2000/svg","defs");
+  // glowing gradient (only once)
+  if (!document.getElementById("glow-defs")) {
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     defs.id = "glow-defs";
     defs.innerHTML = `
       <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -608,7 +610,7 @@ expItems.forEach((item, idx)=>{
   }
 }
 
-// Call it on load, resize, and scroll
+// call on load, resize, scroll
 window.addEventListener("load", drawConstellation);
 window.addEventListener("resize", drawConstellation);
 window.addEventListener("scroll", drawConstellation);
