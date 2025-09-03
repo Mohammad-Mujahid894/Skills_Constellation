@@ -551,18 +551,24 @@
     },{ rootMargin: '0px 0px -20% 0px', threshold: 0.35 });
     expItems.forEach(item=> expIO.observe(item));
 
-    /* optional tiny randomness to create uneven path feel */
+/* ========= Fixed constellation offsets ========= */
+const constellationOffsets = [
+  { x: -90, y: -10 }, // 1: B.Com Start
+  { x: 80,  y: 20 },  // 2: B.Com Completed
+  { x: -120, y: 40 }, // 3: Accenture O2C
+  { x: 60,  y: -15 }, // 4: Process Optimization
+  { x: -70, y: 25 },  // 5: Versapay + Banking
+  { x: 100, y: -25 }, // 6: ICMAI
+  { x: -85, y: 30 },  // 7: Automation
+  { x: 75,  y: 10 }   // 8: Future SAP
+];
+
 expItems.forEach((item, idx) => {
   const nodeWrap = item.querySelector('.node-wrap');
-
-  // Base zigzag (left/right alternation)
-  const baseOffset = (idx % 2 === 0 ? -80 : 80);
-
-  // Add some natural random wobble
-  const randomX = (Math.random() - 0.5) * 40; // ±20px sideways
-  const randomY = (Math.random() - 0.5) * 30; // ±15px vertical shift
-
-  nodeWrap.style.transform = `translate(${baseOffset + randomX}px, ${randomY}px)`;
+  if (constellationOffsets[idx]) {
+    const { x, y } = constellationOffsets[idx];
+    nodeWrap.style.transform = `translate(${x}px, ${y}px)`;
+  }
 });
 
     /* expand connector width after slight delay for nicer reveal */
@@ -585,21 +591,21 @@ function drawConstellation() {
   const svg = document.getElementById("constellation-lines");
   if(!svg) return;
 
-  // get svg position so coordinates are correct relative to svg
   const svgRect = svg.getBoundingClientRect();
 
-  // remove old connecting lines, but keep <defs>
+  // clear old lines but keep defs
   [...svg.querySelectorAll('line')].forEach(n => n.remove());
 
   const nodes = document.querySelectorAll(".node-wrap .node");
+
   let prev = null;
 
-  nodes.forEach(node => {
+  nodes.forEach((node, i) => {
     const rect = node.getBoundingClientRect();
-    // coords relative to svg top-left
     const x = rect.left + rect.width / 2 - svgRect.left;
     const y = rect.top + rect.height / 2 - svgRect.top;
 
+    // connect node to previous node
     if (prev) {
       const line = document.createElementNS("http://www.w3.org/2000/svg","line");
       line.setAttribute("x1", prev.x);
@@ -609,9 +615,26 @@ function drawConstellation() {
       line.setAttribute("stroke", "url(#glow)");
       line.setAttribute("stroke-width", "2.5");
       line.setAttribute("stroke-linecap", "round");
-      // small glow via CSS filter (works in modern browsers)
       line.style.filter = "drop-shadow(0 0 8px rgba(122,162,255,0.45))";
       svg.appendChild(line);
+    }
+
+    // connect node to its exp-card (tab)
+    const card = expItems[i].querySelector(".exp-card");
+    if (card) {
+      const cardRect = card.getBoundingClientRect();
+      const cx = cardRect.left + cardRect.width/2 - svgRect.left;
+      const cy = cardRect.top + cardRect.height/2 - svgRect.top;
+
+      const link = document.createElementNS("http://www.w3.org/2000/svg","line");
+      link.setAttribute("x1", x);
+      link.setAttribute("y1", y);
+      link.setAttribute("x2", cx);
+      link.setAttribute("y2", cy);
+      link.setAttribute("stroke", "rgba(255,255,255,0.4)");
+      link.setAttribute("stroke-width", "1.2");
+      link.setAttribute("stroke-dasharray", "4,3");
+      svg.appendChild(link);
     }
 
     prev = { x, y };
