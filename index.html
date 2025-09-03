@@ -552,11 +552,17 @@
     expItems.forEach(item=> expIO.observe(item));
 
     /* optional tiny randomness to create uneven path feel */
-expItems.forEach((item, idx)=>{
+expItems.forEach((item, idx) => {
   const nodeWrap = item.querySelector('.node-wrap');
-  // Bigger zigzag offset (80px left / right)
-  const offset = (idx % 2 === 0 ? -80 : 80); 
-  nodeWrap.style.transform = `translateX(${offset}px)`;
+
+  // Base zigzag (left/right alternation)
+  const baseOffset = (idx % 2 === 0 ? -80 : 80);
+
+  // Add some natural random wobble
+  const randomX = (Math.random() - 0.5) * 40; // ±20px sideways
+  const randomY = (Math.random() - 0.5) * 30; // ±15px vertical shift
+
+  nodeWrap.style.transform = `translate(${baseOffset + randomX}px, ${randomY}px)`;
 });
 
     /* expand connector width after slight delay for nicer reveal */
