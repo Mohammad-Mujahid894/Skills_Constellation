@@ -223,6 +223,14 @@
     .connector {
   display: none !important;
 }
+    /* Push cards further away from stars */
+.exp-item.left .exp-card {
+  margin-right: 140px;  /* move left-side cards farther left */
+}
+
+.exp-item.right .exp-card {
+  margin-left: 140px;   /* move right-side cards farther right */
+}
   </style>
 </head>
 <body>
@@ -600,12 +608,12 @@ function drawConstellation() {
 
   let prev = null;
 
-  nodes.forEach((node, i) => {
+  nodes.forEach((node) => {
     const rect = node.getBoundingClientRect();
     const x = rect.left + rect.width / 2 - svgRect.left;
     const y = rect.top + rect.height / 2 - svgRect.top;
 
-    // connect node to previous node
+    // connect node to previous node (constellation lines only)
     if (prev) {
       const line = document.createElementNS("http://www.w3.org/2000/svg","line");
       line.setAttribute("x1", prev.x);
@@ -617,23 +625,6 @@ function drawConstellation() {
       line.setAttribute("stroke-linecap", "round");
       line.style.filter = "drop-shadow(0 0 8px rgba(122,162,255,0.45))";
       svg.appendChild(line);
-    }
-
-    // connect node to its exp-card (tab)
-    const card = expItems[i].querySelector(".exp-card");
-    if (card) {
-      const cardRect = card.getBoundingClientRect();
-      const cx = cardRect.left + cardRect.width/2 - svgRect.left;
-      const cy = cardRect.top + cardRect.height/2 - svgRect.top;
-
-      const link = document.createElementNS("http://www.w3.org/2000/svg","line");
-      link.setAttribute("x1", x);
-      link.setAttribute("y1", y);
-      link.setAttribute("x2", cx);
-      link.setAttribute("y2", cy);
-      link.setAttribute("stroke", "rgba(255,255,255,0.4)");
-      link.setAttribute("stroke-width", "1.2");
-      svg.appendChild(link);
     }
 
     prev = { x, y };
