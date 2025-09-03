@@ -9,31 +9,32 @@
     :root{
       --bg:#04060b; --fg:#eaf2ff; --muted:#9fb2d8; --glass:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.12);
       --radius:18px; --shadow:0 30px 80px rgba(0,0,0,.6);
+      --accentA:#7aa2ff; --accentB:#8a7aff; --accentC:#4ff0b0; --accentD:#ffd28a;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-body {
-  margin: 0;
-  color: var(--fg);
-  background: #04060b;   /* keep only the dark base color, no cloudy gradient */
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-  overflow-x: hidden;
-}
+    body {
+      margin: 0;
+      color: var(--fg);
+      background: #04060b;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      overflow-x: hidden;
+    }
     /* ===== LAYERS ===== */
     .layer{position:fixed; inset:0; pointer-events:none}
     #stars1,#stars2,#stars3{z-index:-3}
-#nebula {
-  z-index: -2;
-  filter: blur(40px) saturate(120%);
-  background:
-    radial-gradient(40% 40% at 15% 20%, rgba(122,162,255,.30), transparent 70%),
-    radial-gradient(35% 35% at 85% 15%, rgba(79,240,176,.25), transparent 70%),
-    radial-gradient(50% 50% at 60% 80%, rgba(138,122,255,.22), transparent 70%),
-    radial-gradient(30% 30% at 20% 85%, rgba(255,200,120,.18), transparent 70%);
-  background-repeat: no-repeat;
-  background-size: cover;
-  animation: drift 24s ease-in-out infinite alternate;
-}
+    #nebula {
+      z-index: -2;
+      filter: blur(40px) saturate(120%);
+      background:
+        radial-gradient(40% 40% at 15% 20%, rgba(122,162,255,.30), transparent 70%),
+        radial-gradient(35% 35% at 85% 15%, rgba(79,240,176,.25), transparent 70%),
+        radial-gradient(50% 50% at 60% 80%, rgba(138,122,255,.22), transparent 70%),
+        radial-gradient(30% 30% at 20% 85%, rgba(255,200,120,.18), transparent 70%);
+      background-repeat: no-repeat;
+      background-size: cover;
+      animation: drift 24s ease-in-out infinite alternate;
+    }
     @keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,-2%,0)}}
 
     /* ===== CONTENT ===== */
@@ -41,13 +42,13 @@ body {
     header{position:sticky; top:0; z-index:10; backdrop-filter:saturate(160%) blur(8px); background:linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,0));}
     .nav{display:flex; align-items:center; justify-content:space-between; gap:16px; border:1px solid var(--stroke); background:var(--glass); border-radius:calc(var(--radius) + 6px); padding:14px 18px; box-shadow:var(--shadow)}
     .brand{display:flex; align-items:center; gap:12px}
-    .logo{width:36px; height:36px; border-radius:12px; background:conic-gradient(from 180deg,#7aa2ff 0 25%, #8a7aff 25% 50%, #4ff0b0 50% 75%, #ffd28a 75% 100%)}
+    .logo{width:36px; height:36px; border-radius:12px; background:conic-gradient(from 180deg,var(--accentA) 0 25%, var(--accentB) 25% 50%, var(--accentC) 50% 75%, var(--accentD) 75% 100%)}
     .nav a{color:var(--fg); text-decoration:none; opacity:.9; font-weight:700}
 
     main{padding-top:24px}
     .hero{min-height:70vh; display:grid; place-items:center; text-align:center}
     .title{font-size:clamp(32px,5vw,62px); line-height:1.05; margin:0}
-    .title span{background:linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0); -webkit-background-clip:text; background-clip:text; color:transparent}
+    .title span{background:linear-gradient(90deg,var(--accentA),var(--accentB),var(--accentC)); -webkit-background-clip:text; background-clip:text; color:transparent}
     .sub{color:var(--muted); margin-top:10px}
     .cta{display:flex; gap:10px; justify-content:center; margin-top:18px}
     .btn{border:1px solid var(--stroke); background:linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.02)); color:var(--fg); padding:10px 14px; border-radius:14px; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:8px; box-shadow:var(--shadow)}
@@ -62,7 +63,7 @@ body {
 
     /* Progress bars demo */
     .skillbar{position:relative; height:12px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden}
-    .skillbar span{position:absolute; inset:0; width:0; background:linear-gradient(90deg,#7aa2ff,#4ff0b0); transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+    .skillbar span{position:absolute; inset:0; width:0; background:linear-gradient(90deg,var(--accentA),var(--accentC)); transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
 
     /* Cursor glitter particles */
     .spark{position:fixed; width:6px; height:6px; border-radius:50%; pointer-events:none; background:radial-gradient(circle,#fff,rgba(255,255,255,0)); filter:drop-shadow(0 0 10px rgba(122,162,255,.9)); opacity:0; animation: fade .8s ease-out forwards}
@@ -73,302 +74,159 @@ body {
     @media (prefers-reduced-motion: reduce){
       #nebula{animation:none}
     }
-/* Navbar container */
-header {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  padding: 10px 25px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  z-index: 100;
-  width: 90%;
-  max-width: 1100px;
-}
 
-/* Brand */
-header .brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-header .brand img {
-  width: 35px; height: 35px; border-radius: 8px; object-fit: cover;
-}
-header .brand strong {
-  color: #fff;
-  font-size: 22px;   /* bigger */
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(122,162,255,0.6), 0 0 15px rgba(122,162,255,0.4);
-}
+    /* Navbar container */
+    header {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 10px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+      width: 90%;
+      max-width: 1100px;
+    }
 
-/* Nav links in one line */
-header nav {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-header nav a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: 500;
-  transition: 0.3s;
-  padding: 6px 12px;
-  border-radius: 10px;
-}
-header nav a:hover { background: rgba(255,255,255,0.1); }
+    /* Brand */
+    header .brand { display: flex; align-items: center; gap: 10px; }
+    header .brand img { width: 35px; height: 35px; border-radius: 8px; object-fit: cover; }
+    header .brand strong {
+      color: #fff; font-size: 22px; font-weight: 700;
+      text-shadow: 0 0 8px rgba(122,162,255,0.6), 0 0 15px rgba(122,162,255,0.4);
+    }
 
-/* Dropdown */
-.dropdown { position: relative; }
-.dropdown-content {
-  position: absolute;
-  top: 120%; left: 0;
-  background: rgba(20,20,20,0.9);
-  border-radius: 12px;
-  min-width: 180px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  opacity: 0; max-height: 0;
-  overflow: hidden;
-  transition: all 0.35s ease-in-out;
-}
+    /* Nav links in one line */
+    header nav { display: flex; align-items: center; gap: 20px; }
+    header nav a { color: #fff; text-decoration: none; font-weight: 500; transition: 0.3s; padding: 6px 12px; border-radius: 10px; }
+    header nav a:hover { background: rgba(255,255,255,0.1); }
+
+    /* Dropdown */
+    .dropdown { position: relative; }
+    .dropdown-content {
+      position: absolute; top: 120%; left: 0; background: rgba(20,20,20,0.9);
+      border-radius: 12px; min-width: 180px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      opacity: 0; max-height: 0; overflow: hidden; transition: all 0.35s ease-in-out;
+    }
     @media (max-width: 768px) {
-  .dropdown-content {
-    position: relative;   /* instead of absolute */
-    top: 0;
-    box-shadow: none;
-    background: rgba(30,30,30,0.95);
-    margin-left: 10px;
-  }
-}
+      .dropdown-content { position: relative; top: 0; box-shadow: none; background: rgba(30,30,30,0.95); margin-left: 10px; }
+    }
+    .dropdown-content a { display: block; padding: 10px; color: white; text-decoration: none; }
+    .dropdown-content a:hover { background: rgba(255,255,255,0.1); }
+    .dropdown:hover .dropdown-content { opacity: 1; max-height: 500px; }
 
-.dropdown-content a {
-  display: block; padding: 10px;
-  color: white; text-decoration: none;
-}
-.dropdown-content a:hover { background: rgba(255,255,255,0.1); }
-.dropdown:hover .dropdown-content {
-  opacity: 1; max-height: 500px;
-}
+    /* Hamburger (hidden on desktop) */
+    .hamburger { display: none; font-size: 24px; cursor: pointer; color: white; }
+    @media (max-width: 768px) {
+      .hamburger { display: block; }
+      nav { position: absolute; top: 70px; left: 0; right: 0; flex-direction: column; background: rgba(20,20,20,0.9); border-radius: 0 0 12px 12px; max-height: 0; opacity: 0; overflow: hidden; transition: all 0.4s ease-in-out; }
+      nav.show { max-height: 500px; opacity: 1; }
+    }
 
-/* Hamburger (hidden on desktop) */
-.hamburger {
-  display: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: white;
-}
-
-/* Mobile styles */
-@media (max-width: 768px) {
-  .hamburger { display: block; }
-  nav {
-    position: absolute;
-    top: 70px; left: 0; right: 0;
-    flex-direction: column;
-    background: rgba(20,20,20,0.9);
-    border-radius: 0 0 12px 12px;
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    transition: all 0.4s ease-in-out;
-  }
-  nav.show {
-    max-height: 500px;
-    opacity: 1;
-  }
-}
     /* Hero layout */
-.hero-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 50px;
-  flex-wrap: wrap;
-  min-height: 80vh;
-}
+    .hero-content { display: flex; justify-content: center; align-items: center; gap: 50px; flex-wrap: wrap; min-height: 80vh; }
+    .profile-pic { position: relative; width: 250px; height: 250px; }
+    .profile-pic img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid #fff; box-shadow: 0 0 35px rgba(122,162,255,0.8); background: black; }
+    .intro-text { text-align: left; margin-left: 30px; }
+    .intro-text .title span { background: linear-gradient(90deg,var(--accentA),var(--accentB),var(--accentC)); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: clamp(36px, 6vw, 68px); font-weight: 800; }
+    .intro-text .sub { color: var(--muted); font-size: 18px; margin: 6px 0; }
 
-/* Profile picture with glowing orbits */
-.profile-pic {
-  position: relative;
-  width: 250px;   /* bigger circle */
-  height: 250px;
-}
-.profile-pic img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 4px solid #fff;
-  box-shadow: 0 0 35px rgba(122,162,255,0.8);
-  background: black;
-}
+    .scroll-down { font-size: 28px; margin-top: 20px; animation: bounce 1.5s infinite; color: var(--accentA); cursor: pointer; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
 
-/* Intro text */
-.intro-text {
-  text-align: left;
-  margin-left: 30px;  /* pushes your text to the right */
-}
+    .tags { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; margin-top: 14px; }
+    .tag { padding: 8px 14px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.06); backdrop-filter: blur(6px); font-size: 15px; font-weight: 600; color: var(--fg); box-shadow: 0 4px 20px rgba(0,0,0,0.35); white-space: nowrap; }
 
-.intro-text .title span {
-  background: linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-size: clamp(36px, 6vw, 68px);
-  font-weight: 800;
-}
-.intro-text .sub {
-  color: var(--muted);
-  font-size: 18px;
-  margin: 6px 0;
-}
+    .stat-card { position: relative; padding: 25px; border-radius: 22px; text-align: center; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(14px) saturate(160%); box-shadow: 0 0 25px rgba(122,162,255,0.25), inset 0 0 10px rgba(255,255,255,0.1); transition: all 0.35s ease; overflow: hidden; }
+    .stat-card:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 0 40px rgba(122,162,255,0.7), 0 0 70px rgba(79,240,176,0.5); background: rgba(255,255,255,0.12); }
+    .stat-card::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%); transform: rotate(25deg); opacity: 0; transition: opacity 0.5s; }
+    .stat-card:hover::before { opacity: 1; animation: shine 1.6s ease forwards; }
+    @keyframes shine { 0% { transform: translateX(-100%) rotate(25deg); } 100% { transform: translateX(100%) rotate(25deg); } }
+    .stat-card h3 { font-size: 36px; font-weight: 900; margin: 0; background: linear-gradient(90deg,var(--accentA),var(--accentC),var(--accentB)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 15px rgba(122,162,255,0.8), 0 0 30px rgba(79,240,176,0.6); }
+    .stat-card .plus { font-size: 32px; font-weight: 900; color: var(--accentA); margin-left: 4px; }
 
-/* Scroll down arrow */
-.scroll-down {
-  font-size: 28px;
-  margin-top: 20px;
-  animation: bounce 1.5s infinite;
-  color: #7aa2ff;
-  cursor: pointer;
-}
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(8px); }
-}
-  /* Container for the subtitles */
-.tags {
-  display: flex;
-  flex-direction: column;   /* stack them */
-  align-items: flex-start;  /* left aligned */
-  gap: 10px;
-  margin-top: 14px;
-}
+    .work-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 50px; justify-items: center; align-items: stretch; }
+    @media (max-width: 900px) { .work-stats { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .work-stats { grid-template-columns: 1fr; } }
 
-/* Glassy pill-style tags */
-.tag {
-  padding: 8px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(6px);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--fg);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-  white-space: nowrap;
-}
-.stat-card {
-  position: relative;
-  padding: 25px;
-  border-radius: 22px;
-  text-align: center;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  backdrop-filter: blur(14px) saturate(160%);
-  box-shadow: 0 0 25px rgba(122,162,255,0.25),
-              inset 0 0 10px rgba(255,255,255,0.1);
-  transition: all 0.35s ease;
-  overflow: hidden;
-}
+    section#about { background: transparent !important; margin: 0 !important; padding: 0 !important; }
+    #about { margin: 0 !important; padding: 60px 24px 0 24px !important; background: transparent !important; border: none !important; }
+    .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
 
-.stat-card:hover {
-  transform: translateY(-10px) scale(1.03);
-  box-shadow: 0 0 40px rgba(122,162,255,0.7),
-              0 0 70px rgba(79,240,176,0.5);
-  background: rgba(255,255,255,0.12);
-}
+    /* ===================== */
+    /*  EXPERIENCE TIMELINE  */
+    /* ===================== */
+    #experience { position: relative; padding: 120px 0 80px; }
+    #experience .section-title { font-size: clamp(28px,5vw,40px); margin: 0 0 28px; background: linear-gradient(90deg,var(--accentA),var(--accentB),var(--accentC)); -webkit-background-clip: text; color: transparent; text-align:center; }
 
-.stat-card::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(120deg,
-    transparent 30%,
-    rgba(255,255,255,0.35) 50%,
-    transparent 70%);
-  transform: rotate(25deg);
-  opacity: 0;
-  transition: opacity 0.5s;
-}
+    .timeline { position: relative; width: 100%; margin: 0 auto; }
 
-.stat-card:hover::before {
-  opacity: 1;
-  animation: shine 1.6s ease forwards;
-}
+    /* vertical glowing spine */
+    .timeline::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(255,255,255,.9) 0 30%, rgba(255,255,255,.1) 70%, transparent 100%);
+      box-shadow: 0 0 18px rgba(122,162,255,.55), 0 0 48px rgba(122,162,255,.25);
+      opacity: .6;
+    }
 
-@keyframes shine {
-  0% { transform: translateX(-100%) rotate(25deg); }
-  100% { transform: translateX(100%) rotate(25deg); }
-}
+    .exp-item { position: relative; display: grid; grid-template-columns: 1fr 160px 1fr; align-items: center; gap: 14px; min-height: 140px; margin: 24px 0; }
+    .exp-item .node-wrap { position: relative; height: 140px; display: grid; place-items: center; }
 
-.stat-card h3 {
-  font-size: 36px;
-  font-weight: 900;
-  margin: 0;
-  background: linear-gradient(90deg,#7aa2ff,#4ff0b0,#8a7aff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 15px rgba(122,162,255,0.8),
-               0 0 30px rgba(79,240,176,0.6);
-}
-    .stat-card .plus {
-  font-size: 32px;
-  font-weight: 900;
-  color: #7aa2ff;
-  margin-left: 4px;
-}
+    /* slight unevenness per item */
+    .exp-item:nth-child(odd) { margin-top: 12px; }
+    .exp-item:nth-child(3n) { margin-top: 26px; }
 
-/* Grid for stat cards in About section */
-.work-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);   /* 3 per row on desktop */
-  gap: 28px;
-  margin-top: 50px;
-  justify-items: center;
-  align-items: stretch;
-}
+    .node { position: relative; width: 18px; height: 18px; border-radius: 50%; background: #fff;
+      box-shadow: 0 0 12px rgba(255,255,255,.9), 0 0 28px rgba(122,162,255,.8), 0 0 56px rgba(79,240,176,.35);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { transform: scale(1); filter: drop-shadow(0 0 14px rgba(122,162,255,.6)); }
+                        50% { transform: scale(1.25); filter: drop-shadow(0 0 24px rgba(79,240,176,.6)); } }
 
-@media (max-width: 900px) {
-  .work-stats {
-    grid-template-columns: repeat(2, 1fr); /* 2 per row on tablets */
-  }
-}
+    /* connectors from node to cards */
+    .connector { position: absolute; height: 2px; background: linear-gradient(90deg, rgba(255,255,255,.9), rgba(122,162,255,.25)); box-shadow: 0 0 10px rgba(122,162,255,.6); width: 0; transition: width .8s cubic-bezier(.2,.8,.2,1); }
+    .exp-item.left  .connector { left: -6px; right: auto; transform-origin: right center; }
+    .exp-item.right .connector { right: -6px; left: auto; transform-origin: left center; background: linear-gradient(270deg, rgba(255,255,255,.9), rgba(122,162,255,.25)); }
 
-@media (max-width: 600px) {
-  .work-stats {
-    grid-template-columns: 1fr; /* 1 per row on phones */
-  }
-}
+    .exp-card { border: 1px solid var(--stroke); background: var(--glass); backdrop-filter: blur(10px) saturate(160%);
+      border-radius: 16px; padding: 14px 16px; box-shadow: var(--shadow); opacity: .85; transition: transform .3s ease, opacity .3s ease, box-shadow .3s ease; }
+    .exp-card:hover { transform: translateY(-4px); opacity: 1; box-shadow: 0 0 24px rgba(122,162,255,.35), 0 0 60px rgba(79,240,176,.25); }
 
-    /* Make all sections fully transparent so background stays same */
-section#about {
-  background: transparent !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-    /* Force About Me section to align left */
-#about {
-  margin: 0 !important;
-  padding: 60px 24px 0 24px !important; /* top padding so content isn’t stuck */
-  background: transparent !important;
-  border: none !important;
-}
-    .hero {
-  min-height: 100vh;  /* fills full screen height */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+    .exp-title { margin: 0; font-weight: 800; font-size: 18px; }
+    .exp-meta { margin: 2px 0 8px; color: var(--muted); font-size: 13px; }
+    .exp-desc { margin: 0; font-size: 14px; line-height: 1.5; }
+
+    /* active on scroll */
+    .exp-item.active .connector { width: calc(50% - 100px); }
+    .exp-item.active .exp-card { opacity: 1; }
+
+    /* left/right placement */
+    .exp-item.left  .left-col  .exp-card{ visibility: visible; }
+    .exp-item.left  .right-col .exp-card{ visibility: hidden; height: 0; padding: 0; border: 0; }
+    .exp-item.right .right-col .exp-card{ visibility: visible; }
+    .exp-item.right .left-col  .exp-card{ visibility: hidden; height: 0; padding: 0; border: 0; }
+
+    .left-col, .right-col { min-height: 120px; }
+
+    /* mobile */
+    @media (max-width: 860px){
+      .timeline::before{ left: 12px; transform: none; }
+      .exp-item { grid-template-columns: 28px 1fr; gap: 12px; min-height: unset; }
+      .exp-item .node-wrap { height: 22px; }
+      .node { width: 12px; height: 12px; }
+      .connector { display: none; }
+      .left-col, .right-col { grid-column: 2 / -1; }
+      .exp-item.left  .left-col .exp-card,
+      .exp-item.right .right-col .exp-card{ visibility: visible; height: auto; padding: 12px; border: 1px solid var(--stroke); }
+      .exp-item.right .left-col .exp-card,
+      .exp-item.left  .right-col .exp-card{ display: none; }
+    }
   </style>
 </head>
 <body>
@@ -379,160 +237,246 @@ section#about {
   <div id="nebula" class="layer" aria-hidden="true"></div>
 
   <!-- ===== CONTENT ===== -->
-<header>
-  <div class="brand">
-    <img src="062325.png" alt="Profile">
-    <strong>Mohammad Mujahid</strong>
-  </div>
+  <header>
+    <div class="brand">
+      <img src="062325.png" alt="Profile">
+      <strong>Mohammad Mujahid</strong>
+    </div>
 
-  <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
 
-  <nav id="navbar">
-<a href="#home" class="active">Home</a>
-    <a href="#about">About</a>
-    <a href="#experience">Experience</a>
-    <a href="#skills">Skills</a>
+    <nav id="navbar">
+      <a href="#home" class="active">Home</a>
+      <a href="#about">About</a>
+      <a href="#experience">Experience</a>
+      <a href="#skills">Skills</a>
 
-    <div class="dropdown">
-      <a href="#">More ▾</a>
-      <div class="dropdown-content">
-        <a href="#projects">Projects</a>
-        <a href="#achievements">Achievements</a>
-        <a href="#education">Education</a>
-        <a href="#blogs">Blogs</a>
-        <a href="#interests">Interests</a>
+      <div class="dropdown">
+        <a href="#">More ▾</a>
+        <div class="dropdown-content">
+          <a href="#projects">Projects</a>
+          <a href="#achievements">Achievements</a>
+          <a href="#education">Education</a>
+          <a href="#blogs">Blogs</a>
+          <a href="#interests">Interests</a>
+        </div>
       </div>
-    </div>
 
-    <div class="dropdown">
-      <a href="#contact">Contact ▾</a>
-      <div class="dropdown-content">
-        <a href="resume.pdf" target="_blank">Download Resume</a>
+      <div class="dropdown">
+        <a href="#contact">Contact ▾</a>
+        <div class="dropdown-content">
+          <a href="resume.pdf" target="_blank">Download Resume</a>
+        </div>
       </div>
-    </div>
-  </nav>
-</header>
-<main class="wrap">
-<section id="home" class="hero">
-  <div class="hero-content">
-    <!-- Left side - Profile Image -->
-<div class="profile-pic">
-  <img src="062325.png" alt="Profile Picture">
-</div>
+    </nav>
+  </header>
 
-    <!-- Right side - Name and Subtitles -->
-    <div class="intro-text">
-      <h1 class="title"><span>Mohammad Mujahid</span></h1>
-<div class="tags">
-  <span class="tag">Order to Cash Specialist</span>
-  <span class="tag">ICMAI Intermediate</span>
-  <span class="tag">Passionate About Data & Automation</span>
-</div>
-      
-      <!-- Scroll down arrow -->
-      <div class="scroll-down">↓</div>
-    </div>
-  </div>
-</section>
+  <main class="wrap">
+    <section id="home" class="hero">
+      <div class="hero-content">
+        <div class="profile-pic"><img src="062325.png" alt="Profile Picture"></div>
+        <div class="intro-text">
+          <h1 class="title"><span>Mohammad Mujahid</span></h1>
+          <div class="tags">
+            <span class="tag">Order to Cash Specialist</span>
+            <span class="tag">ICMAI Intermediate</span>
+            <span class="tag">Passionate About Data & Automation</span>
+          </div>
+          <div class="scroll-down">↓</div>
+        </div>
+      </div>
+    </section>
 
-<section id="about" class="wrap">
-<div class="about-container" style="display:flex; flex-wrap:nowrap; gap:40px; align-items:flex-start; justify-content:flex-start;">
-  
-  <!-- Left Side: About Me -->
-  <div class="about-text" style="flex:2; min-width:300px;">
-    <h2 style="font-size:clamp(28px,5vw,40px); margin-bottom:16px; background:linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0); -webkit-background-clip:text; color:transparent;">About Me</h2>
-    
-    <p style="color:var(--fg); line-height:1.6; font-size:17px;">
-      B.Com graduate, currently pursuing <strong>ICMAI Intermediate</strong>.  
-      Working as an <strong>Order to cash Associate at Accenture</strong>, specializing in cash application for 
-      <strong>US Client</strong> I handle NSF returns, check/ACH/wire postings, Versapay validations, 
-      and demand letters across divisions.
-    </p>
+    <section id="about" class="wrap">
+      <div class="about-container" style="display:flex; flex-wrap:nowrap; gap:40px; align-items:flex-start; justify-content:flex-start;">
+        <div class="about-text" style="flex:2; min-width:300px;">
+          <h2 style="font-size:clamp(28px,5vw,40px); margin-bottom:16px; background:linear-gradient(90deg,var(--accentA),var(--accentB),var(--accentC)); -webkit-background-clip:text; color:transparent;">About Me</h2>
+          <p style="color:var(--fg); line-height:1.6; font-size:17px;">
+            B.Com graduate, currently pursuing <strong>ICMAI Intermediate</strong>.
+            Working as an <strong>Order to cash Associate at Accenture</strong>, specializing in cash application for
+            <strong>US Client</strong> I handle NSF returns, check/ACH/wire postings, Versapay validations,
+            and demand letters across divisions.
+          </p>
+          <p style="color:var(--fg); line-height:1.6; font-size:17px; margin-top:18px;">
+            I enjoy solving reconciliation puzzles, maintaining invoicing/statement Queries,
+            and collaborating with Clients, Customer's, sales & credit teams for smooth month-end closures.
+            Outside of work, I spend time baking, gardening, and learning continously. But my main focus is mastering tools that
+            make finance less manual and more intelligent. From automating cash application steps to
+            building Power BI reports that replace endless spreadsheets, I’m obsessed with cutting waste
+            and making processes faster, cleaner, and scalable.
+          </p>
+          <div class="tags" style="display:flex; flex-direction:row; gap:15px; margin-top:18px; white-space:nowrap;">
+            <span class="tag" style="display:inline-block; padding:6px 12px; background:var(--glass); border-radius:20px; font-size:14px;">Night Shift</span>
+            <span class="tag" style="display:inline-block; padding:6px 12px; background:var(--glass); border-radius:20px; font-size:14px;">Process Optimizer</span>
+            <span class="tag" style="display:inline-block; padding:6px 12px; background:var(--glass); border-radius:20px; font-size:14px;">Detail-Oriented</span>
+            <span class="tag" style="display:inline-block; padding:6px 12px; background:var(--glass); border-radius:20px; font-size:14px;">Team Communication</span>
+          </div>
+          <div class="work-stats">
+            <div class="stat-card">
+              <h3><span class="counter" data-target="180">0</span>+</h3>
+              <p>Checks Processed Daily</p>
+              <div class="hover-info">180+ customer payments validated & applied daily.</div>
+            </div>
+            <div class="stat-card">
+              <h3><span class="counter" data-target="500">0</span>+</h3>
+              <p>Customer Queries Resolved Monthly</p>
+              <div class="hover-info">Resolved 500+ queries including invoices, statements & escalations.</div>
+            </div>
+            <div class="stat-card">
+              <h3><span class="counter" data-target="10">0</span>+</h3>
+              <p>Payment & Banking Systems Handled</p>
+              <div class="hover-info">Hands-on with 10+ systems like Versapay, TANDEM, ISR, C-Mod, JP Morgan, BofA, Wells Fargo, PNC, etc.</div>
+            </div>
+            <div class="stat-card"><h3>100%</h3><p>Month-End Closures</p><div class="hover-info">Maintained 100% accuracy and timeliness in month-end closures.</div></div>
+            <div class="stat-card"><h3><span class="counter" data-target="30">0</span>+</h3><p>Demand Letters Sent Weekly</p><div class="hover-info">Issued across multiple divisions as part of AR communication.</div></div>
+            <div class="stat-card"><h3>⚡</h3><p>Process Optimization & Automation Projects</p><div class="hover-info">Automated workflows & optimized turnaround with Excel / Power BI tools.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <p style="color:var(--fg); line-height:1.6; font-size:17px; margin-top:18px;">
-      I enjoy solving reconciliation puzzles, maintaining invoicing/statement Queries, 
-      and collaborating with Clients, Customer's, sales & credit teams for smooth month-end closures.  
-      Outside of work, I spend time baking, gardening, and learning continously. But my main focus is mastering tools that 
-make finance less manual and more intelligent. From automating cash application steps to 
-building Power BI reports that replace endless spreadsheets, I’m obsessed with cutting waste 
-and making processes faster, cleaner, and scalable.
-    </p>
-
-    <!-- Tags in one row -->
-<div class="tags" style="display:flex; flex-direction:row; gap:15px; margin-top:18px; white-space:nowrap;">
-  <span class="tag" style="display:inline-block; padding:6px 12px; background:var(--glass); border-radius:20px; font-size:14px;">Night Shift</span>
-  <span class="tag" style="display:inline-block; padding:6px 12px; background:var(--glass); border-radius:20px; font-size:14px;">Process Optimizer</span>
-  <span class="tag" style="display:inline-block; padding:6px 12px; background:var(--glass); border-radius:20px; font-size:14px;">Detail-Oriented</span>
-  <span class="tag" style="display:inline-block; padding:6px 12px; background:var(--glass); border-radius:20px; font-size:14px;">Team Communication</span>
-</div>
-<!-- Work Highlights - Futuristic Counters -->
-<div class="work-stats">
-  
-<div class="stat-card">
-  <h3><span class="counter" data-target="180">0</span>+</h3>
-  <p>Checks Processed Daily</p>
-  <div class="hover-info">
-    180+ customer payments validated & applied daily.
-  </div>
-</div>
-
-<div class="stat-card">
-  <h3><span class="counter" data-target="500">0</span>+</h3>
-  <p>Customer Queries Resolved Monthly</p>
-  <div class="hover-info">
-    Resolved 500+ queries including invoices, statements & escalations.
-  </div>
-</div>
-
-<div class="stat-card">
-  <h3><span class="counter" data-target="10">0</span>+</h3>
-  <p>Payment & Banking Systems Handled</p>
-  <div class="hover-info">
-    Hands-on with 10+ systems like Versapay, TANDEM, ISR, C-Mod, JP Morgan, BofA, Wells Fargo, PNC, etc.
-  </div>
-</div>
-
-  <div class="stat-card">
-    <h3>100%</h3>
-    <p>Month-End Closures</p>
-    <div class="hover-info">
-      Maintained 100% accuracy and timeliness in month-end closures.
-    </div>
-  </div>
-
-<div class="stat-card">
-  <h3><span class="counter" data-target="30">0</span>+</h3>
-  <p>Demand Letters Sent Weekly</p>
-  <div class="hover-info">
-    Issued across multiple divisions as part of AR communication.
-  </div>
-</div>
-
-  <div class="stat-card">
-    <h3>⚡</h3>
-    <p>Process Optimization & Automation Projects</p>
-    <div class="hover-info">
-      Automated workflows & optimized turnaround with Excel / Power BI tools.
-    </div>
-  </div>
-</div>
-</section>
-<section id="experience">
-  <!-- Experience section intentionally left blank -->
-</section>
+    <!-- ============================ -->
+    <!--  EXPERIENCE CONSTELLATION    -->
+    <!-- ============================ -->
+    <section id="experience">
+      <h2 class="section-title">Experience • Education — Constellation</h2>
+      <div class="timeline">
+        <!-- 1: LEFT -->
+        <div class="exp-item left">
+          <div class="left-col">
+            <article class="exp-card">
+              <h3 class="exp-title">2019 — B.Com (Start)</h3>
+              <p class="exp-meta">St. Joseph’s • Bangalore</p>
+              <p class="exp-desc">Began fundamentals in accounting, costing, tax, and audit; topped in Financial Accounting papers.</p>
+            </article>
+          </div>
+          <div class="node-wrap">
+            <div class="node"></div>
+            <span class="connector"></span>
+          </div>
+          <div class="right-col"><div class="exp-card"></div></div>
+        </div>
+        <!-- 2: RIGHT -->
+        <div class="exp-item right">
+          <div class="left-col"><div class="exp-card"></div></div>
+          <div class="node-wrap">
+            <div class="node"></div>
+            <span class="connector"></span>
+          </div>
+          <div class="right-col">
+            <article class="exp-card">
+              <h3 class="exp-title">2022 — B.Com (Completed)</h3>
+              <p class="exp-meta">Graduate • Accounts & Finance</p>
+              <p class="exp-desc">Wrapped up with strong base in financial statements & ratio analysis; built Excel speed.</p>
+            </article>
+          </div>
+        </div>
+        <!-- 3: LEFT -->
+        <div class="exp-item left">
+          <div class="left-col">
+            <article class="exp-card">
+              <h3 class="exp-title">2023 — Accenture (O2C)</h3>
+              <p class="exp-meta">US Foods • Cash Application</p>
+              <p class="exp-desc">Check/ACH/Wire postings, NSF returns, Versapay validations, demand letters across divisions.</p>
+            </article>
+          </div>
+          <div class="node-wrap">
+            <div class="node"></div>
+            <span class="connector"></span>
+          </div>
+          <div class="right-col"><div class="exp-card"></div></div>
+        </div>
+        <!-- 4: RIGHT -->
+        <div class="exp-item right">
+          <div class="left-col"><div class="exp-card"></div></div>
+          <div class="node-wrap">
+            <div class="node"></div>
+            <span class="connector"></span>
+          </div>
+          <div class="right-col">
+            <article class="exp-card">
+              <h3 class="exp-title">2023 — Process Optimization</h3>
+              <p class="exp-meta">Excel • Power BI • SOPs</p>
+              <p class="exp-desc">Streamlined reconciliations, validation files, and divisional reporting; reduced manual steps.</p>
+            </article>
+          </div>
+        </div>
+        <!-- 5: LEFT -->
+        <div class="exp-item left">
+          <div class="left-col">
+            <article class="exp-card">
+              <h3 class="exp-title">2024 — Versapay + Banking</h3>
+              <p class="exp-meta">JPM • BofA • Wells • PNC</p>
+              <p class="exp-desc">Deepened platform skills across portals (TANDEM, ISR, C-Mod) and strengthened exception handling.</p>
+            </article>
+          </div>
+          <div class="node-wrap">
+            <div class="node"></div>
+            <span class="connector"></span>
+          </div>
+          <div class="right-col"><div class="exp-card"></div></div>
+        </div>
+        <!-- 6: RIGHT -->
+        <div class="exp-item right">
+          <div class="left-col"><div class="exp-card"></div></div>
+          <div class="node-wrap">
+            <div class="node"></div>
+            <span class="connector"></span>
+          </div>
+          <div class="right-col">
+            <article class="exp-card">
+              <h3 class="exp-title">2024 — ICMAI (Intermediate)</h3>
+              <p class="exp-meta">Group 1 • In progress</p>
+              <p class="exp-desc">Cost & Management Accounting, Direct/Indirect Tax, Law — building managerial finance depth.</p>
+            </article>
+          </div>
+        </div>
+        <!-- 7: LEFT -->
+        <div class="exp-item left">
+          <div class="left-col">
+            <article class="exp-card">
+              <h3 class="exp-title">2025 — Automation Focus</h3>
+              <p class="exp-meta">Power Query • VBA • Power BI</p>
+              <p class="exp-desc">Prototyped automated cash application checks, dashboards replacing spreadsheet chaos.</p>
+            </article>
+          </div>
+          <div class="node-wrap">
+            <div class="node"></div>
+            <span class="connector"></span>
+          </div>
+          <div class="right-col"><div class="exp-card"></div></div>
+        </div>
+        <!-- 8: RIGHT -->
+        <div class="exp-item right">
+          <div class="left-col"><div class="exp-card"></div></div>
+          <div class="node-wrap">
+            <div class="node"></div>
+            <span class="connector"></span>
+          </div>
+          <div class="right-col">
+            <article class="exp-card">
+              <h3 class="exp-title">Future — SAP FICO & BI</h3>
+              <p class="exp-meta">Vision • 2026+</p>
+              <p class="exp-desc">Move into techno-functional O2C/AR analytics, E2E automation, and leadership in process design.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
+
   <script>
     /* ========= Parallax starfields (3 layers for depth) ========= */
     const DPR = Math.min(2, window.devicePixelRatio || 1);
     const layers = [
-      { id: 'stars1', count: 200, speed: 0.15, size: 1.0 }, // far
-      { id: 'stars2', count: 140, speed: 0.35, size: 1.6 }, // mid
-      { id: 'stars3', count: 90,  speed: 0.65, size: 2.2 }  // near
+      { id: 'stars1', count: 200, speed: 0.15, size: 1.0 },
+      { id: 'stars2', count: 140, speed: 0.35, size: 1.6 },
+      { id: 'stars3', count: 90,  speed: 0.65, size: 2.2 }
     ];
 
     function Starfield(layer){
       const cvs = document.getElementById(layer.id); const ctx = cvs.getContext('2d');
-      let w, h, stars=[]; let mx=0, my=0; // parallax
+      let w, h, stars=[]; let mx=0, my=0;
       function resize(){ w = cvs.width = innerWidth * DPR; h = cvs.height = innerHeight * DPR; cvs.style.width = innerWidth+'px'; cvs.style.height = innerHeight+'px';
         stars = Array.from({length: layer.count}, ()=>({ x: Math.random()*w, y: Math.random()*h, a: Math.random()*0.7+0.2 })); }
       resize(); addEventListener('resize', resize);
@@ -542,8 +486,7 @@ and making processes faster, cleaner, and scalable.
         requestAnimationFrame(draw); }
       draw();
       return {ctx, get size(){return {w,h}}, pushMeteor};
-
-      function pushMeteor(x,y,vx,vy){ // gradient trail line
+      function pushMeteor(x,y,vx,vy){
         const grad = ctx.createLinearGradient(x,y, x-vx*14, y-vy*14);
         grad.addColorStop(0,'rgba(255,255,255,.95)'); grad.addColorStop(1,'rgba(122,162,255,0)');
         ctx.strokeStyle = grad; ctx.lineWidth = 1.5*DPR; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x-vx*14, y-vy*14); ctx.stroke();
@@ -571,65 +514,58 @@ and making processes faster, cleaner, and scalable.
       el.addEventListener('mouseleave', ()=>{ el.style.transform = 'rotateX(0deg) rotateY(0deg)'; });
     });
 
-    /* ========= Animate bars when visible ========= */
-    const io = new IntersectionObserver((entries)=>{ entries.forEach(en=>{ if(en.isIntersecting){ en.target.querySelectorAll('.skillbar span').forEach(sp=>{ const w = getComputedStyle(sp).getPropertyValue('--w') || '0%'; requestAnimationFrame(()=> sp.style.width = w); }); } }); }, {threshold:.2});
-    document.querySelectorAll('#demo').forEach(s=> io.observe(s));
-
-    /* ========= Reduce motion toggle ========= */
-    let motionReduced = false; function toggleMotion(){ motionReduced = !motionReduced; document.body.style.setProperty('animation-play-state', motionReduced ? 'paused' : 'running'); }
-    window.toggleMotion = toggleMotion;
-  </script>
-  <script>
-  function goHome() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-    // Counter animation
-const counters = document.querySelectorAll('.counter');
-const speed = 200; // smaller = faster
-
-const animateCounters = (entries, observer) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const counter = entry.target;
-
-      const updateCount = () => {
-        const target = +counter.getAttribute('data-target');
-        const current = +counter.innerText;
-
-        const increment = Math.ceil(target / speed);
-
-        if (current < target) {
-          counter.innerText = current + increment;
-          setTimeout(updateCount, 20);
-        } else {
-          counter.innerText = target;
+    /* ========= Animate counters when visible ========= */
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+    const animateCounters = (entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const counter = entry.target;
+          const updateCount = () => {
+            const target = +counter.getAttribute('data-target');
+            const current = +counter.innerText;
+            const increment = Math.ceil(target / speed);
+            if (current < target) { counter.innerText = current + increment; setTimeout(updateCount, 20); }
+            else { counter.innerText = target; }
+          };
+          updateCount(); observer.unobserve(counter);
         }
+      });
+    };
+    const observer = new IntersectionObserver(animateCounters, { threshold: 0.3 });
+    counters.forEach(counter => observer.observe(counter));
+
+    /* ========= Experience: activate items on scroll ========= */
+    const expItems = document.querySelectorAll('.exp-item');
+    const expIO = new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{
+        if(en.isIntersecting){ en.target.classList.add('active'); }
+      })
+    },{ rootMargin: '0px 0px -20% 0px', threshold: 0.35 });
+    expItems.forEach(item=> expIO.observe(item));
+
+    /* optional tiny randomness to create uneven path feel */
+    expItems.forEach((item, idx)=>{
+      const nodeWrap = item.querySelector('.node-wrap');
+      const jitter = (idx % 2 === 0 ? 1 : -1) * (6 + Math.random()*8); // px offset left/right
+      nodeWrap.style.transform = `translateX(${jitter}px)`;
+    });
+
+    /* expand connector width after slight delay for nicer reveal */
+    expItems.forEach((item, i)=>{
+      const connector = item.querySelector('.connector');
+      const side = item.classList.contains('left') ? 'left' : 'right';
+      const setWidth = () => {
+        const timeline = document.querySelector('.timeline');
+        const half = timeline.clientWidth / 2;
+        const gap = 100; // keep some gap around node
+        connector.style.width = Math.max(0, half - gap) + 'px';
       };
+      setWidth();
+      window.addEventListener('resize', setWidth);
+    });
 
-      updateCount();
-      observer.unobserve(counter);
-    }
-  });
-};
-
-const observer = new IntersectionObserver(animateCounters, { threshold: 0.3 });
-counters.forEach(counter => observer.observe(counter));
-</script>
-    <script>
-const entries = document.querySelectorAll('.entry');
-const stars = document.querySelectorAll('.star');
-
-window.addEventListener('scroll', () => {
-  entries.forEach((entry, i) => {
-    const rect = entry.getBoundingClientRect();
-    if (rect.top >= 100 && rect.top < window.innerHeight / 2) {
-      entries.forEach(e => e.classList.remove('active'));
-      stars.forEach(s => s.classList.remove('active'));
-      entry.classList.add('active');
-      stars[i].classList.add('active');
-    }
-  });
-});
-</script>
+    function toggleMenu(){ document.getElementById('navbar').classList.toggle('show'); }
+  </script>
 </body>
 </html>
