@@ -692,6 +692,10 @@ function drawConstellation() {
 window.addEventListener("load", () => { drawConstellation(); /* ensure after any initial transforms */ });
 window.addEventListener("resize", drawConstellation);
 window.addEventListener("scroll", drawConstellation);
+
+document.querySelectorAll('.node').forEach(star => {
+  star.style.animationDelay = (Math.random() * 5) + 's';
+});
         </script>
 </body>
 </html>
