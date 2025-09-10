@@ -175,13 +175,30 @@
     .exp-item:nth-child(odd) { margin-top: 12px; }
     .exp-item:nth-child(3n) { margin-top: 26px; }
 
-    .node { position: relative; width: 18px; height: 18px; border-radius: 50%; background: #fff;
-      box-shadow: 0 0 12px rgba(255,255,255,.9), 0 0 28px rgba(122,162,255,.8), 0 0 56px rgba(79,240,176,.35);
-      animation: pulse 2.4s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100% { transform: scale(1); filter: drop-shadow(0 0 14px rgba(122,162,255,.6)); }
-                        50% { transform: scale(1.25); filter: drop-shadow(0 0 24px rgba(79,240,176,.6)); } }
+/* Realistic constellation star format */
+.node {
+  position: relative;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 0%, rgba(255,255,255,0.3) 70%);
+  box-shadow: 
+    0 0 6px rgba(255,255,255,0.9),
+    0 0 12px rgba(160,190,255,0.6),
+    0 0 18px rgba(120,180,255,0.4);
+  animation: twinkle 3s infinite ease-in-out alternate;
+}
 
+@keyframes twinkle {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
     /* connectors from node to cards */
     .connector { position: absolute; height: 2px; background: linear-gradient(90deg, rgba(255,255,255,.9), rgba(122,162,255,.25)); box-shadow: 0 0 10px rgba(122,162,255,.6); width: 0; transition: width .8s cubic-bezier(.2,.8,.2,1); }
     .exp-item.left  .connector { left: -6px; right: auto; transform-origin: right center; }
