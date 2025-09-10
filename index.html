@@ -175,29 +175,46 @@
     .exp-item:nth-child(odd) { margin-top: 12px; }
     .exp-item:nth-child(3n) { margin-top: 26px; }
 
-/* Realistic constellation star format */
+/* Sci-Fi style constellation star */
 .node {
   position: relative;
-  width: 4px;
-  height: 4px;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #fff 0%, rgba(255,255,255,0.2) 70%);
   border-radius: 50%;
-  background: radial-gradient(circle, #ffffff 0%, rgba(255,255,255,0.3) 70%);
-  box-shadow: 
-    0 0 6px rgba(255,255,255,0.9),
-    0 0 12px rgba(160,190,255,0.6),
-    0 0 18px rgba(120,180,255,0.4);
+  box-shadow: 0 0 10px rgba(255,255,255,0.9),
+              0 0 25px rgba(120,180,255,0.7),
+              0 0 40px rgba(79,240,176,0.5);
   animation: twinkle 3s infinite ease-in-out alternate;
 }
 
+/* The four sharp glowing nodes (like ✦) */
+.node::before,
+.node::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.9), transparent);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.node::before {
+  width: 30px;   /* horizontal beam length */
+  height: 2px;   /* beam thickness */
+  box-shadow: 0 0 12px rgba(255,255,255,0.7);
+}
+
+.node::after {
+  width: 2px;    /* vertical beam thickness */
+  height: 30px;  /* vertical beam length */
+  box-shadow: 0 0 12px rgba(255,255,255,0.7);
+}
+
 @keyframes twinkle {
-  0% {
-    opacity: 0.6;
-    transform: scale(0.85);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1.05);
-  }
+  0%   { opacity: 0.7; transform: scale(0.9); }
+  100% { opacity: 1;   transform: scale(1.1); }
 }
     /* connectors from node to cards */
     .connector { position: absolute; height: 2px; background: linear-gradient(90deg, rgba(255,255,255,.9), rgba(122,162,255,.25)); box-shadow: 0 0 10px rgba(122,162,255,.6); width: 0; transition: width .8s cubic-bezier(.2,.8,.2,1); }
