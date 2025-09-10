@@ -175,46 +175,69 @@
     .exp-item:nth-child(odd) { margin-top: 12px; }
     .exp-item:nth-child(3n) { margin-top: 26px; }
 
-/* Sci-Fi style constellation star */
+/* Big sci-fi constellation star */
 .node {
   position: relative;
-  width: 8px;
-  height: 8px;
-  background: radial-gradient(circle, #fff 0%, rgba(255,255,255,0.2) 70%);
+  width: 20px;   /* star core size */
+  height: 20px;
   border-radius: 50%;
-  box-shadow: 0 0 10px rgba(255,255,255,0.9),
-              0 0 25px rgba(120,180,255,0.7),
-              0 0 40px rgba(79,240,176,0.5);
-  animation: twinkle 3s infinite ease-in-out alternate;
+  background: radial-gradient(circle, #fff 30%, rgba(255,255,255,0.1) 80%);
+  box-shadow: 
+    0 0 20px rgba(255,255,255,0.9),
+    0 0 40px rgba(120,180,255,0.7),
+    0 0 60px rgba(79,240,176,0.5);
+  animation: twinkle 4s infinite ease-in-out alternate;
 }
 
-/* The four sharp glowing nodes (like ✦) */
+/* horizontal + vertical beams */
 .node::before,
 .node::after {
   content: "";
   position: absolute;
   top: 50%;
   left: 50%;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.9), transparent);
   transform: translate(-50%, -50%);
   pointer-events: none;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.9), transparent);
+  box-shadow: 0 0 20px rgba(255,255,255,0.8);
 }
 
 .node::before {
-  width: 30px;   /* horizontal beam length */
-  height: 2px;   /* beam thickness */
-  box-shadow: 0 0 12px rgba(255,255,255,0.7);
+  width: 70px;   /* horizontal beam length */
+  height: 3px;   /* thickness */
 }
 
 .node::after {
-  width: 2px;    /* vertical beam thickness */
-  height: 30px;  /* vertical beam length */
-  box-shadow: 0 0 12px rgba(255,255,255,0.7);
+  width: 3px;    /* thickness */
+  height: 70px;  /* vertical beam length */
+}
+
+/* diagonal beams for sci-fi ✧ look */
+.node span {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.9), transparent);
+  transform: translate(-50%, -50%) rotate(45deg);
+  box-shadow: 0 0 20px rgba(255,255,255,0.8);
+}
+
+.node span::after {
+  content: "";
+  position: absolute;
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.9), transparent);
+  transform: rotate(90deg);
+  box-shadow: 0 0 20px rgba(255,255,255,0.8);
 }
 
 @keyframes twinkle {
   0%   { opacity: 0.7; transform: scale(0.9); }
-  100% { opacity: 1;   transform: scale(1.1); }
+  100% { opacity: 1;   transform: scale(1.15); }
 }
     /* connectors from node to cards */
     .connector { position: absolute; height: 2px; background: linear-gradient(90deg, rgba(255,255,255,.9), rgba(122,162,255,.25)); box-shadow: 0 0 10px rgba(122,162,255,.6); width: 0; transition: width .8s cubic-bezier(.2,.8,.2,1); }
