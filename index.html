@@ -850,9 +850,9 @@ html{ scroll-behavior: smooth; }
 
 /* Only active button gets glassy background and subtle glow */
 .skills-filter-tab .filter-btn.is-active {
-  color: #0b0e16;             /* darker for contrast on glass */
+  background: rgba(255, 255, 255, 0.22); /* lighter glassy effect */
+  color: #eaeaea !important;              /* Keep original text color */
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.14);
   box-shadow:
     0 0 12px rgba(122, 162, 255, 0.4), 
     inset 0 0 8px rgba(255, 255, 255, 0.22);
