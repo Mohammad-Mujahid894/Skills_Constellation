@@ -288,18 +288,7 @@ header nav a:active {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(8px); }
 }
-    @font-face {
-  font-family: 'FoundationHand';
-  src: url('https://github.com/rsperberg/foundation-logo/raw/main/FoundationTitlesHand.ttf') format('truetype');
-}
 
-.name {
-  font-family: 'FoundationHand', sans-serif;
-  font-size: 60px;
-  color: white;
-  text-transform: uppercase;
-  text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff;
-}
 
 /* Glassy pill-style tags */
 .tag {
@@ -819,6 +808,7 @@ html{ scroll-behavior: smooth; }
   justify-content: center;
   align-items: center;
   line-height: 1; /* stable vertical rhythm */
+  overflow-x: visible; /* Ensure tabs don’t get cut off */
 }
 
 /* Buttons */
@@ -835,11 +825,21 @@ html{ scroll-behavior: smooth; }
   line-height: 1;             /* prevents text from riding low */
   white-space: nowrap;
   cursor: pointer;
-  transition: color .2s ease, transform .15s ease;
+  transition: color .2s ease, transform .15s ease, background-color .2s ease;
 }
+
+/* Active button style - no dark background, matches glass */
 .skills-filter-tab .filter-btn.is-active {
   color: #0b0e16;             /* darker for contrast on glass */
   font-weight: 600;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Subtle hover effect on buttons */
+.skills-filter-tab .filter-btn:hover:not(.is-active) {
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
 }
 
 /* Glassy active pill (single, centered, not oversized) */
@@ -850,19 +850,16 @@ html{ scroll-behavior: smooth; }
   transform: translateY(-50%);
   height: 32px;               /* matches ~8px top/bottom padding + font */
   border-radius: 10px;
-
   /* Stronger glass highlight */
   background: rgba(255,255,255,0.14);
   border: 1px solid rgba(255,255,255,0.22);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-
   /* Glow but tighter to avoid “big blob” look */
   box-shadow:
     0 6px 18px rgba(0,0,0,0.25),
     0 0 10px rgba(122,162,255,0.25),
     inset 0 0 3px rgba(255,255,255,0.08);
-
   transition: left .2s ease, width .2s ease, top .2s ease, transform .2s ease;
   z-index: 0;
   min-width: 56px;
@@ -887,30 +884,25 @@ html{ scroll-behavior: smooth; }
   }
 }
 
-/* Phones: wrap to multiple rows so nothing is hidden */
+/* Phones: wrap to multiple rows so tabs stay visible and do not overflow */
 @media (max-width: 640px) {
   .skills-filter-tab {
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
+    overflow-x: visible !important; /* Ensure no horizontal scroll */
   }
 }
 
-/* Very small phones: horizontal scroll fallback */
+/* Very small phones: allow wrap, no scroll */
 @media (max-width: 420px) {
   .skills-filter-tab {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: thin;
-    -webkit-overflow-scrolling: touch;
-    justify-content: flex-start;
-  }
-  .skills-filter-tab::-webkit-scrollbar { height: 5px; }
-  .skills-filter-tab::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.25);
-    border-radius: 5px;
+    flex-wrap: wrap;          /* Wrap instead of horizontal scroll */
+    overflow-x: visible !important;
+    justify-content: center;
   }
 }
+
 
   </style>
   
@@ -966,7 +958,7 @@ html{ scroll-behavior: smooth; }
 
 <!-- Right side - Name and Subtitles -->
 <div class="intro-text">
-  <h1 class="name"><span>Mohammad Mujahid</span></h1>
+  <h1 class="title"><span>Mohammad Mujahid</span></h1>
   <div id="typewriter"></div>
 
   <!-- Hard line break between typewriter and buttons -->
@@ -991,7 +983,7 @@ html{ scroll-behavior: smooth; }
   
   <!-- Left Side: About Me -->
   <div class="about-text" style="flex:2; min-width:300px;">
-    <h2 style="font-family:'FoundationHand',sans-serif;font-size:clamp(28px,5vw,40px); margin-bottom:16px; background:linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0); -webkit-background-clip:text; color:transparent;">About Me</h2>
+    <h2 style="font-size:clamp(28px,5vw,40px); margin-bottom:16px; background:linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0); -webkit-background-clip:text; color:transparent;">About Me</h2>
     
     <p style="color:var(--fg); line-height:1.6; font-size:17px;">
       B.Com graduate, currently pursuing <strong>ICMAI Intermediate</strong>.  
