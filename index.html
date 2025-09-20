@@ -258,7 +258,7 @@ header nav a:active {
   font-family: 'FoundationTitlesHand', sans-serif !important;
 }
 /* Apply font to typing container */
-#typewriter {
+#typed {
   font-family: 'FoundationTitlesHand', sans-serif !important;
   white-space: nowrap;
   min-width: 220px;
@@ -642,28 +642,24 @@ section#about {
   box-shadow: 0 0 12px rgba(122,162,255,0.5),
               0 0 18px rgba(79,240,176,0.4);
 }
+@font-face {
+  font-family: 'FoundationTitlesHand';
+  src: url('FoundationTitlesHand.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 #typed {
+  font-family: 'FoundationTitlesHand', sans-serif !important;
   font-size: 1.8rem;
   font-weight: 700;
-  color: #ffffff;  /* Change this to any color from the list above */
+  color: #ffffff;  
   white-space: nowrap;
-  overflow: hidden;
-  padding: 0.7em 0;
-}
-    #typed {
+  min-width: 220px;
+  min-height: 1.3em;
   display: inline-block;
-  min-width: 200px;  /* width of widest typing phrase approximately */
-  min-height: 1.2em; /* reserves vertical space */
-  white-space: nowrap;
-      #typed {
-  display: inline-block;
-  min-width: 220px;   /* enough width for longest text */
-  min-height: 1.3em;  /* reserve line height */
-  white-space: nowrap;
-  font-family: 'FoundationTitlesHand', sans-serif !important;
 }
-      
-}
+
     /* Desktop: show dropdown on hover */
 @media (hover: hover) and (pointer: fine) {
   .dropdown:hover .dropdown-content {
@@ -1609,13 +1605,14 @@ function toggleDetails(btn) {
 }
 </script>
     <script>
+      window.onload = function() {
 const texts = [
   "Order to Cash New Associate",
   "Process Optimization Enthusiast",
   "B.Com Graduate",
   "ICMAI Intermediate Student"
 ];
-const typewriter = document.getElementById("typed"); // Use correct id
+const typewriter = document.getElementById("typed");  // Correct id
 let textIndex = 0, charIndex = 0, typing = true;
 
 function animateTyping() {
@@ -1634,13 +1631,13 @@ function animateTyping() {
     } else {
       typing = true;
       textIndex = (textIndex + 1) % texts.length;
-      // Insert non-breaking space to keep space reserved and avoid layout shifts
-      typewriter.textContent = '\u00A0';
+      typewriter.textContent = '\u00A0';  // insert one space to prevent collapse
       setTimeout(animateTyping, 400);
     }
   }
 }
 animateTyping();
+      </script>
         <script>
     // Toggle hamburger menu
 function toggleMenu() {
