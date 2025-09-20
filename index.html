@@ -941,13 +941,6 @@ html{ scroll-behavior: smooth; }
     justify-content: center;
   }
 }
-.typed-container {
-  display: inline-block;
-  width: 300px;      /* adjust to the longest string your typewriter will show */
-  min-height: 30px;  /* prevents vertical jump */
-  overflow: hidden;  /* hides extra characters cleanly */
-}
-
 </style>
   
 </head>
@@ -1003,7 +996,7 @@ html{ scroll-behavior: smooth; }
 <!-- Right side - Name and Subtitles -->
 <div class="intro-text">
 <h1 class="title"><span>Mohammad Mujahid</span></h1>
-<div class="typed-container">
+<br>
   <span id="typed"></span>
 </div>
   <!-- Hero CTAs -->
@@ -1638,6 +1631,7 @@ window.onload = function() {
       } else {
         typing = true;
         textIndex = (textIndex + 1) % texts.length;
+        typewriter.textContent = '\u00A0';  // Non-breaking space to reserve layout
         setTimeout(animateTyping, 200);
       }
     }
