@@ -240,6 +240,22 @@ header nav a:active {
   min-height: 80vh;
 }
 
+
+    @font-face {
+  font-family: 'FoundationTitlesHand';
+  src: url('FoundationTitlesHand.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+/* Only change font-family, nothing else */
+.Mohammad Mujahid, 
+.About Me, 
+.Experience & Education, 
+.Skills & Expertise, 
+.Contact {
+  font-family: 'FoundationTitlesHand', sans-serif !important;
+}
+
 /* Profile picture with glowing orbits */
 .profile-pic {
   position: relative;
@@ -825,37 +841,40 @@ html{ scroll-behavior: smooth; }
   line-height: 1;             /* prevents text from riding low */
   white-space: nowrap;
   cursor: pointer;
-  transition: color .2s ease, transform .15s ease, background-color .2s ease;
+  transition: 
+    color .2s ease, 
+    transform .15s ease, 
+    background-color .3s ease, 
+    box-shadow .3s ease;
 }
 
-/* Active button style - no dark background, matches glass */
+/* Only active button gets glassy background and subtle glow */
 .skills-filter-tab .filter-btn.is-active {
   color: #0b0e16;             /* darker for contrast on glass */
   font-weight: 600;
-  background: transparent !important;
-  box-shadow: none !important;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 0 12px rgba(122, 162, 255, 0.4), 
+    inset 0 0 8px rgba(255, 255, 255, 0.22);
 }
 
-/* Subtle hover effect on buttons */
-.skills-filter-tab .filter-btn:hover:not(.is-active) {
-  background: rgba(255,255,255,0.05);
+/* Subtle hover effect on non-active buttons */
+.skills-filter-tab .filter-btn:not(.is-active):hover {
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 12px;
 }
 
 /* Glassy active pill (single, centered, not oversized) */
 .filter-active-pill {
   position: absolute;
-  /* Vertical: center to button height by matching padding + a modest height */
   top: 50%;
   transform: translateY(-50%);
-  height: 32px;               /* matches ~8px top/bottom padding + font */
+  height: 32px;
   border-radius: 10px;
-  /* Stronger glass highlight */
   background: rgba(255,255,255,0.14);
   border: 1px solid rgba(255,255,255,0.22);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  /* Glow but tighter to avoid “big blob” look */
   box-shadow:
     0 6px 18px rgba(0,0,0,0.25),
     0 0 10px rgba(122,162,255,0.25),
@@ -863,7 +882,7 @@ html{ scroll-behavior: smooth; }
   transition: left .2s ease, width .2s ease, top .2s ease, transform .2s ease;
   z-index: 0;
   min-width: 56px;
-  max-width: 200px;           /* slightly smaller for tighter look */
+  max-width: 200px;
 }
 
 /* Tablet */
@@ -890,14 +909,14 @@ html{ scroll-behavior: smooth; }
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    overflow-x: visible !important; /* Ensure no horizontal scroll */
+    overflow-x: visible !important;
   }
 }
 
 /* Very small phones: allow wrap, no scroll */
 @media (max-width: 420px) {
   .skills-filter-tab {
-    flex-wrap: wrap;          /* Wrap instead of horizontal scroll */
+    flex-wrap: wrap;
     overflow-x: visible !important;
     justify-content: center;
   }
@@ -1875,72 +1894,78 @@ Graph.controls().maxDistance = 900;
     if (!tab) return;
 
     const buttons = Array.from(tab.querySelectorAll('.filter-btn'));
-    const pill = tab.querySelector('.filter-active-pill');
+    let pill = tab.querySelector('.filter-active-pill');
 
-    // Ensure only one pill exists
+    // Remove duplicate pills if any
     const extraPills = tab.querySelectorAll('.filter-active-pill');
     if (extraPills.length > 1) {
       extraPills.forEach((p, i) => { if (i > 0) p.remove(); });
+      pill = tab.querySelector('.filter-active-pill'); // refresh after cleanup
     }
 
+    // Move the glassy pill under the active button smoothly
     function movePill(activeBtn) {
-      // Horizontal placement follows the button
       const left = activeBtn.offsetLeft;
       const width = activeBtn.offsetWidth;
-
-      // Vertical: keep pill centered in the tab container
-      const containerCenter = tab.offsetTop + (tab.clientHeight / 2);
+      const containerCenterY = tab.offsetTop + (tab.clientHeight / 2);
       pill.style.left = Math.max(6, left) + 'px';
       pill.style.width = Math.min(width, 200) + 'px';
-      pill.style.top = containerCenter + 'px';
+      pill.style.top = containerCenterY + 'px';
       pill.style.transform = 'translateY(-50%)';
     }
 
+    // Set active button highlight and update pill position
     function setActive(btn) {
       buttons.forEach(b => {
-        const on = b === btn;
-        b.classList.toggle('is-active', on);
-        b.setAttribute('aria-selected', on ? 'true' : 'false');
+        const isActive = (b === btn);
+        b.classList.toggle('is-active', isActive);
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
       });
       movePill(btn);
     }
 
-    const initial = tab.querySelector('.filter-btn.is-active') || buttons[0];
-    if (initial) setActive(initial);
+    // Initialize on page load: active button or first by default
+    const initialActive = tab.querySelector('.filter-btn.is-active') || buttons[0];
+    if (initialActive) setActive(initialActive);
 
+    // Event listener for each button click
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
         setActive(btn);
 
-        // Filtering hook
-        const f = btn.dataset.filter;
-        const tags = document.querySelectorAll('#skills-grid .skill-tag');
-        tags.forEach(t => {
-          const cat = t.getAttribute('data-cat') || '';
-          t.style.display = (f === 'all' || cat === f) ? 'inline-block' : 'none';
+        // Filtering logic: Show/hide skills based on data-filter attribute
+        const filterCategory = btn.dataset.filter;
+        const skillTags = document.querySelectorAll('#skills-grid .skill-tag');
+        skillTags.forEach(tag => {
+          const category = tag.getAttribute('data-cat') || '';
+          tag.style.display = (filterCategory === 'all' || category === filterCategory) ? 'inline-block' : 'none';
         });
 
-        // Optional radar update if present
+        // Optional radar chart update
         if (window.radarChart && window.radarSets) {
-          const ds = window.radarSets[f] || window.radarSets.all;
-          if (Array.isArray(ds)) {
-            window.radarChart.data.datasets[0].data = ds;
+          const dataSet = window.radarSets[filterCategory] || window.radarSets.all;
+          if (Array.isArray(dataSet)) {
+            window.radarChart.data.datasets[0].data = dataSet;
             window.radarChart.update();
           }
         }
       });
     });
 
-    // Keep aligned on resize/load
+    // Realign pill position on resize and load to maintain correct placement
     const realign = () => {
-      const current = tab.querySelector('.filter-btn.is-active') || buttons[0];
-      if (current) movePill(current);
+      const currentActive = tab.querySelector('.filter-btn.is-active') || buttons[0];
+      if (currentActive) movePill(currentActive);
     };
+
     window.addEventListener('resize', realign);
     window.addEventListener('load', realign);
+
+    // Additional safeguard for layout shifts after load
     setTimeout(realign, 0);
   })();
 </script>
+
 
 </body>
 </html>
