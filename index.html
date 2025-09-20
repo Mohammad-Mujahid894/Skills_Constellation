@@ -260,11 +260,11 @@ header nav a:active {
 /* Apply font to typing container */
 #typewriter {
   font-family: 'FoundationTitlesHand', sans-serif !important;
-  white-space: nowrap; /* Prevent line breaks */
-  min-width: 220px;    /* Reserve minimum width */
-  min-height: 1.3em;   /* Reserve vertical height */
+  white-space: nowrap;
+  min-width: 220px;
+  min-height: 1.3em;
+  display: inline-block;
 }
-
 
 /* Profile picture with glowing orbits */
 .profile-pic {
@@ -994,7 +994,7 @@ html{ scroll-behavior: smooth; }
 <!-- Right side - Name and Subtitles -->
 <div class="intro-text">
   <h1 class="title"><span>Mohammad Mujahid</span></h1>
-  <div id="typewriter"></div>
+<span id="typewriter"></span>
 
   <!-- Hard line break between typewriter and buttons -->
   <div class="typewriter-spacer"></div>
