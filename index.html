@@ -1605,38 +1605,39 @@ function toggleDetails(btn) {
 }
 </script>
     <script>
-      window.onload = function() {
-const texts = [
-  "Order to Cash New Associate",
-  "Process Optimization Enthusiast",
-  "B.Com Graduate",
-  "ICMAI Intermediate Student"
-];
-const typewriter = document.getElementById("typed");  // Correct id
-let textIndex = 0, charIndex = 0, typing = true;
+window.onload = function() {
+  const texts = [
+    "Order to Cash New Associate",
+    "Process Optimization Enthusiast",
+    "B.Com Graduate",
+    "ICMAI Intermediate Student"
+  ];
+  const typewriter = document.getElementById("typed");
+  let textIndex = 0, charIndex = 0, typing = true;
 
-function animateTyping() {
-  if (typing) {
-    if (charIndex < texts[textIndex].length) {
-      typewriter.textContent += texts[textIndex].charAt(charIndex++);
-      setTimeout(animateTyping, 70);
+  function animateTyping() {
+    if (typing) {
+      if (charIndex < texts[textIndex].length) {
+        typewriter.textContent += texts[textIndex].charAt(charIndex++);
+        setTimeout(animateTyping, 70);
+      } else {
+        typing = false;
+        setTimeout(animateTyping, 1000);
+      }
     } else {
-      typing = false;
-      setTimeout(animateTyping, 1000);
-    }
-  } else {
-    if (charIndex > 0) {
-      typewriter.textContent = texts[textIndex].substr(0, --charIndex);
-      setTimeout(animateTyping, 35);
-    } else {
-      typing = true;
-      textIndex = (textIndex + 1) % texts.length;
-      typewriter.textContent = '\u00A0';  // insert one space to prevent collapse
-      setTimeout(animateTyping, 400);
+      if (charIndex > 0) {
+        typewriter.textContent = texts[textIndex].substr(0, --charIndex);
+        setTimeout(animateTyping, 35);
+      } else {
+        typing = true;
+        textIndex = (textIndex + 1) % texts.length;
+        setTimeout(animateTyping, 200);
+      }
     }
   }
-}
-animateTyping();
+
+  animateTyping();
+};
       </script>
         <script>
     // Toggle hamburger menu
