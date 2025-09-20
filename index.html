@@ -257,7 +257,13 @@ header nav a:active {
 .title span {
   font-family: 'FoundationTitlesHand', sans-serif !important;
 }
-
+/* Apply font to typing container */
+#typewriter {
+  font-family: 'FoundationTitlesHand', sans-serif !important;
+  white-space: nowrap; /* Prevent line breaks */
+  min-width: 220px;    /* Reserve minimum width */
+  min-height: 1.3em;   /* Reserve vertical height */
+}
 
 
 /* Profile picture with glowing orbits */
@@ -1602,10 +1608,9 @@ function toggleDetails(btn) {
 const texts = [
   "Order to Cash New Associate",
   "Process Optimization Enthusiast",
-  "BCom Graduate",
+  "B.Com Graduate",
   "ICMAI Intermediate Student"
 ];
-
 const typewriter = document.getElementById("typewriter");
 let textIndex = 0, charIndex = 0, typing = true;
 
@@ -1625,12 +1630,13 @@ function animateTyping() {
     } else {
       typing = true;
       textIndex = (textIndex + 1) % texts.length;
+      // Insert non-breaking space to keep space reserved and avoid layout shifts
+      typewriter.textContent = '\u00A0';
       setTimeout(animateTyping, 400);
     }
   }
 }
 animateTyping();
-</script>
         <script>
     // Toggle hamburger menu
 function toggleMenu() {
