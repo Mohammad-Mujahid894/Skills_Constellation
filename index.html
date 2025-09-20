@@ -642,7 +642,7 @@ section#about {
   box-shadow: 0 0 12px rgba(122,162,255,0.5),
               0 0 18px rgba(79,240,176,0.4);
 }
-#typewriter {
+#typed {
   font-size: 1.8rem;
   font-weight: 700;
   color: #ffffff;  /* Change this to any color from the list above */
@@ -650,11 +650,19 @@ section#about {
   overflow: hidden;
   padding: 0.7em 0;
 }
-    #typewriter {
+    #typed {
   display: inline-block;
   min-width: 200px;  /* width of widest typing phrase approximately */
   min-height: 1.2em; /* reserves vertical space */
   white-space: nowrap;
+      #typed {
+  display: inline-block;
+  min-width: 220px;   /* enough width for longest text */
+  min-height: 1.3em;  /* reserve line height */
+  white-space: nowrap;
+  font-family: 'FoundationTitlesHand', sans-serif !important;
+}
+      
 }
     /* Desktop: show dropdown on hover */
 @media (hover: hover) and (pointer: fine) {
@@ -995,10 +1003,6 @@ html{ scroll-behavior: smooth; }
 <div class="intro-text">
   <h1 class="title"><span>Mohammad Mujahid</span></h1>
 <span id="typed"></span>
-
-  <!-- Hard line break between typewriter and buttons -->
-  <div class="typewriter-spacer"></div>
-
   <!-- Hero CTAs -->
   <div class="hero-ctas">
     <a href="#experience" class="btn btn-secondary">Explore my journey</a>
