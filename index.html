@@ -941,12 +941,13 @@ html{ scroll-behavior: smooth; }
     justify-content: center;
   }
 }
-.typed-text {
-  display: block;        /* Makes it start on a new line */
-  min-height: 40px;      /* Adjust height to your typewriter text size */
-  /* optional styling */
-  font-size: 24px;
+.typed-container {
+  display: inline-block;
+  width: 300px;      /* adjust to the longest string your typewriter will show */
+  min-height: 30px;  /* prevents vertical jump */
+  overflow: hidden;  /* hides extra characters cleanly */
 }
+
 </style>
   
 </head>
@@ -1002,7 +1003,9 @@ html{ scroll-behavior: smooth; }
 <!-- Right side - Name and Subtitles -->
 <div class="intro-text">
 <h1 class="title"><span>Mohammad Mujahid</span></h1>
-<span id="typed" class="typed-text"></span>
+<div class="typed-container">
+  <span id="typed"></span>
+</div>
   <!-- Hero CTAs -->
   <div class="hero-ctas">
     <a href="#experience" class="btn btn-secondary">Explore my journey</a>
