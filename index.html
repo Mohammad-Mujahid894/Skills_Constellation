@@ -790,27 +790,28 @@ html{ scroll-behavior: smooth; }
     height: 400px;  /* smaller height for mobile */
   }
 }
-/* Container = the single background tab */
+
+    /* Tabs container: centered, glassy, flexible */
 .skills-filter-tab {
   position: relative;
-  display: inline-flex;   /* ✅ shrink to fit content */
-   flex-wrap: wrap;         /* ✅ allow wrapping */
+  display: inline-flex;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 10px 14px;
   border-radius: 16px;
   background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.15);
   margin-bottom: 28px;
-   justify-content: center; /* ✅ center on larger screens */
+  justify-content: center;         /* center on desktop */
+  align-items: center;             /* vertical centering */
 }
 
-
-/* Buttons */
+/* Tabs buttons */
 .skills-filter-tab .filter-btn {
   position: relative;
-  z-index: 1;
+  z-index: 1;                      /* above the pill */
   appearance: none;
   border: 0;
   background: transparent;
@@ -823,48 +824,39 @@ html{ scroll-behavior: smooth; }
   cursor: pointer;
   transition: color .2s ease, transform .15s ease;
 }
-.skills-filter-tab .filter-btn:hover { 
-  color: #ffffff; 
-  transform: translateY(-1px); 
-}
-.skills-filter-tab .filter-btn:focus-visible {
-  outline: 2px solid #7dd3fc; /* light cyan focus */
-  outline-offset: 2px;
-  border-radius: 12px;
-}
-.skills-filter-tab .filter-btn.is-active { 
-  color: #111; 
+
+.skills-filter-tab .filter-btn.is-active {
+  color: #111;
   font-weight: 600;
 }
 
-/* Sliding active highlight pill */
+/* Glassy active pill */
 .filter-active-pill {
   position: absolute;
-  top: 6px;
-  height: calc(100% - 12px);
+  top: 6px;                        /* aligns with container padding */
+  height: calc(100% - 12px);       /* fills height minus padding */
   border-radius: 12px;
-  background: linear-gradient(180deg, #ffffff 0%, #e8f7ff 100%);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(0,0,0,0.06);
-  transition: left .25s ease, width .25s ease;
+  background: rgba(255,255,255,0.08);         /* glass, not white */
+  border: 1px solid rgba(255,255,255,0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.25),
+    0 0 20px rgba(122,162,255,0.25),
+    inset 0 0 6px rgba(255,255,255,0.06);
+  transition: left .25s ease, width .25s ease, top .25s ease;
   z-index: 0;
-
-  /* ✅ fixes the issues */
-  min-width: 50px;        /* don’t collapse into a line */
-  max-width: 160px;       /* don’t stretch too far */
+  min-width: 50px;
+  max-width: 220px;
 }
 
-    @media (max-width: 640px) {
-  .skills-filter-tab {
-    justify-content: flex-start;  /* left align on small screens */
-  }
-}
-    
-/* Responsive: tablets and small laptops */
+/* Tablets */
 @media (max-width: 768px) {
   .skills-filter-tab {
     gap: 8px;
     padding: 8px 12px;
     border-radius: 14px;
+    justify-content: center;
   }
   .skills-filter-tab .filter-btn {
     padding: 9px 14px;
@@ -875,21 +867,23 @@ html{ scroll-behavior: smooth; }
   }
 }
 
-/* Responsive: wrap buttons on small screens */
+/* Phones: wrap to multiple rows (nothing hidden to the right) */
 @media (max-width: 640px) {
   .skills-filter-tab {
     flex-wrap: wrap;
-    justify-content: center; /* center buttons */
+    justify-content: center;
+    align-items: center;
   }
 }
 
-/* Responsive: horizontal scroll on very small screens */
+/* Very small phones: allow horizontal scroll if still overflowing */
 @media (max-width: 420px) {
   .skills-filter-tab {
     flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: thin;
     -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
   }
   .skills-filter-tab::-webkit-scrollbar {
     height: 5px;
@@ -899,6 +893,7 @@ html{ scroll-behavior: smooth; }
     border-radius: 5px;
   }
 }
+
 
   </style>
   
@@ -1329,6 +1324,7 @@ and making processes faster, cleaner, and scalable.
   
 <!-- Filter Controls -->
 <div class="skills-filter-tab" role="tablist" aria-label="Skills filter">
+  <span class="filter-active-pill" aria-hidden="true"></span>
   <button class="filter-btn is-active" role="tab" aria-selected="true" data-filter="all">All Skills</button>
   <button class="filter-btn" role="tab" aria-selected="false" data-filter="ops">O2C Operations</button>
   <button class="filter-btn" role="tab" aria-selected="false" data-filter="banking">Banking</button>
@@ -1864,93 +1860,78 @@ Graph.controls().autoRotateSpeed = 0.4;
 Graph.controls().minDistance = 300;
 Graph.controls().maxDistance = 900;
   </script>
-    <script>
-(function() {
-  const tab = document.querySelector('.skills-filter-tab');
-  if (!tab) return;
-  const buttons = Array.from(tab.querySelectorAll('.filter-btn'));
-  const pill = tab.querySelector('.filter-active-pill');
+<script>
+  (function () {
+    // Get the tabs container
+    const tab = document.querySelector('.skills-filter-tab');
+    if (!tab) return;
 
-  function movePill(targetBtn) {
-    const tabRect = tab.getBoundingClientRect();
-    const btnRect = targetBtn.getBoundingClientRect();
-    const left = btnRect.left - tabRect.left + tab.scrollLeft + 6; // align with pill's left inset
-    const width = btnRect.width;
-    pill.style.left = left + 'px';
-    pill.style.width = width + 'px';
-  }
+    // Elements
+    const buttons = Array.from(tab.querySelectorAll('.filter-btn'));
+    const pill = tab.querySelector('.filter-active-pill');
 
-  function setActive(btn) {
-    buttons.forEach(b => {
-      b.classList.toggle('is-active', b === btn);
-      b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+    // Move the glass pill under the active button
+    function movePill(activeBtn) {
+      // Use offsets so it works when buttons wrap into multiple rows
+      const left = activeBtn.offsetLeft;
+      const top = activeBtn.offsetTop;
+      const width = activeBtn.offsetWidth;
+
+      // Align with container padding inset (6px) and cap width if needed
+      pill.style.left = Math.max(6, left) + 'px';
+      pill.style.top = (top + 6) + 'px';
+      pill.style.width = Math.min(width, 220) + 'px';
+    }
+
+    // Set active button and move pill
+    function setActive(btn) {
+      buttons.forEach(b => {
+        const isActive = b === btn;
+        b.classList.toggle('is-active', isActive);
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      movePill(btn);
+    }
+
+    // Initialize on first active or first button
+    const initial = tab.querySelector('.filter-btn.is-active') || buttons[0];
+    if (initial) setActive(initial);
+
+    // Click handling: set active + run filtering + update radar (if present)
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        setActive(btn);
+
+        // Filter skill tags
+        const f = btn.dataset.filter;
+        const tags = document.querySelectorAll('#skills-grid .skill-tag');
+        tags.forEach(t => {
+          const cat = t.getAttribute('data-cat') || '';
+          t.style.display = (f === 'all' || cat === f) ? 'inline-block' : 'none';
+        });
+
+        // Radar dataset switch (keeps existing logic if you already have it)
+        if (window.radarChart && window.radarSets) {
+          const ds = window.radarSets[f] || window.radarSets.all;
+          if (Array.isArray(ds)) {
+            window.radarChart.data.datasets[0].data = ds;
+            window.radarChart.update();
+          }
+        }
+      });
     });
-    movePill(btn);
-  }
 
-  // Initialize to the first .is-active or first button
-  const initial = tab.querySelector('.filter-btn.is-active') || buttons[0];
-  if (initial) setActive(initial);
+    // Keep pill aligned on resize and after load (handles row wrapping)
+    function realign() {
+      const current = tab.querySelector('.filter-btn.is-active') || buttons[0];
+      if (current) movePill(current);
+    }
+    window.addEventListener('resize', realign);
+    window.addEventListener('load', realign);
 
-  // Click handling - also call your existing filtering here
-  buttons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      setActive(btn);
-
-      // Hook into your existing filter logic:
-      const filter = btn.dataset.filter;
-      // example:
-      // applyFilter(filter);
-    });
-  });
-
-  // Recompute on resize and when fonts load
-  window.addEventListener('resize', () => {
-    const current = tab.querySelector('.filter-btn.is-active');
-    if (current) movePill(current);
-  });
-
-  // If content layout shifts after load, re-align once
-  window.addEventListener('load', () => {
-    const current = tab.querySelector('.filter-btn.is-active');
-    if (current) movePill(current);
-  });
-})();
-
-
-
-
-
-      const filterTab = document.querySelector('.skills-filter-tab');
-const pill = document.querySelector('.filter-active-pill');
-const buttons = document.querySelectorAll('.filter-btn');
-
-function movePill(activeBtn) {
-  const containerRect = filterTab.getBoundingClientRect();
-  const btnRect = activeBtn.getBoundingClientRect();
-
-  const left = activeBtn.offsetLeft;
-  const width = activeBtn.offsetWidth;
-
-  pill.style.left = `${Math.max(6, left)}px`;   // don’t go outside
-  pill.style.top = `${activeBtn.offsetTop + 6}px`;   // ✅ follow row
-  pill.style.width = `${Math.min(width, 160)}px`; // contain pill width
-}
-
-
-buttons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    buttons.forEach(b => b.classList.remove('is-active'));
-    btn.classList.add('is-active');
-    movePill(btn);
-  });
-});
-
-// ✅ Set initial pill position on load
-window.addEventListener('load', () => {
-  const activeBtn = document.querySelector('.filter-btn.is-active') || buttons[0];
-  movePill(activeBtn);
-});
-    </script>
+    // If fonts or images shift layout later, re-align once after a microtask
+    setTimeout(realign, 0);
+  })();
+</script>
 </body>
 </html>
