@@ -288,6 +288,18 @@ header nav a:active {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(8px); }
 }
+    @font-face {
+  font-family: 'FoundationHand';
+  src: url('https://github.com/rsperberg/foundation-logo/raw/main/FoundationTitlesHand.ttf') format('truetype');
+}
+
+.name {
+  font-family: 'FoundationHand', sans-serif;
+  font-size: 60px;
+  color: white;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff;
+}
 
 /* Glassy pill-style tags */
 .tag {
@@ -954,7 +966,7 @@ html{ scroll-behavior: smooth; }
 
 <!-- Right side - Name and Subtitles -->
 <div class="intro-text">
-  <h1 class="title"><span>Mohammad Mujahid</span></h1>
+  <h1 class="name"><span>Mohammad Mujahid</span></h1>
   <div id="typewriter"></div>
 
   <!-- Hard line break between typewriter and buttons -->
@@ -979,7 +991,7 @@ html{ scroll-behavior: smooth; }
   
   <!-- Left Side: About Me -->
   <div class="about-text" style="flex:2; min-width:300px;">
-    <h2 style="font-size:clamp(28px,5vw,40px); margin-bottom:16px; background:linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0); -webkit-background-clip:text; color:transparent;">About Me</h2>
+    <h2 style="font-family:'FoundationHand',sans-serif;font-size:clamp(28px,5vw,40px); margin-bottom:16px; background:linear-gradient(90deg,#7aa2ff,#8a7aff,#4ff0b0); -webkit-background-clip:text; color:transparent;">About Me</h2>
     
     <p style="color:var(--fg); line-height:1.6; font-size:17px;">
       B.Com graduate, currently pursuing <strong>ICMAI Intermediate</strong>.  
