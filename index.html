@@ -81,11 +81,10 @@
         "Deployment", "Configuration", "Monitoring", "Alerts & Notifications", "System Optimization"
       ];
 
-      // Fill 300 nodes
       const N = skillList.length;
 
       const gData = {
-        nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i] })),
+        nodes: skillList.map((skill, i) => ({ id: i, skill })),
         links: [...Array(N).keys()]
           .filter(id => id)
           .map(id => ({
@@ -98,11 +97,10 @@
         .graphData(gData)
         .nodeThreeObject(node => {
           const obj = new THREE.Mesh(
-            new THREE.SphereGeometry(5, 8, 8), // same sphere style
-            new THREE.MeshBasicMaterial({ color: 0x0077ff }) // same basic color
+            new THREE.SphereGeometry(5, 8, 8),
+            new THREE.MeshBasicMaterial({ color: 0x0077ff })
           );
 
-          // Add skill label
           const canvas = document.createElement('canvas');
           canvas.width = 128;
           canvas.height = 32;
