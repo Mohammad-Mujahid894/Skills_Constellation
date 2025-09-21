@@ -88,51 +88,53 @@
           .map(id => ({ source: id, target: Math.round(Math.random() * (id - 1)) }))
       };
 
-      const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
-        .graphData(gData)
-.nodeThreeObject(node => {
-  const group = new THREE.Group();
+const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
+  .graphData(gData)
+  .nodeRelSize(10)  // Default node radius is 4, increasing this to 10 makes spheres bigger
+  .nodeThreeObject(node => {
+    const group = new THREE.Group();
 
-  // Use default sphere size smaller (default ForceGraph node radius ~4)
-  const radius = 4;
-  const sphere = new THREE.Mesh(
-    new THREE.SphereGeometry(radius),
-    new THREE.MeshBasicMaterial({ color: 'rgb(31, 120, 180)' }) // default ForceGraph blueish node color
-  );
-  group.add(sphere);
+    const radius = 10;  // match nodeRelSize
 
-  // Create label canvas
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  
-  const fontSize = 48;  // Bigger font size for clearer text
-  ctx.font = `${fontSize}px Arial`;
-  const text = node.skill || `Skill ${node.id}`;
-  
-  const textWidth = ctx.measureText(text).width;
-  canvas.width = textWidth + 40;  // More padding for crisp edges
-  canvas.height = fontSize + 20;
+    // Get default node color assigned by graph
+    const color = Graph.nodeColor ? Graph.nodeColor()(node) : 'orange';
 
-  ctx.font = `${fontSize}px Arial`;
-  ctx.fillStyle = 'white';
-  ctx.fillText(text, 20, fontSize);
+    const sphere = new THREE.Mesh(
+      new THREE.SphereGeometry(radius),
+      new THREE.MeshStandardMaterial({ color: color })
+    );
+    group.add(sphere);
 
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.minFilter = THREE.LinearFilter; // keep text crisp on scale
+    // Create label canvas with bigger font
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
-  const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
-  const sprite = new THREE.Sprite(spriteMaterial);
+    const fontSize = 48;
+    ctx.font = `${fontSize}px Arial`;
+    const text = node.skill || `Skill ${node.id}`;
 
-  // Position the label slightly above the sphere based on radius
-  sprite.position.set(0, radius + (fontSize * 0.08), 0);
+    const textWidth = ctx.measureText(text).width;
+    canvas.width = textWidth + 40;
+    canvas.height = fontSize + 20;
 
-  // Scale sprite to keep readable size relative to graph scale
-  sprite.scale.set(canvas.width * 0.15, canvas.height * 0.15, 1);
+    ctx.font = `${fontSize}px Arial`;
+    ctx.fillStyle = 'white';
+    ctx.fillText(text, 20, fontSize);
 
-  group.add(sprite);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.minFilter = THREE.LinearFilter;
 
-  return group;
-})
+    const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+    const sprite = new THREE.Sprite(spriteMaterial);
+
+    sprite.position.set(0, radius + (fontSize * 0.08), 0);
+    sprite.scale.set(canvas.width * 0.15, canvas.height * 0.15, 1);
+
+    group.add(sprite);
+
+    return group;
+  });
+
 
     </script>
   </body>
