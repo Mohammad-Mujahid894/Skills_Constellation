@@ -25,7 +25,7 @@
 
     <script src="//cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/3d-force-graph"></script>
-
+<script src="https://unpkg.com/three-spritetext@1.10.5/build/THREE.SpriteText.min.js"></script>
     <script>
       const skillList = [
         "Excel", "Power BI", "SAP FICO", "Tally", "Financial Accounting", 
@@ -124,7 +124,13 @@
 
       const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
         .graphData(gData)
-        .nodeThreeObject(() => null) // no default spheres
+.nodeThreeObject(node => {
+  // Create a text sprite for each skill name
+  const sprite = new window.SpriteText(node.skill);
+  sprite.color = '#00ffff';
+  sprite.textHeight = 10;
+  return sprite;
+})
         .onNodeHover(node => {
           const tooltip = document.getElementById('tooltip');
           if(node) {
