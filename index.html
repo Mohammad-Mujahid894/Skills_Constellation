@@ -1898,7 +1898,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize 3D Force Graph
     try {
-        const Graph = ForceGraph3D(container)
+        const Graph = ForceGraph3D()(container)
             .graphData(graphData)
             .nodeLabel(node => node.name)
             .nodeColor(node => node.color)
