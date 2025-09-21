@@ -1817,9 +1817,9 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     setTimeout(realign, 0);
   })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/TagCloud@2.2.0/dist/TagCloud.min.js"></script>
-    <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
 <script src="https://unpkg.com/3d-force-graph"></script>
+
 <script>
 const skills = [
   "Excel","Power BI","SAP FICO","Tally","GST Filing","Versapay","TANDEM","ISR","C-Mod",
@@ -1832,53 +1832,117 @@ const skills = [
   "Leadership","Problem Solving","Critical Thinking","Adaptability","Excel VBA","Data Modelling"
 ];
 
-// Build graph-like globe
+// Build graph data
 const gData = {
-  nodes: skills.map((skill, i) => ({ id: skill, group: i % 6 })),
-  links: skills.map((skill, i) => ({
-    source: skill,
-    target: skills[(i + Math.floor(Math.random() * 6) + 1) % skills.length]
-  }))
+  nodes: skills.map((skill, i) => ({
+    id: skill,
+    group: i % 6,
+    x: 0, y: 0, z: 0, // start at center
+    target: null // will store target explosion position
+  })),
+  links: []
 };
+
+// Assign random target positions on a sphere for "Big Bang"
+gData.nodes.forEach(node => {
+  const radius = 200 + Math.random() * 100; // sphere radius
+  const theta = Math.random() * 2 * Math.PI;
+  const phi = Math.acos(2 * Math.random() - 1);
+  node.target = {
+    x: radius * Math.sin(phi) * Math.cos(theta),
+    y: radius * Math.sin(phi) * Math.sin(theta),
+    z: radius * Math.cos(phi)
+  };
+});
+
+// Create links randomly (1–2 per node)
+gData.nodes.forEach((node, i) => {
+  const numLinks = Math.floor(Math.random()*2)+1;
+  for(let j=0;j<numLinks;j++){
+    let targetNode = gData.nodes[Math.floor(Math.random()*gData.nodes.length)];
+    if(targetNode.id !== node.id){
+      gData.links.push({ source: node.id, target: targetNode.id, alpha:0 }); // alpha = 0 initially
+    }
+  }
+});
 
 const Graph = ForceGraph3D()(document.getElementById('skills-globe'))
   .graphData(gData)
   .nodeThreeObject(node => {
-    // glowing text labels
     const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 128;
     const ctx = canvas.getContext('2d');
     ctx.font = '28px Arial';
     ctx.fillStyle = '#ffffff';
     ctx.shadowColor = '#7aa2ff';
     ctx.shadowBlur = 12;
     ctx.fillText(node.id, 10, 30);
-
     const texture = new THREE.CanvasTexture(canvas);
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
     sprite.scale.set(60, 30, 1);
     return sprite;
   })
-  .linkColor(() => 'rgba(122,162,255,0.5)')
+  .linkColor(()=>'rgba(122,162,255,0.5)')
   .linkWidth(1.2)
   .linkDirectionalParticles(2)
   .linkDirectionalParticleSpeed(0.005)
   .backgroundColor('#0a0c15');
+
+// Animate "Big Bang" explosion
+let progress = 0;
+function explode() {
+  progress += 0.01;
+  Graph.graphData().nodes.forEach(node=>{
+    node.x += (node.target.x - node.x)*progress*0.05;
+    node.y += (node.target.y - node.y)*progress*0.05;
+    node.z += (node.target.z - node.z)*progress*0.05;
+  });
+
+  // Gradually increase link visibility
+  Graph.graphData().links.forEach(link=>{
+    link.alpha = Math.min(1, link.alpha + 0.01); 
+  });
+
+  Graph.graphData(Graph.graphData()); // update graph
+
+  if(progress < 1.5){
+    requestAnimationFrame(explode);
+  } else {
+    rotateGlobe();
+  }
+}
+explode();
+
+// Slowly rotate globe after explosion
+function rotateGlobe(){
+  let angle = 0;
+  setInterval(()=>{
+    angle+=0.002;
+    Graph.cameraPosition({
+      x: 500*Math.sin(angle),
+      y: 100,
+      z: 500*Math.cos(angle)
+    });
+  },50);
+}
 
 // Hover highlight
 Graph.onNodeHover(node => {
   Graph.nodeThreeObjectExtend(true)
        .nodeThreeObject(n => {
          const canvas = document.createElement('canvas');
+         canvas.width = 512;
+         canvas.height = 128;
          const ctx = canvas.getContext('2d');
-         ctx.font = n === node ? 'bold 34px Arial' : '24px Arial';
-         ctx.fillStyle = n === node ? '#ffcc00' : '#ffffff';
-         ctx.shadowColor = n === node ? '#ff6600' : '#7aa2ff';
+         ctx.font = n===node?'bold 34px Arial':'24px Arial';
+         ctx.fillStyle = n===node?'#ffcc00':'#ffffff';
+         ctx.shadowColor = n===node?'#ff6600':'#7aa2ff';
          ctx.shadowBlur = 15;
          ctx.fillText(n.id, 10, 30);
-
          const texture = new THREE.CanvasTexture(canvas);
          const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
-         sprite.scale.set(n === node ? 90 : 60, n === node ? 40 : 25, 1);
+         sprite.scale.set(n===node?90:60,n===node?40:25,1);
          return sprite;
        });
 });
