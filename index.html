@@ -1439,10 +1439,10 @@ and making processes faster, cleaner, and scalable.
 
 
 
-  <div style="margin-top:80px; text-align:center;">
-  <h3 style="color:var(--muted); font-size:22px; margin-bottom:20px;">Skills Globe</h3>
-  <div id="skills-globe" style="width:100%; height:600px;"></div>
-  </div>
+<div style="margin-top: 80px; text-align: center;">
+    <h3 style="color: var(--muted); font-size: 22px; margin-bottom: 20px;">Skills Globe</h3>
+    <div id="skills-globe" style="width: 100%; height: 600px; border-radius: 16px; overflow: hidden; background: rgba(4,6,11,0.95); box-shadow: 0 0 40px rgba(122,162,255,0.2);"></div>
+</div>
 </section>
 
 
@@ -1817,109 +1817,148 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     setTimeout(realign, 0);
   })();
 </script>
-<script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
-<script src="https://unpkg.com/3d-force-graph"></script>
-<script src="https://unpkg.com/three/examples/js/renderers/CSS2DRenderer.js"></script>
-
 <script>
-const skills = [
-  "Excel","Power BI","SAP FICO","Tally","GST Filing","Versapay","TANDEM","ISR","C-Mod",
-  "Micro Dynamics","Quadient Impress","Cash Application","Accounts Receivable","O2C",
-  "Collections","NSF Returns","Demand Letters","Audit Support","Customer Aging",
-  "Bank Reconciliation","Wells Fargo","JP Morgan","Bank of America","PNC","US Bank",
-  "QuickBooks","Zoho Books","Xero","Sage","Reporting Automation","Foxtrot RPA",
-  "Workflow Optimization","Process Improvement","Compliance","Business Ethics",
-  "Customer Communication","Leadership","Adaptability","Critical Thinking","Analytics"
-];
+// Skills Globe Implementation
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('skills-globe');
+    if (!container) return;
 
-// === Graph Data: clustered galaxies ===
-const clusterCount = 6;
-const gData = { nodes: [], links: [] };
+    // Define your skills with categories for clustering
+    const skillCategories = {
+        'Finance & Accounting': ['Excel Advanced', 'Power BI', 'O2C Operations', 'Cash Application', 'Accounts Receivable', 'Bank Reconciliation'],
+        'Banking Platforms': ['Wells Fargo', 'JP Morgan', 'Bank of America', 'PNC Bank', 'US Bank'],
+        'ERP Systems': ['SAP FICO', 'Tally Prime', 'QuickBooks', 'Zoho Books', 'Xero'],
+        'Process Automation': ['Versapay', 'TANDEM', 'ISR', 'C-Mod', 'Micro Dynamics', 'Quadient Impress'],
+        'Analytics & Reporting': ['Power Query', 'DAX Measures', 'Reporting Automation', 'Foxtrot RPA'],
+        'Professional Skills': ['Process Improvement', 'Compliance', 'Customer Communication', 'Business Ethics']
+    };
 
-skills.forEach((skill, i) => {
-  const group = i % clusterCount;
-  gData.nodes.push({ id: skill, group });
-});
+    // Create graph data
+    const graphData = {
+        nodes: [],
+        links: []
+    };
 
-// connect nodes inside clusters
-gData.nodes.forEach(node => {
-  const sameGroup = gData.nodes.filter(n => n.group === node.group && n.id !== node.id);
-  sameGroup.slice(0, 3).forEach(target => {
-    gData.links.push({ source: node.id, target: target.id, group: node.group });
-  });
-});
+    // Color palette for different clusters
+    const clusterColors = [
+        '#7aa2ff', // Blue
+        '#4ff0b0', // Cyan
+        '#8a7aff', // Purple  
+        '#ffcc00', // Yellow
+        '#ff6b6b', // Red
+        '#4ecdc4'  // Teal
+    ];
 
-// === Star Sprite (glowing node) ===
-function createStar(color, scale = 12) {
-  const size = 64;
-  const canvas = document.createElement("canvas");
-  canvas.width = size; canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
-  gradient.addColorStop(0, color);
-  gradient.addColorStop(0.5, "rgba(180,200,255,0.8)");
-  gradient.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0,0,size,size);
+    let nodeId = 0;
+    
+    // Create nodes for each category and skill
+    Object.keys(skillCategories).forEach((category, categoryIndex) => {
+        // Add category center node
+        graphData.nodes.push({
+            id: nodeId++,
+            name: category,
+            type: 'category',
+            group: categoryIndex,
+            color: clusterColors[categoryIndex % clusterColors.length],
+            size: 15
+        });
+        
+        const categoryNodeId = nodeId - 1;
+        
+        // Add skill nodes and connect to category
+        skillCategories[category].forEach(skill => {
+            const skillNodeId = nodeId++;
+            graphData.nodes.push({
+                id: skillNodeId,
+                name: skill,
+                type: 'skill',
+                group: categoryIndex,
+                color: clusterColors[categoryIndex % clusterColors.length],
+                size: 8
+            });
+            
+            // Link skill to its category
+            graphData.links.push({
+                source: categoryNodeId,
+                target: skillNodeId
+            });
+        });
+    });
 
-  const texture = new THREE.CanvasTexture(canvas);
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
-  sprite.scale.set(scale, scale, 1);
-  return sprite;
-}
+    // Add some inter-cluster connections for constellation effect
+    const categoryNodes = graphData.nodes.filter(node => node.type === 'category');
+    for (let i = 0; i < categoryNodes.length; i++) {
+        const nextIndex = (i + 1) % categoryNodes.length;
+        graphData.links.push({
+            source: categoryNodes[i].id,
+            target: categoryNodes[nextIndex].id,
+            strength: 0.1
+        });
+    }
 
-// === Build Graph ===
-const Graph = ForceGraph3D()(document.getElementById("skills-globe"))
-  .graphData(gData)
-  .nodeThreeObject(node => {
-    const sprite = createStar("rgba(255,255,255,1)", 12);
-    node.__sprite = sprite;
+    // Initialize 3D Force Graph
+    try {
+        const Graph = ForceGraph3D(container)
+            .graphData(graphData)
+            .nodeLabel(node => node.name)
+            .nodeColor(node => node.color)
+            .nodeVal(node => node.size)
+            .linkColor(() => 'rgba(200,220,255,0.4)')
+            .linkWidth(0.5)
+            .linkOpacity(0.6)
+            .backgroundColor('rgba(4,6,11,0.95)')
+            .showNavInfo(false)
+            .enableNodeDrag(false)
+            .d3Force('charge', d3.forceCollide().radius(20))
+            .d3Force('link').distance(80);
 
-    // === Label (CSS2D) ===
-    const div = document.createElement("div");
-    div.textContent = node.id;
-    div.style.color = "#fff";
-    div.style.fontSize = "12px";
-    div.style.whiteSpace = "nowrap";
-    const label = new THREE.CSS2DObject(div);
-    sprite.add(label);
+        // Auto-rotate for galaxy effect
+        Graph.controls().autoRotate = true;
+        Graph.controls().autoRotateSpeed = 0.5;
+        Graph.controls().enableZoom = true;
+        Graph.controls().minDistance = 200;
+        Graph.controls().maxDistance = 800;
 
-    return sprite;
-  })
-  .nodeLabel(node => node.id)
-  .linkColor(() => "rgba(200,220,255,0.6)")
-  .linkWidth(1)
-  .backgroundColor("#02030c")
-  .showNavInfo(false)
-  .enableNodeDrag(false);
+        // Responsive sizing
+        function resizeGraph() {
+            Graph
+                .width(container.clientWidth)
+                .height(container.clientHeight);
+        }
 
-// Auto rotate like galaxy
-Graph.controls().autoRotate = true;
-Graph.controls().autoRotateSpeed = 0.7;
+        window.addEventListener('resize', resizeGraph);
+        resizeGraph();
 
-// Prevent zoom trap
-Graph.controls().minDistance = 300;
-Graph.controls().maxDistance = 1200;
+        // Hover effects
+        Graph.onNodeHover(node => {
+            container.style.cursor = node ? 'pointer' : 'default';
+        });
 
-// Keep graph centered/responsive
-window.addEventListener("resize", () => {
-  Graph.width(window.innerWidth).height(600);
-});
-Graph.width(window.innerWidth).height(600);
+        // Click effects
+        Graph.onNodeClick(node => {
+            if (node) {
+                // You can add click interactions here
+                console.log('Clicked on:', node.name);
+            }
+        });
 
-// Hover effect
-let lastHover = null;
-Graph.onNodeHover(node => {
-  if (lastHover && lastHover.__sprite) {
-    lastHover.__sprite.scale.set(12, 12, 1);
-    lastHover.__sprite.material.opacity = 0.9;
-  }
-  if (node && node.__sprite) {
-    node.__sprite.scale.set(18, 18, 1);
-    node.__sprite.material.opacity = 1;
-  }
-  lastHover = node;
+    } catch (error) {
+        console.error('Failed to initialize skills globe:', error);
+        // Fallback display
+        container.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted);">
+                <div style="text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🌌</div>
+                    <div>Skills constellation loading...</div>
+                    <div style="margin-top: 10px; font-size: 14px;">Exploring the finance & technology universe</div>
+                </div>
+            </div>
+        `;
+    }
 });
 </script>
+      <!-- Add these scripts at the end of your body, before the closing </body> tag -->
+<script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph@1.70.19/dist/3d-force-graph.min.js"></script>
 </body>
 </html>
