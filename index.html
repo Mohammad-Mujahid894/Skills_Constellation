@@ -817,6 +817,7 @@ html{ scroll-behavior: smooth; }
     height: 400px;  /* smaller height for mobile */
   }
 }
+
 /* Tabs container */
 .skills-filter-tab {
   position: relative;
@@ -1313,6 +1314,7 @@ and making processes faster, cleaner, and scalable.
         </div>
       </div>
     </div>
+
   </div>
 
 
@@ -1434,7 +1436,9 @@ and making processes faster, cleaner, and scalable.
   <span class="tag skill-tag" data-cat="soft">GST Filing</span>
 </div>
 
-    <div style="margin-top:80px; text-align:center;">
+
+
+  <div style="margin-top:80px; text-align:center;">
   <h3 style="color:var(--muted); font-size:22px; margin-bottom:20px;">Skills Globe</h3>
   <div id="skills-globe" style="width:100%; height:600px;"></div>
   </div>
@@ -1655,7 +1659,6 @@ bars.forEach(b => io.observe(b));
 
 
 // === Sharp Spider Web Radar ===
-// === Radar Chart Setup ===
 const ctx = document.getElementById('radarChart').getContext('2d');
 
 let radarChart = new Chart(ctx, {
@@ -1671,7 +1674,7 @@ let radarChart = new Chart(ctx, {
     ],
     datasets: [{
       label: 'Skill Map',
-      data: [85, 80, 60, 75, 82, 88], // default All
+      data: [85, 80, 60, 75, 82, 88],
       fill: true,
       backgroundColor: 'rgba(122,162,255,0.15)',
       borderColor: '#7aa2ff',
@@ -1681,7 +1684,7 @@ let radarChart = new Chart(ctx, {
       pointRadius: 6,
       pointHoverRadius: 9,
       pointHoverBackgroundColor: '#ffcc00',
-      tension: 0 // straight lines
+      tension: 0 // 👈 removes curved edges → sharp straight lines
     }]
   },
   options: {
@@ -1695,7 +1698,7 @@ let radarChart = new Chart(ctx, {
           color: '#eaf2ff',
           font: { size: 15, weight: 'bold' }
         },
-        ticks: { display: false }
+        ticks: { display: false } // 🚫 no numbers around
       }
     },
     plugins: {
@@ -1715,18 +1718,16 @@ let radarChart = new Chart(ctx, {
   }
 });
 
-// === Radar Data Sets (aligned with your data-filter names) ===
+// Change radar values when tabs are clicked
 const radarSets = {
   all: [85, 80, 60, 75, 82, 88],
-  ops: [90, 55, 50, 65, 95, 72],       // O2C
-  banking: [55, 92, 60, 50, 70, 68],   // Banking
-  tools: [65, 70, 55, 60, 68, 66],     // Platforms
-  erp: [60, 55, 85, 50, 65, 70],       // ERPs
-  analytics: [60, 50, 55, 92, 65, 72], // Analytics
-  soft: [70, 60, 55, 65, 68, 90]       // Professional
+  o2c: [88, 50, 45, 55, 95, 70],
+  banking: [50, 90, 55, 45, 65, 70],
+  erps: [55, 50, 85, 45, 55, 65],
+  analytics: [55, 45, 60, 90, 60, 70],
+  professional: [65, 55, 50, 65, 70, 92]
 };
 
-// === Connect Filter Buttons ===
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const cat = btn.dataset.filter;
@@ -1736,83 +1737,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     radarChart.update();
   });
 });
-<script>
-  (function () {
-    const tab = document.querySelector('.skills-filter-tab');
-    if (!tab) return;
 
-    const buttons = Array.from(tab.querySelectorAll('.filter-btn'));
-    let pill = tab.querySelector('.filter-active-pill');
-
-    // Remove duplicate pills if any
-    const extraPills = tab.querySelectorAll('.filter-active-pill');
-    if (extraPills.length > 1) {
-      extraPills.forEach((p, i) => { if (i > 0) p.remove(); });
-      pill = tab.querySelector('.filter-active-pill'); // refresh after cleanup
-    }
-
-    // Move the glassy pill under the active button smoothly
-    function movePill(activeBtn) {
-      const left = activeBtn.offsetLeft;
-      const width = activeBtn.offsetWidth;
-      const containerCenterY = tab.offsetTop + (tab.clientHeight / 2);
-      pill.style.left = Math.max(6, left) + 'px';
-      pill.style.width = Math.min(width, 200) + 'px';
-      pill.style.top = containerCenterY + 'px';
-      pill.style.transform = 'translateY(-50%)';
-    }
-
-    // Set active button highlight and update pill position
-    function setActive(btn) {
-      buttons.forEach(b => {
-        const isActive = (b === btn);
-        b.classList.toggle('is-active', isActive);
-        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
-      });
-      movePill(btn);
-    }
-
-    // Initialize on page load: active button or first by default
-    const initialActive = tab.querySelector('.filter-btn.is-active') || buttons[0];
-    if (initialActive) setActive(initialActive);
-
-    // Event listener for each button click
-    buttons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        setActive(btn);
-
-        // Filtering logic: Show/hide skills based on data-filter attribute
-        const filterCategory = btn.dataset.filter;
-        const skillTags = document.querySelectorAll('#skills-grid .skill-tag');
-        skillTags.forEach(tag => {
-          const category = tag.getAttribute('data-cat') || '';
-          tag.style.display = (filterCategory === 'all' || category === filterCategory) ? 'inline-block' : 'none';
-        });
-
-        // Optional radar chart update
-        if (window.radarChart && window.radarSets) {
-          const dataSet = window.radarSets[filterCategory] || window.radarSets.all;
-          if (Array.isArray(dataSet)) {
-            window.radarChart.data.datasets[0].data = dataSet;
-            window.radarChart.update();
-          }
-        }
-      });
-    });
-
-    // Realign pill position on resize and load to maintain correct placement
-    const realign = () => {
-      const currentActive = tab.querySelector('.filter-btn.is-active') || buttons[0];
-      if (currentActive) movePill(currentActive);
-    };
-
-    window.addEventListener('resize', realign);
-    window.addEventListener('load', realign);
-
-    // Additional safeguard for layout shifts after load
-    setTimeout(realign, 0);
-  })();
-</script>
 </script>
 <script src="https://cdn.jsdelivr.net/npm/TagCloud@2.2.0/dist/TagCloud.min.js"></script>
     <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
@@ -1953,5 +1878,84 @@ Graph.controls().autoRotateSpeed = 0.4;
 Graph.controls().minDistance = 300;
 Graph.controls().maxDistance = 900;
   </script>
+<script>
+  (function () {
+    const tab = document.querySelector('.skills-filter-tab');
+    if (!tab) return;
+
+    const buttons = Array.from(tab.querySelectorAll('.filter-btn'));
+    let pill = tab.querySelector('.filter-active-pill');
+
+    // Remove duplicate pills if any
+    const extraPills = tab.querySelectorAll('.filter-active-pill');
+    if (extraPills.length > 1) {
+      extraPills.forEach((p, i) => { if (i > 0) p.remove(); });
+      pill = tab.querySelector('.filter-active-pill'); // refresh after cleanup
+    }
+
+    // Move the glassy pill under the active button smoothly
+    function movePill(activeBtn) {
+      const left = activeBtn.offsetLeft;
+      const width = activeBtn.offsetWidth;
+      const containerCenterY = tab.offsetTop + (tab.clientHeight / 2);
+      pill.style.left = Math.max(6, left) + 'px';
+      pill.style.width = Math.min(width, 200) + 'px';
+      pill.style.top = containerCenterY + 'px';
+      pill.style.transform = 'translateY(-50%)';
+    }
+
+    // Set active button highlight and update pill position
+    function setActive(btn) {
+      buttons.forEach(b => {
+        const isActive = (b === btn);
+        b.classList.toggle('is-active', isActive);
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      movePill(btn);
+    }
+
+    // Initialize on page load: active button or first by default
+    const initialActive = tab.querySelector('.filter-btn.is-active') || buttons[0];
+    if (initialActive) setActive(initialActive);
+
+    // Event listener for each button click
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        setActive(btn);
+
+        // Filtering logic: Show/hide skills based on data-filter attribute
+        const filterCategory = btn.dataset.filter;
+        const skillTags = document.querySelectorAll('#skills-grid .skill-tag');
+        skillTags.forEach(tag => {
+          const category = tag.getAttribute('data-cat') || '';
+          tag.style.display = (filterCategory === 'all' || category === filterCategory) ? 'inline-block' : 'none';
+        });
+
+        // Optional radar chart update
+        if (window.radarChart && window.radarSets) {
+          const dataSet = window.radarSets[filterCategory] || window.radarSets.all;
+          if (Array.isArray(dataSet)) {
+            window.radarChart.data.datasets[0].data = dataSet;
+            window.radarChart.update();
+          }
+        }
+      });
+    });
+
+    // Realign pill position on resize and load to maintain correct placement
+    const realign = () => {
+      const currentActive = tab.querySelector('.filter-btn.is-active') || buttons[0];
+      if (currentActive) movePill(currentActive);
+    };
+
+    window.addEventListener('resize', realign);
+    window.addEventListener('load', realign);
+
+    // Additional safeguard for layout shifts after load
+    setTimeout(realign, 0);
+  })();
+</script>
+
+
 </body>
 </html>
