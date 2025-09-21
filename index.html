@@ -1817,13 +1817,9 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     setTimeout(realign, 0);
   })();
 </script>
-<script>
-// Skills Globe Implementation
-document.addEventListener('DOMContentLoaded', function() {
-    const container = document.getElementById('skills-globe');
-    if (!container) return;
-
-    // Define your skills with categories for clustering
+<script src="https://cdn.jsdelivr.net/npm/TagCloud@2.2.0/dist/TagCloud.min.js"></script>
+    <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph"></script>
 <script>
 const skills = [
   "Excel","Power BI","SAP FICO","Tally","GST Filing","Versapay","TANDEM","ISR","C-Mod",
@@ -1887,9 +1883,5 @@ Graph.onNodeHover(node => {
        });
 });
 </script>
-<script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
-<script src="https://unpkg.com/3d-force-graph"></script>
-
-      
 </body>
 </html>
