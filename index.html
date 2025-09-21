@@ -125,8 +125,7 @@
       const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
         .graphData(gData)
 .nodeThreeObject(node => {
-  // Create a text sprite for each skill name
-  const sprite = new window.SpriteText(node.skill);
+  const sprite = new SpriteText(node.skill);
   sprite.color = '#00ffff';
   sprite.textHeight = 10;
   return sprite;
