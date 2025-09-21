@@ -641,16 +641,13 @@ section#about {
   font-style: normal;
 }
 
-#typed {
-  font-family: 'FoundationTitlesHand', sans-serif !important;
-  font-size: 1.8rem;
+#typewriter {
+  font-family: 'FoundationTitlesHand', sans-serif;
+  font-size: clamp(24px, 5vw, 36px); /* responsive size */
   font-weight: 700;
-  color: #ffffff;  
-  white-space: nowrap;
-  min-width: 220px;
-  min-height: 1.3em;
-  display: inline-block;
+  color: #fff; /* or whatever color you want */
 }
+
 
     /* Desktop: show dropdown on hover */
 @media (hover: hover) and (pointer: fine) {
