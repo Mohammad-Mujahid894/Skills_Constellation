@@ -2,21 +2,19 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Large Graph Demo</title>
+    <title>Large Graph with Labels</title>
     <style>
       body { margin: 0; }
-      #3d-graph {
-        width: 100vw;
-        height: 100vh;
-      }
+      #3d-graph { width: 100vw; height: 100vh; }
     </style>
   </head>
 
   <body>
     <div id="3d-graph"></div>
 
-    <!-- Load the library -->
+    <script src="//cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/3d-force-graph"></script>
+
     <script>
       const skills = [
         "Excel", "Power BI", "SAP FICO", "Tally", "Financial Accounting", 
@@ -84,22 +82,54 @@
 
       const N = 300;
       const gData = {
-        nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
+        nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i] || `Skill ${i}` })),
         links: [...Array(N).keys()]
           .filter(id => id)
-          .map(id => ({
-            source: id,
-            target: Math.round(Math.random() * (id-1))
-          }))
+          .map(id => ({ source: id, target: Math.round(Math.random() * (id - 1)) }))
       };
 
-      ForceGraph3D()(document.getElementById('3d-graph'))
+      const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
         .graphData(gData)
         .nodeThreeObject(node => {
-          const sprite = new SpriteText(node.skill);
-          sprite.color = 'lightblue';
-          sprite.textHeight = 8;
-          return sprite;
+          // Create a group to hold the node sphere + label
+          const group = new THREE.Group();
+
+          // Create node sphere
+          const sphere = new THREE.Mesh(
+            new THREE.SphereGeometry(5),
+            new THREE.MeshBasicMaterial({ color: 'cyan' })
+          );
+          group.add(sphere);
+
+          // Create label as canvas texture on sprite
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const fontSize = 24;
+          ctx.font = `${fontSize}px Arial`;
+          const text = node.skill || '';
+          const textWidth = ctx.measureText(text).width;
+
+          canvas.width = textWidth + 20;
+          canvas.height = fontSize + 10;
+
+          // set font again after canvas resize
+          ctx.font = `${fontSize}px Arial`;
+          ctx.fillStyle = 'white';
+          ctx.fillText(text, 10, fontSize);
+
+          const texture = new THREE.CanvasTexture(canvas);
+          texture.minFilter = THREE.LinearFilter; // improves text crispness
+
+          const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+          const sprite = new THREE.Sprite(spriteMaterial);
+
+          // Position sprite above the node sphere
+          sprite.position.set(0, 10, 0);
+          sprite.scale.set(canvas.width * 0.1, canvas.height * 0.1, 1); // scale down to fit nicely
+
+          group.add(sprite);
+
+          return group;
         });
     </script>
   </body>
