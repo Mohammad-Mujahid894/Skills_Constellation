@@ -1909,8 +1909,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .backgroundColor('rgba(4,6,11,0.95)')
             .showNavInfo(false)
             .enableNodeDrag(false)
-            .d3Force('charge', d3.forceCollide().radius(20))
-            .d3Force('link').distance(80);
 
         // Auto-rotate for galaxy effect
         Graph.controls().autoRotate = true;
