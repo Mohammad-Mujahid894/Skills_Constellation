@@ -1824,6 +1824,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!container) return;
 
     // Define your skills with categories for clustering
+<script>
 const skills = [
   "Excel","Power BI","SAP FICO","Tally","GST Filing","Versapay","TANDEM","ISR","C-Mod",
   "Micro Dynamics","Quadient Impress","Cash Application","Accounts Receivable","O2C",
@@ -1831,96 +1832,59 @@ const skills = [
   "Bank Reconciliation","Wells Fargo","JP Morgan","Bank of America","PNC","US Bank",
   "QuickBooks","Zoho Books","Xero","Sage","Reporting Automation","Foxtrot RPA",
   "Workflow Optimization","Process Improvement","Compliance","Business Ethics",
-  "Customer Communication","Leadership","Adaptability","Critical Thinking","Analytics"
+  "Customer Communication","Team Leadership","E-Filing","Analytics","Finance","ERP",
+  "Leadership","Problem Solving","Critical Thinking","Adaptability","Excel VBA","Data Modelling"
 ];
 
-// --- Build fully-connected graph data ---
-const clusterCount = 6;
-const gData = { nodes: [], links: [] };
+// Build graph-like globe
+const gData = {
+  nodes: skills.map((skill, i) => ({ id: skill, group: i % 6 })),
+  links: skills.map((skill, i) => ({
+    source: skill,
+    target: skills[(i + Math.floor(Math.random() * 6) + 1) % skills.length]
+  }))
+};
 
-skills.forEach((skill, i) => {
-  const group = i % clusterCount;
-  gData.nodes.push({ id: skill, group });
-});
-
-// Fully connect every node to every other node
-for (let i = 0; i < gData.nodes.length; i++) {
-  for (let j = i + 1; j < gData.nodes.length; j++) {
-    gData.links.push({ source: gData.nodes[i].id, target: gData.nodes[j].id });
-  }
-}
-
-// --- Glowing starsprite function ---
-function createStar(color, scale = 13) {
-  const size = 64;
-  const canvas = document.createElement("canvas");
-  canvas.width = size; canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
-  gradient.addColorStop(0, color);
-  gradient.addColorStop(0.5, "rgba(180,200,255,0.8)");
-  gradient.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0,0,size,size);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
-  sprite.scale.set(scale, scale, 1);
-  return sprite;
-}
-
-const Graph = ForceGraph3D()(document.getElementById("skills-globe"))
+const Graph = ForceGraph3D()(document.getElementById('skills-globe'))
   .graphData(gData)
   .nodeThreeObject(node => {
-    const sprite = createStar("rgba(255,255,255,1)", 13);
-    node.__sprite = sprite;
+    // glowing text labels
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.font = '28px Arial';
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = '#7aa2ff';
+    ctx.shadowBlur = 12;
+    ctx.fillText(node.id, 10, 30);
 
-    // --- Always visible label (CSS2D) ---
-    const div = document.createElement("div");
-    div.textContent = node.id;
-    div.style.color = "#fff";
-    div.style.fontSize = "15px";
-    div.style.fontWeight = "bold";
-    div.style.background = "rgba(30, 34, 44, 0.85)";
-    div.style.padding = "2px 8px";
-    div.style.borderRadius = "10px";
-    div.style.whiteSpace = "nowrap";
-    div.style.pointerEvents = "none";
-    div.style.boxShadow = "0 2px 6px #0008";
-    const label = new THREE.CSS2DObject(div);
-    label.position.set(0, 13, 0);
-    sprite.add(label);
-
+    const texture = new THREE.CanvasTexture(canvas);
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
+    sprite.scale.set(60, 30, 1);
     return sprite;
   })
-  .nodeLabel(node => node.id)
-  .linkColor(() => "rgba(122,162,255,0.18)")
-  .linkWidth(0.7)
-  .backgroundColor("#02030c")
-  .showNavInfo(false)
-  .enableNodeDrag(false);
+  .linkColor(() => 'rgba(122,162,255,0.5)')
+  .linkWidth(1.2)
+  .linkDirectionalParticles(2)
+  .linkDirectionalParticleSpeed(0.005)
+  .backgroundColor('#0a0c15');
 
-Graph.controls().autoRotate = true;
-Graph.controls().autoRotateSpeed = 0.7;
-Graph.controls().minDistance = 320;
-Graph.controls().maxDistance = 1200;
-
-window.addEventListener("resize", () => {
-  Graph.width(window.innerWidth).height(600);
-});
-Graph.width(window.innerWidth).height(600);
-
-let lastHover = null;
+// Hover highlight
 Graph.onNodeHover(node => {
-  if (lastHover && lastHover.__sprite) {
-    lastHover.__sprite.scale.set(13, 13, 1);
-    lastHover.__sprite.material.opacity = 0.9;
-  }
-  if (node && node.__sprite) {
-    node.__sprite.scale.set(19, 19, 1);
-    node.__sprite.material.opacity = 1;
-  }
-  lastHover = node;
+  Graph.nodeThreeObjectExtend(true)
+       .nodeThreeObject(n => {
+         const canvas = document.createElement('canvas');
+         const ctx = canvas.getContext('2d');
+         ctx.font = n === node ? 'bold 34px Arial' : '24px Arial';
+         ctx.fillStyle = n === node ? '#ffcc00' : '#ffffff';
+         ctx.shadowColor = n === node ? '#ff6600' : '#7aa2ff';
+         ctx.shadowBlur = 15;
+         ctx.fillText(n.id, 10, 30);
+
+         const texture = new THREE.CanvasTexture(canvas);
+         const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
+         sprite.scale.set(n === node ? 90 : 60, n === node ? 40 : 25, 1);
+         return sprite;
+       });
 });
 </script>
 <!-- Only these 3 scripts, in this order, at the very end: -->
