@@ -2,156 +2,35 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Skill Graph with Glowing Points</title>
+    <title>Large Graph Demo</title>
     <style>
       body { margin: 0; }
-      #3d-graph { width: 100vw; height: 100vh; }
-      .tooltip {
-        position: absolute;
-        padding: 4px 8px;
-        background: rgba(0,0,0,0.7);
-        color: #fff;
-        border-radius: 4px;
-        pointer-events: none;
-        font-family: Arial;
-        font-size: 12px;
+      #3d-graph {
+        width: 100vw;
+        height: 100vh;
       }
     </style>
   </head>
 
   <body>
     <div id="3d-graph"></div>
-    <div id="tooltip" class="tooltip" style="display:none;"></div>
 
-    <script src="//cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+    <!-- Load the library -->
     <script src="//cdn.jsdelivr.net/npm/3d-force-graph"></script>
-<script src="https://unpkg.com/three-spritetext@1.10.5/build/THREE.SpriteText.min.js"></script>
     <script>
-      const skillList = [
-        "Excel", "Power BI", "SAP FICO", "Tally", "Financial Accounting", 
-        "Cost Accounting", "Business Laws", "Taxation", "AR Management",
-        "Cash Application", "Invoice Processing", "Bank Reconciliation", 
-        "Versapay", "Micro Dynamics", "C MOD", "ISR", "Open Scan",
-        "Credit Management", "Demand Letter", "ACH Processing",
-        "Wire Payment", "NSF Handling", "Customer Communication",
-        "Remittance Matching", "Data Analysis", "MS Office", "Python",
-        "Tableau", "Automation", "Problem Solving", "Time Management",
-        "VBA", "Excel Macros", "Pivot Tables", "Power Query", "Data Visualization",
-        "SAP MM", "SAP SD", "SAP CO", "Tally ERP", "Accounting Principles",
-        "Balance Sheet", "Profit & Loss", "Trial Balance", "General Ledger", "Journal Entries",
-        "Costing", "Variance Analysis", "Material Ledger", "Indirect Tax", "Direct Tax",
-        "GST", "TDS", "Income Tax", "Payroll Accounting", "Bank Statements",
-        "Collections", "Credit Analysis", "AR Aging Report", "Customer Queries", "Payment Reconciliation",
-        "Remittance Advice", "Invoice Distribution", "Billing Software", "ERP Systems", "MIS Reporting",
-        "Data Entry", "Document Verification", "Bank Payment Processing", "Cheque Handling", "Wire Transfer",
-        "ACH", "NSF Checks", "Stop Payment", "Bank Charges", "Write-Offs",
-        "Debit/Credit Notes", "Customer Support", "Email Communication", "Internal Coordination", "Vendor Management",
-        "Supplier Reconciliation", "Purchase Orders", "Inventory Accounting", "Fixed Assets", "Depreciation",
-        "Stock Ledger", "Stock Valuation", "Cost Allocation", "Budgeting", "Forecasting",
-        "Financial Analysis", "Ratio Analysis", "KPI Reporting", "Dashboard Creation", "Scenario Planning",
-        "Strategic Planning", "Business Analytics", "Data Modeling", "SQL Queries", "Database Management",
-        "Python Scripting", "Automation Scripts", "Power Automate", "RPA", "Macros Development",
-        "ERP Customization", "System Integration", "Audit Compliance", "Internal Audit", "SOX Compliance",
-        "IFRS Standards", "GAAP Standards", "Financial Statements", "Regulatory Reporting", "Management Reporting",
-        "Performance Metrics", "Cost Control", "Expense Tracking", "Revenue Analysis", "Profit Analysis",
-        "Project Accounting", "Project Costing", "Resource Planning", "Workforce Management", "Team Coordination",
-        "Client Reporting", "Client Communication", "Stakeholder Management", "Presentation Skills", "Documentation",
-        "Policy Compliance", "Risk Assessment", "Business Process", "Process Improvement", "Lean Six Sigma",
-        "Kaizen", "Operational Excellence", "Quality Management", "ISO Standards", "Workflow Automation",
-        "Data Cleaning", "Data Transformation", "Data Aggregation", "Data Insights", "Business Intelligence",
-        "Visualization Tools", "Storytelling with Data", "Dashboard Design", "Interactive Charts", "Heat Maps",
-        "Graphs & Tables", "Scenario Analysis", "Forecast Models", "Variance Reporting", "Trend Analysis",
-        "Key Metrics", "Benchmarking", "Decision Support", "Analytical Thinking", "Critical Thinking",
-        "Problem Solving", "Logical Reasoning", "Attention to Detail", "Accuracy", "Efficiency",
-        "Time Management", "Multitasking", "Prioritization", "Deadlines", "Stress Management",
-        "Team Collaboration", "Conflict Resolution", "Negotiation", "Adaptability", "Flexibility",
-        "Continuous Learning", "Self-Motivation", "Goal Setting", "Planning", "Organizational Skills",
-        "Communication Skills", "Listening Skills", "Presentation Skills", "Report Writing", "Email Etiquette",
-        "Customer Relationship", "Vendor Relations", "Supplier Coordination", "Stakeholder Communication", "Internal Reporting",
-        "Decision Making", "Problem Identification", "Solution Implementation", "Change Management", "Project Planning",
-        "Project Execution", "Project Monitoring", "Resource Allocation", "Task Scheduling", "Performance Evaluation",
-        "Recruitment", "Training & Development", "Mentoring", "Coaching", "Employee Engagement",
-        "Leadership", "Team Management", "Delegation", "Motivation", "Conflict Management",
-        "Negotiation Skills", "Persuasion", "Influencing", "Strategic Thinking", "Innovation",
-        "Creative Thinking", "Idea Generation", "Brainstorming", "Critical Analysis", "SWOT Analysis",
-        "PESTLE Analysis", "Porter's Five Forces", "Market Research", "Competitor Analysis", "Customer Insights",
-        "Sales Analytics", "Revenue Forecasting", "Pricing Strategies", "Promotional Analysis", "Campaign Analysis",
-        "Digital Marketing", "SEO", "SEM", "Content Creation", "Social Media Management",
-        "Brand Management", "Product Management", "Project Documentation", "Workflow Optimization", "Process Mapping",
-        "Risk Mitigation", "Compliance Checks", "Audit Preparation", "Financial Modelling", "Investment Analysis",
-        "Portfolio Management", "Asset Management", "Treasury Operations", "Cash Flow Management", "Liquidity Analysis",
-        "Debt Management", "Equity Analysis", "Capital Budgeting", "Funding Strategy", "Business Valuation",
-        "Mergers & Acquisitions", "Corporate Finance", "Tax Planning", "Budget Control", "Expense Management",
-        "Profit Maximization", "Cost Reduction", "Operational Efficiency", "Supply Chain Management", "Logistics",
-        "Inventory Control", "Demand Planning", "Production Planning", "Quality Assurance", "Customer Satisfaction",
-        "Service Delivery", "Contract Management", "Legal Documentation", "Regulatory Filing", "Policy Implementation",
-        "Knowledge Management", "Information Security", "IT Support", "System Maintenance", "Troubleshooting",
-        "Technical Documentation", "Software Testing", "Quality Control", "Product Testing", "User Acceptance Testing",
-        "Test Cases", "Bug Reporting", "Issue Tracking", "Version Control", "Release Management",
-        "Deployment", "Configuration", "Monitoring", "Alerts & Notifications", "System Optimization"
-      ];
-
-      const N = skillList.length;
+      const N = 300;
       const gData = {
-        nodes: skillList.map((skill, i) => ({ id: i, skill })),
-        links: [...Array(skillList.length).keys()]
+        nodes: [...Array(N).keys()].map(i => ({ id: i })),
+        links: [...Array(N).keys()]
           .filter(id => id)
-          .map(id => ({ source: id, target: Math.round(Math.random()*(id-1)) }))
+          .map(id => ({
+            source: id,
+            target: Math.round(Math.random() * (id-1))
+          }))
       };
 
-      // Create glowing points geometry
-      const positions = [];
-      gData.nodes.forEach(() => {
-        positions.push(
-          (Math.random() - 0.5) * 500,
-          (Math.random() - 0.5) * 500,
-          (Math.random() - 0.5) * 500
-        );
-      });
-
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-
-      const material = new THREE.PointsMaterial({
-        color: 0x00ffff, // neon cyan
-        size: 8,
-        sizeAttenuation: true,
-        transparent: true,
-        opacity: 0.8
-      });
-
-      const points = new THREE.Points(geometry, material);
-
-      const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
-        .graphData(gData)
-.nodeThreeObject(node => {
-  const sprite = new SpriteText(node.skill);
-  sprite.color = '#00ffff';
-  sprite.textHeight = 10;
-  return sprite;
-})
-        .onNodeHover(node => {
-          const tooltip = document.getElementById('tooltip');
-          if(node) {
-            tooltip.style.display = 'block';
-            tooltip.innerText = node.skill;
-          } else {
-            tooltip.style.display = 'none';
-          }
-        })
-        .onRenderFrame(() => {
-          const tooltip = document.getElementById('tooltip');
-          if(tooltip.style.display === 'block') {
-            // update position of tooltip based on mouse
-            document.addEventListener('mousemove', e => {
-              tooltip.style.left = e.clientX + 10 + 'px';
-              tooltip.style.top = e.clientY + 10 + 'px';
-            });
-          }
-        });
-
-      // Add glowing points to scene
-      Graph.scene().add(points);
+      ForceGraph3D()(document.getElementById('3d-graph'))
+        .graphData(gData);
     </script>
   </body>
 </html>
