@@ -1439,10 +1439,12 @@ and making processes faster, cleaner, and scalable.
 
 
 
-  <div style="margin-top:80px; text-align:center;">
-  <h3 style="color:var(--muted); font-size:22px; margin-bottom:20px;">Skills Globe</h3>
-  <div id="skills-globe" style="width:100%; height:600px;"></div>
-  </div>
+<!-- Add container where you want the globe -->
+<div id="skills-globe" style="width:100%; max-width:1200px; height:600px; margin:0 auto;"></div>
+
+<script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph"></script>
+<script src="https://unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js"></script>
 </section>
 
 
@@ -1748,141 +1750,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
 <script src="https://unpkg.com/3d-force-graph"></script>
 
-  <script>
-const skills = [
-  "Excel","Power BI","SAP FICO","Tally","GST Filing","Versapay","TANDEM","ISR","C-Mod",
-  "Micro Dynamics","Quadient Impress","Cash Application","Accounts Receivable","O2C",
-  "Collections","NSF Returns","Demand Letters","Audit Support","Customer Aging",
-  "Bank Reconciliation","Wells Fargo","JP Morgan","Bank of America","PNC","US Bank",
-  "QuickBooks","Zoho Books","Xero","Sage","Reporting Automation","Foxtrot RPA",
-  "Workflow Optimization","Process Improvement","Compliance","Business Ethics",
-  "Customer Communication","Team Leadership","E-Filing","Analytics","Finance","ERP",
-  "Leadership","Problem Solving","Critical Thinking","Adaptability","Excel VBA","Data Modelling"
-];
-
-const clusterCount = 6;
-const gData = { nodes: [], links: [] };
-
-// Layout parameters
-const domeRadius = 400;  // hemisphere radius
-const starSpread = 60;   // spacing within each constellation
-
-// Generate constellations arranged across a dome
-for (let g = 0; g < clusterCount; g++) {
-  const groupSkills = skills.filter((_, i) => i % clusterCount === g);
-
-  // Place each constellation at a unique polar coordinate on the dome
-  const theta = (Math.PI / (clusterCount + 1)) * (g + 1); // polar angle
-  const phi = (2 * Math.PI / clusterCount) * g; // azimuthal angle
-  const baseX = Math.sin(theta) * Math.cos(phi) * domeRadius;
-  const baseY = Math.cos(theta) * domeRadius * 0.5; // compressed dome
-  const baseZ = Math.sin(theta) * Math.sin(phi) * domeRadius;
-
-  groupSkills.forEach((skill, idx) => {
-    let x = baseX, y = baseY, z = baseZ;
-
-    // Different constellation shapes
-    switch (g) {
-      case 0: // Line
-        x += idx * 20 - groupSkills.length * 10;
-        break;
-      case 1: // Triangle
-        const triangle = [[0, -1], [-0.87, 0.5], [0.87, 0.5]];
-        const pos1 = triangle[idx % 3];
-        x += pos1[0] * starSpread;
-        z += pos1[1] * starSpread;
-        break;
-      case 2: // Zig-zag
-        x += (idx % 2 === 0 ? -1 : 1) * starSpread;
-        z += idx * 15 - groupSkills.length * 7;
-        break;
-      case 3: // Arc
-        const angle = (Math.PI / (groupSkills.length - 1)) * idx;
-        x += Math.cos(angle) * starSpread;
-        z += Math.sin(angle) * starSpread;
-        break;
-      case 4: // W shape
-        x += idx * 15 - groupSkills.length * 7;
-        z += (idx % 2 === 0 ? 10 : -10);
-        break;
-      case 5: // Scatter
-        x += (Math.random() - 0.5) * starSpread * 2;
-        z += (Math.random() - 0.5) * starSpread * 2;
-        y += (Math.random() - 0.5) * starSpread;
-        break;
-    }
-
-    gData.nodes.push({ id: skill, group: g, x, y, z });
-
-    // Connect sequential nodes to form constellation lines
-    if (idx > 0) {
-      gData.links.push({ source: groupSkills[idx - 1], target: skill, group: g });
-    }
-  });
-}
-
-// Glowing star sprite
-function createStar(isHighlighted) {
-  const size = isHighlighted ? 80 : 50;
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-  const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
-  gradient.addColorStop(0, isHighlighted ? 'rgba(255,255,255,1)' : 'rgba(200,220,255,0.9)');
-  gradient.addColorStop(0.4, isHighlighted ? 'rgba(180,200,255,0.8)' : 'rgba(150,170,255,0.6)');
-  gradient.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, size, size);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
-  sprite.scale.set(isHighlighted ? 14 : 10, isHighlighted ? 14 : 10, 1);
-  return sprite;
-}
-
-// Init Graph
-const Graph = ForceGraph3D()(document.getElementById('skills-globe'))
-  .graphData(gData)
-  .nodeThreeObject(node => createStar(false))
-  .nodeLabel(node => node.id) // show skill name tooltip
-  .linkColor(() => 'rgba(180,200,255,0.5)')
-  .linkWidth(0.8)
-  .backgroundColor('#04060b')
-  .enableNodeDrag(false);
-
-// Hover effect: highlight only the hovered constellation
-Graph.onNodeHover(node => {
-  const activeGroup = node ? node.group : null;
-
-  Graph.nodeThreeObject(n => {
-    const isHighlighted = node && n.group === activeGroup;
-    return createStar(isHighlighted);
-  });
-
-  Graph.linkColor(l => {
-    if (node && l.group === activeGroup) {
-      return 'rgba(255,255,255,0.9)';
-    }
-    return 'rgba(180,200,255,0.5)';
-  });
-
-  Graph.linkWidth(l => {
-    if (node && l.group === activeGroup) {
-      return 1.5;
-    }
-    return 0.8;
-  });
-});
-
-// Auto-rotation (slow stargazing effect)
-Graph.controls().autoRotate = true;
-Graph.controls().autoRotateSpeed = 0.4;
-
-// Lock zoom range
-Graph.controls().minDistance = 300;
-Graph.controls().maxDistance = 900;
-  </script>
 <script>
   (function () {
     const tab = document.querySelector('.skills-filter-tab');
@@ -1960,7 +1827,108 @@ Graph.controls().maxDistance = 900;
     setTimeout(realign, 0);
   })();
 </script>
+<script>
+const skills = [
+  "Excel","Power BI","SAP FICO","Tally","GST Filing","Versapay","TANDEM","ISR","C-Mod",
+  "Micro Dynamics","Quadient Impress","Cash Application","Accounts Receivable","O2C",
+  "Collections","NSF Returns","Demand Letters","Audit Support","Customer Aging",
+  "Bank Reconciliation","Wells Fargo","JP Morgan","Bank of America","PNC","US Bank",
+  "QuickBooks","Zoho Books","Xero","Sage","Reporting Automation","Foxtrot RPA",
+  "Workflow Optimization","Process Improvement","Compliance","Business Ethics",
+  "Customer Communication","Leadership","Adaptability","Critical Thinking","Analytics"
+];
 
+// === Graph Data: clustered galaxies ===
+const clusterCount = 6;
+const gData = { nodes: [], links: [] };
+
+skills.forEach((skill, i) => {
+  const group = i % clusterCount;
+  gData.nodes.push({ id: skill, group });
+});
+
+// connect nodes inside clusters
+gData.nodes.forEach(node => {
+  const sameGroup = gData.nodes.filter(n => n.group === node.group && n.id !== node.id);
+  sameGroup.slice(0, 3).forEach(target => {
+    gData.links.push({ source: node.id, target: target.id, group: node.group });
+  });
+});
+
+// === Star Sprite (glowing node) ===
+function createStar(color, scale = 12) {
+  const size = 64;
+  const canvas = document.createElement("canvas");
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+  gradient.addColorStop(0, color);
+  gradient.addColorStop(0.5, "rgba(180,200,255,0.8)");
+  gradient.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0,0,size,size);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture, transparent: true }));
+  sprite.scale.set(scale, scale, 1);
+  return sprite;
+}
+
+// === Build Graph ===
+const Graph = ForceGraph3D()(document.getElementById("skills-globe"))
+  .graphData(gData)
+  .nodeThreeObject(node => createStar("rgba(255,255,255,1)", 12))
+  .nodeLabel(node => node.id)
+  .linkColor(() => "rgba(200,220,255,0.6)")
+  .linkWidth(1)
+  .backgroundColor("#02030c")
+  .showNavInfo(false)
+  .enableNodeDrag(false);
+
+// Auto rotate like galaxy
+Graph.controls().autoRotate = true;
+Graph.controls().autoRotateSpeed = 0.7;
+
+// Prevent zoom trap (set min/max zoom)
+Graph.controls().minDistance = 300;
+Graph.controls().maxDistance = 1200;
+
+// Always keep graph centered
+window.addEventListener("resize", () => Graph.width(window.innerWidth).height(600));
+Graph.width(window.innerWidth).height(600);
+
+// === Hover effect: zoom + glow ===
+let lastHover = null;
+Graph.onNodeHover(node => {
+  if (lastHover && lastHover.__sprite) {
+    // reset old
+    lastHover.__sprite.scale.set(12, 12, 1);
+    lastHover.__sprite.material.opacity = 0.9;
+  }
+  if (node && node.__sprite) {
+    node.__sprite.scale.set(18, 18, 1); // enlarge
+    node.__sprite.material.opacity = 1; // brighter
+  }
+  lastHover = node;
+});
+
+// Keep labels always visible
+Graph.nodeThreeObjectExtend(true);
+Graph.nodeThreeObject(node => {
+  const sprite = createStar("rgba(255,255,255,1)", 12);
+  node.__sprite = sprite; // keep ref for hover scaling
+
+  const labelDiv = document.createElement("div");
+  labelDiv.textContent = node.id;
+  labelDiv.style.color = "#fff";
+  labelDiv.style.fontSize = "12px";
+  labelDiv.style.whiteSpace = "nowrap";
+  const labelObj = new THREE.CSS2DObject(labelDiv);
+  sprite.add(labelObj);
+
+  return sprite;
+});
+</script>
 
 </body>
 </html>
