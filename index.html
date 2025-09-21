@@ -18,9 +18,73 @@
     <!-- Load the library -->
     <script src="//cdn.jsdelivr.net/npm/3d-force-graph"></script>
     <script>
+      const skills = [
+        "Excel", "Power BI", "SAP FICO", "Tally", "Financial Accounting", 
+        "Cost Accounting", "Business Laws", "Taxation", "AR Management",
+        "Cash Application", "Invoice Processing", "Bank Reconciliation", 
+        "Versapay", "Micro Dynamics", "C MOD", "ISR", "Open Scan",
+        "Credit Management", "Demand Letter", "ACH Processing",
+        "Wire Payment", "NSF Handling", "Customer Communication",
+        "Remittance Matching", "Data Analysis", "MS Office", "Python",
+        "Tableau", "Automation", "Problem Solving", "Time Management",
+        "VBA", "Excel Macros", "Pivot Tables", "Power Query", "Data Visualization",
+        "SAP MM", "SAP SD", "SAP CO", "Tally ERP", "Accounting Principles",
+        "Balance Sheet", "Profit & Loss", "Trial Balance", "General Ledger", "Journal Entries",
+        "Costing", "Variance Analysis", "Material Ledger", "Indirect Tax", "Direct Tax",
+        "GST", "TDS", "Income Tax", "Payroll Accounting", "Bank Statements",
+        "Collections", "Credit Analysis", "AR Aging Report", "Customer Queries", "Payment Reconciliation",
+        "Remittance Advice", "Invoice Distribution", "Billing Software", "ERP Systems", "MIS Reporting",
+        "Data Entry", "Document Verification", "Bank Payment Processing", "Cheque Handling", "Wire Transfer",
+        "ACH", "NSF Checks", "Stop Payment", "Bank Charges", "Write-Offs",
+        "Debit/Credit Notes", "Customer Support", "Email Communication", "Internal Coordination", "Vendor Management",
+        "Supplier Reconciliation", "Purchase Orders", "Inventory Accounting", "Fixed Assets", "Depreciation",
+        "Stock Ledger", "Stock Valuation", "Cost Allocation", "Budgeting", "Forecasting",
+        "Financial Analysis", "Ratio Analysis", "KPI Reporting", "Dashboard Creation", "Scenario Planning",
+        "Strategic Planning", "Business Analytics", "Data Modeling", "SQL Queries", "Database Management",
+        "Python Scripting", "Automation Scripts", "Power Automate", "RPA", "Macros Development",
+        "ERP Customization", "System Integration", "Audit Compliance", "Internal Audit", "SOX Compliance",
+        "IFRS Standards", "GAAP Standards", "Financial Statements", "Regulatory Reporting", "Management Reporting",
+        "Performance Metrics", "Cost Control", "Expense Tracking", "Revenue Analysis", "Profit Analysis",
+        "Project Accounting", "Project Costing", "Resource Planning", "Workforce Management", "Team Coordination",
+        "Client Reporting", "Client Communication", "Stakeholder Management", "Presentation Skills", "Documentation",
+        "Policy Compliance", "Risk Assessment", "Business Process", "Process Improvement", "Lean Six Sigma",
+        "Kaizen", "Operational Excellence", "Quality Management", "ISO Standards", "Workflow Automation",
+        "Data Cleaning", "Data Transformation", "Data Aggregation", "Data Insights", "Business Intelligence",
+        "Visualization Tools", "Storytelling with Data", "Dashboard Design", "Interactive Charts", "Heat Maps",
+        "Graphs & Tables", "Scenario Analysis", "Forecast Models", "Variance Reporting", "Trend Analysis",
+        "Key Metrics", "Benchmarking", "Decision Support", "Analytical Thinking", "Critical Thinking",
+        "Problem Solving", "Logical Reasoning", "Attention to Detail", "Accuracy", "Efficiency",
+        "Time Management", "Multitasking", "Prioritization", "Deadlines", "Stress Management",
+        "Team Collaboration", "Conflict Resolution", "Negotiation", "Adaptability", "Flexibility",
+        "Continuous Learning", "Self-Motivation", "Goal Setting", "Planning", "Organizational Skills",
+        "Communication Skills", "Listening Skills", "Presentation Skills", "Report Writing", "Email Etiquette",
+        "Customer Relationship", "Vendor Relations", "Supplier Coordination", "Stakeholder Communication", "Internal Reporting",
+        "Decision Making", "Problem Identification", "Solution Implementation", "Change Management", "Project Planning",
+        "Project Execution", "Project Monitoring", "Resource Allocation", "Task Scheduling", "Performance Evaluation",
+        "Recruitment", "Training & Development", "Mentoring", "Coaching", "Employee Engagement",
+        "Leadership", "Team Management", "Delegation", "Motivation", "Conflict Management",
+        "Negotiation Skills", "Persuasion", "Influencing", "Strategic Thinking", "Innovation",
+        "Creative Thinking", "Idea Generation", "Brainstorming", "Critical Analysis", "SWOT Analysis",
+        "PESTLE Analysis", "Porter's Five Forces", "Market Research", "Competitor Analysis", "Customer Insights",
+        "Sales Analytics", "Revenue Forecasting", "Pricing Strategies", "Promotional Analysis", "Campaign Analysis",
+        "Digital Marketing", "SEO", "SEM", "Content Creation", "Social Media Management",
+        "Brand Management", "Product Management", "Project Documentation", "Workflow Optimization", "Process Mapping",
+        "Risk Mitigation", "Compliance Checks", "Audit Preparation", "Financial Modelling", "Investment Analysis",
+        "Portfolio Management", "Asset Management", "Treasury Operations", "Cash Flow Management", "Liquidity Analysis",
+        "Debt Management", "Equity Analysis", "Capital Budgeting", "Funding Strategy", "Business Valuation",
+        "Mergers & Acquisitions", "Corporate Finance", "Tax Planning", "Budget Control", "Expense Management",
+        "Profit Maximization", "Cost Reduction", "Operational Efficiency", "Supply Chain Management", "Logistics",
+        "Inventory Control", "Demand Planning", "Production Planning", "Quality Assurance", "Customer Satisfaction",
+        "Service Delivery", "Contract Management", "Legal Documentation", "Regulatory Filing", "Policy Implementation",
+        "Knowledge Management", "Information Security", "IT Support", "System Maintenance", "Troubleshooting",
+        "Technical Documentation", "Software Testing", "Quality Control", "Product Testing", "User Acceptance Testing",
+        "Test Cases", "Bug Reporting", "Issue Tracking", "Version Control", "Release Management",
+        "Deployment", "Configuration", "Monitoring", "Alerts & Notifications", "System Optimization"
+      ];
+
       const N = 300;
       const gData = {
-        nodes: [...Array(N).keys()].map(i => ({ id: i })),
+        nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
         links: [...Array(N).keys()]
           .filter(id => id)
           .map(id => ({
@@ -30,7 +94,13 @@
       };
 
       ForceGraph3D()(document.getElementById('3d-graph'))
-        .graphData(gData);
+        .graphData(gData)
+        .nodeThreeObject(node => {
+          const sprite = new SpriteText(node.skill);
+          sprite.color = 'lightblue';
+          sprite.textHeight = 8;
+          return sprite;
+        });
     </script>
   </body>
 </html>
