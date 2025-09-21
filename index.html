@@ -257,14 +257,6 @@ header nav a:active {
 .title span {
   font-family: 'FoundationTitlesHand', sans-serif !important;
 }
-/* Apply font to typing container */
-#typed {
-  font-family: 'FoundationTitlesHand', sans-serif !important;
-  white-space: nowrap;
-  min-width: 220px;
-  min-height: 1.3em;
-  display: inline-block;
-}
 
 /* Profile picture with glowing orbits */
 .profile-pic {
@@ -941,23 +933,6 @@ html{ scroll-behavior: smooth; }
     justify-content: center;
   }
 }
-.intro-container {
-  text-align: center; /* center everything horizontally */
-  margin: 20px;       /* spacing from edges */
-}
-
-.name {
-  margin-bottom: 20px; /* space between name and typewriter */
-  font-size: 2rem;
-}
-
-.typewriter-container {
-  display: block;        /* separate block from name */
-  max-width: 100%;       /* never go outside screen */
-  overflow: hidden;       /* hide extra text */
-  text-align: center;     /* center the typewriter text */
-  white-space: nowrap;    /* optional, if you want one-line effect */
-}
 
 </style>
   
@@ -1012,12 +987,11 @@ html{ scroll-behavior: smooth; }
 </div>
 
 <!-- Right side - Name and Subtitles -->
-<div class="intro-container">
-<h1 class="title"><span>Mohammad Mujahid</span></h1>
-  <div class="typewriter-container">
-    <span class="typewriter"></span>
-  </div>
-</div>
+<div class="intro-text">
+  <h1 class="title"><span>Mohammad Mujahid</span></h1>
+  <div id="typewriter"></div>
+    <!-- Hard line break between typewriter and buttons -->
+  <div class="typewriter-spacer"></div>
   <!-- Hero CTAs -->
   <div class="hero-ctas">
     <a href="#experience" class="btn btn-secondary">Explore my journey</a>
@@ -1624,36 +1598,37 @@ function toggleDetails(btn) {
 }
 </script>
     <script>
-const typewriter = document.querySelector('.typewriter');
-const texts = ["O2C Operations", "Banking", "Financial Accounting"];
-let index = 0;
-let charIndex = 0;
-let typing = true;
+const texts = [
+  "Order to Cash New Associate",
+  "Process Optimization Enthusiast",
+  "BCom Graduate",
+  "ICMAI Intermediate Student"
+];
 
-function type() {
+const typewriter = document.getElementById("typewriter");
+let textIndex = 0, charIndex = 0, typing = true;
+
+function animateTyping() {
   if (typing) {
-    if (charIndex < texts[index].length) {
-      typewriter.textContent += texts[index][charIndex];
-      charIndex++;
-      setTimeout(type, 100);
+    if (charIndex < texts[textIndex].length) {
+      typewriter.textContent += texts[textIndex].charAt(charIndex++);
+      setTimeout(animateTyping, 70);
     } else {
       typing = false;
-      setTimeout(type, 1000); // pause at end
+      setTimeout(animateTyping, 1000);
     }
   } else {
     if (charIndex > 0) {
-      typewriter.textContent = texts[index].slice(0, charIndex - 1);
-      charIndex--;
-      setTimeout(type, 50);
+      typewriter.textContent = texts[textIndex].substr(0, --charIndex);
+      setTimeout(animateTyping, 35);
     } else {
       typing = true;
-      index = (index + 1) % texts.length;
-      setTimeout(type, 500);
+      textIndex = (textIndex + 1) % texts.length;
+      setTimeout(animateTyping, 400);
     }
   }
 }
-
-type();
+animateTyping();
 </script>
     <script>
 document.querySelectorAll('.filter-btn').forEach(btn => {
