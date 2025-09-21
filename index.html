@@ -1,36 +1,105 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Large Graph Demo</title>
-    <style>
-      body { margin: 0; }
-      #3d-graph {
-        width: 100vw;
-        height: 100vh;
+<head>
+  <meta charset="utf-8">
+  <title>Skills Constellation</title>
+  <style>
+    body { margin: 0; background: black; }
+    #3d-graph { width: 100vw; height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="3d-graph"></div>
+
+  <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+  <script src="https://unpkg.com/3d-force-graph"></script>
+  <script src="https://unpkg.com/three-spritetext"></script>
+  <script>
+    // === Your skills array ===
+    const skills = [
+      "Excel","Power BI","SAP FICO","Tally","GST Filing","Versapay","TANDEM","ISR","C-Mod",
+      "Micro Dynamics","Quadient Impress","Cash Application","Accounts Receivable","O2C",
+      "Collections","NSF Returns","Demand Letters","Audit Support","Customer Aging",
+      "Bank Reconciliation","Wells Fargo","JP Morgan","Bank of America","PNC","US Bank",
+      "QuickBooks","Zoho Books","Xero","Sage","Reporting Automation","Foxtrot RPA",
+      "Workflow Optimization","Process Improvement","Compliance","Business Ethics",
+      "Customer Communication","Team Leadership","E-Filing","Analytics","Finance","ERP",
+      "Leadership","Problem Solving","Critical Thinking","Adaptability","Excel VBA","Data Modelling"
+    ];
+
+    // Build graph data
+    const nodes = skills.map(s => ({ id: s }));
+    const links = [];
+    nodes.forEach((n,i) => {
+      if(i>0){
+        const target = nodes[Math.floor(Math.random()*i)];
+        links.push({ source: n.id, target: target.id });
       }
-    </style>
-  </head>
+    });
 
-  <body>
-    <div id="3d-graph"></div>
+    const gData = { nodes, links };
 
-    <!-- Load the library -->
-    <script src="//cdn.jsdelivr.net/npm/3d-force-graph"></script>
-    <script>
-      const N = 300;
-      const gData = {
-        nodes: [...Array(N).keys()].map(i => ({ id: i })),
-        links: [...Array(N).keys()]
-          .filter(id => id)
-          .map(id => ({
-            source: id,
-            target: Math.round(Math.random() * (id-1))
-          }))
-      };
+    // Initialize graph
+    const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
+      .graphData(gData)
+      .backgroundColor('#000010')
+      .linkOpacity(0.3)
+      .linkWidth(1.2)
+      .linkDirectionalParticles(2) // glowing particles on links
+      .linkDirectionalParticleSpeed(0.004)
+      .showNavInfo(false)
+      .enableNodeDrag(false)
+      .nodeThreeObject(node => {
+        // === STAR SPRITE ===
+        const starTexture = new THREE.TextureLoader().load(
+          "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/sprites/circle.png"
+        );
+        const material = new THREE.SpriteMaterial({
+          map: starTexture,
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.9
+        });
+        const sprite = new THREE.Sprite(material);
+        sprite.scale.set(12, 12, 1);
 
-      ForceGraph3D()(document.getElementById('3d-graph'))
-        .graphData(gData);
-    </script>
-  </body>
+        // === LABEL ABOVE STAR ===
+        const label = new SpriteText(node.id);
+        label.color = 'lightblue';
+        label.textHeight = 4;
+        label.position.y = 10;
+
+        const group = new THREE.Group();
+        group.add(sprite);
+        group.add(label);
+        return group;
+      });
+
+    // === Highlight on hover ===
+    let highlightNodes = new Set();
+    let highlightLinks = new Set();
+    let hoverNode = null;
+
+    Graph.onNodeHover(node => {
+      // clear highlights
+      highlightNodes.clear();
+      highlightLinks.clear();
+
+      if(node){
+        highlightNodes.add(node);
+        gData.links.forEach(l=>{
+          if(l.source.id===node.id){ highlightNodes.add(l.target); highlightLinks.add(l); }
+          if(l.target.id===node.id){ highlightNodes.add(l.source); highlightLinks.add(l); }
+        });
+      }
+      hoverNode = node || null;
+      updateHighlight();
+    });
+
+    function updateHighlight(){
+      Graph.nodeColor(n => highlightNodes.has(n) ? 'yellow' : 'white')
+           .linkColor(l => highlightLinks.has(l) ? 'yellow' : 'rgba(122,162,255,0.3)');
+    }
+  </script>
+</body>
 </html>
