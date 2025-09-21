@@ -2,16 +2,17 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>300 Skills Graph</title>
+    <title>Large Graph Demo with Skills</title>
     <style>
       body { margin: 0; }
       #3d-graph { width: 100vw; height: 100vh; }
     </style>
   </head>
+
   <body>
     <div id="3d-graph"></div>
 
-    <!-- Load libraries -->
+    <!-- Load the library -->
     <script src="//cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/3d-force-graph"></script>
 
@@ -82,50 +83,42 @@
 
       // Fill 300 nodes
       const N = skillList.length;
+
       const gData = {
-        nodes: skillList.map((skill, i) => ({ id: i, skill })),
+        nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i] })),
         links: [...Array(N).keys()]
           .filter(id => id)
           .map(id => ({
             source: id,
-            target: Math.floor(Math.random() * id)
+            target: Math.round(Math.random() * (id-1))
           }))
       };
 
-      const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
+      ForceGraph3D()(document.getElementById('3d-graph'))
         .graphData(gData)
         .nodeThreeObject(node => {
           const obj = new THREE.Mesh(
-            new THREE.SphereGeometry(5, 16, 16),
-            new THREE.MeshStandardMaterial({ color: 0x0077ff })
+            new THREE.SphereGeometry(5, 8, 8), // same sphere style
+            new THREE.MeshBasicMaterial({ color: 0x0077ff }) // same basic color
           );
 
+          // Add skill label
           const canvas = document.createElement('canvas');
-          canvas.width = 256;
-          canvas.height = 64;
+          canvas.width = 128;
+          canvas.height = 32;
           const ctx = canvas.getContext('2d');
           ctx.fillStyle = 'white';
-          ctx.font = '20px Arial';
-          ctx.fillText(node.skill, 10, 40);
+          ctx.font = '16px Arial';
+          ctx.fillText(node.skill, 0, 20);
 
           const texture = new THREE.CanvasTexture(canvas);
-          const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
-          const sprite = new THREE.Sprite(spriteMaterial);
-          sprite.scale.set(50, 12.5, 1);
-          sprite.position.y = 10;
+          const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
+          sprite.scale.set(30, 8, 1);
+          sprite.position.y = 8; // above sphere
           obj.add(sprite);
 
           return obj;
-        })
-        .linkOpacity(0.3)
-        .backgroundColor('#111')
-        .showNavInfo(false)
-        .cameraPosition({ z: 800 });
-
-      Graph.scene().add(new THREE.AmbientLight(0xffffff, 0.7));
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-      directionalLight.position.set(0, 100, 100);
-      Graph.scene().add(directionalLight);
+        });
     </script>
   </body>
 </html>
