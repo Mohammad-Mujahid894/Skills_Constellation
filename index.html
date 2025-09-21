@@ -1834,25 +1834,17 @@ const skills = [
 
 // Build graph data
 const gData = {
-  nodes: skills.map((skill, i) => ({
+  nodes: skills.map(skill => ({
     id: skill,
     x: 0, y: 0, z: 0, // start at center
-    target: null
+    target: { // messy target, not spherical
+      x: (Math.random()-0.5)*600,
+      y: (Math.random()-0.5)*400,
+      z: (Math.random()-0.5)*600
+    }
   })),
   links: []
 };
-
-// Assign target positions on a sphere
-gData.nodes.forEach(node => {
-  const radius = 200 + Math.random()*100;
-  const theta = Math.random()*2*Math.PI;
-  const phi = Math.acos(2*Math.random()-1);
-  node.target = {
-    x: radius*Math.sin(phi)*Math.cos(theta),
-    y: radius*Math.sin(phi)*Math.sin(theta),
-    z: radius*Math.cos(phi)
-  };
-});
 
 // Random links
 gData.nodes.forEach(node=>{
@@ -1867,34 +1859,34 @@ gData.nodes.forEach(node=>{
 
 const Graph = ForceGraph3D()(document.getElementById('skills-globe'))
   .graphData(gData)
-  .enableNodeDrag(false) // disable dragging
-  .linkColor(()=>'rgba(122,162,255,0.5)')
+  .enableNodeDrag(false) // disable drag to prevent freeze
+  .linkColor(()=> 'rgba(122,162,255,0.5)')
   .linkWidth(1.2)
-  .linkDirectionalParticles(2)
-  .linkDirectionalParticleSpeed(0.005)
+  .linkDirectionalParticles(1)
+  .linkDirectionalParticleSpeed(0.002)
   .backgroundColor('#0a0c15')
   .nodeThreeObject(node=>{
     const canvas = document.createElement('canvas');
     canvas.width=512; canvas.height=128;
-    const ctx=canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
     ctx.font='28px Arial';
     ctx.fillStyle='#ffffff';
     ctx.shadowColor='#7aa2ff';
     ctx.shadowBlur=12;
     ctx.fillText(node.id,10,30);
-    const texture=new THREE.CanvasTexture(canvas);
-    const sprite=new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
+    const texture = new THREE.CanvasTexture(canvas);
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: texture }));
     sprite.scale.set(60,30,1);
     return sprite;
   });
 
-// Stop ForceGraph from moving nodes automatically
+// Disable ForceGraph physics to avoid drift
 Graph.d3Force('charge', null);
 Graph.d3Force('link', null);
 Graph.d3Force('center', null);
 
-// Animate explosion
-let progress=0;
+// Animate messy explosion
+let progress = 0;
 function explode(){
   progress += 0.01;
   Graph.graphData().nodes.forEach(node=>{
@@ -1910,19 +1902,19 @@ function explode(){
   if(progress<1.5){
     requestAnimationFrame(explode);
   } else {
-    rotateGlobe();
+    slowRotate();
   }
 }
 
-// Rotate globe slowly
-function rotateGlobe(){
-  let angle=0;
+// Very slow rotation, gentle drift
+function slowRotate(){
+  let angle = 0;
   setInterval(()=>{
-    angle+=0.002;
+    angle+=0.0005;
     Graph.cameraPosition({
-      x: 500*Math.sin(angle),
-      y: 100,
-      z: 500*Math.cos(angle),
+      x: 0 + 700*Math.sin(angle),
+      y: 0,
+      z: 0 + 700*Math.cos(angle),
       lookAt:{x:0,y:0,z:0}
     });
   },50);
