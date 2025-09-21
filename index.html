@@ -1745,11 +1745,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/TagCloud@2.2.0/dist/TagCloud.min.js"></script>
-    <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
-<script src="https://unpkg.com/3d-force-graph"></script>
-
 <script>
   (function () {
     const tab = document.querySelector('.skills-filter-tab');
@@ -1827,6 +1822,10 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     setTimeout(realign, 0);
   })();
 </script>
+<script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph"></script>
+<script src="https://unpkg.com/three/examples/js/renderers/CSS2DRenderer.js"></script>
+
 <script>
 const skills = [
   "Excel","Power BI","SAP FICO","Tally","GST Filing","Versapay","TANDEM","ISR","C-Mod",
@@ -1877,7 +1876,21 @@ function createStar(color, scale = 12) {
 // === Build Graph ===
 const Graph = ForceGraph3D()(document.getElementById("skills-globe"))
   .graphData(gData)
-  .nodeThreeObject(node => createStar("rgba(255,255,255,1)", 12))
+  .nodeThreeObject(node => {
+    const sprite = createStar("rgba(255,255,255,1)", 12);
+    node.__sprite = sprite;
+
+    // === Label (CSS2D) ===
+    const div = document.createElement("div");
+    div.textContent = node.id;
+    div.style.color = "#fff";
+    div.style.fontSize = "12px";
+    div.style.whiteSpace = "nowrap";
+    const label = new THREE.CSS2DObject(div);
+    sprite.add(label);
+
+    return sprite;
+  })
   .nodeLabel(node => node.id)
   .linkColor(() => "rgba(200,220,255,0.6)")
   .linkWidth(1)
@@ -1889,46 +1902,29 @@ const Graph = ForceGraph3D()(document.getElementById("skills-globe"))
 Graph.controls().autoRotate = true;
 Graph.controls().autoRotateSpeed = 0.7;
 
-// Prevent zoom trap (set min/max zoom)
+// Prevent zoom trap
 Graph.controls().minDistance = 300;
 Graph.controls().maxDistance = 1200;
 
-// Always keep graph centered
-window.addEventListener("resize", () => Graph.width(window.innerWidth).height(600));
+// Keep graph centered/responsive
+window.addEventListener("resize", () => {
+  Graph.width(window.innerWidth).height(600);
+});
 Graph.width(window.innerWidth).height(600);
 
-// === Hover effect: zoom + glow ===
+// Hover effect
 let lastHover = null;
 Graph.onNodeHover(node => {
   if (lastHover && lastHover.__sprite) {
-    // reset old
     lastHover.__sprite.scale.set(12, 12, 1);
     lastHover.__sprite.material.opacity = 0.9;
   }
   if (node && node.__sprite) {
-    node.__sprite.scale.set(18, 18, 1); // enlarge
-    node.__sprite.material.opacity = 1; // brighter
+    node.__sprite.scale.set(18, 18, 1);
+    node.__sprite.material.opacity = 1;
   }
   lastHover = node;
 });
-
-// Keep labels always visible
-Graph.nodeThreeObjectExtend(true);
-Graph.nodeThreeObject(node => {
-  const sprite = createStar("rgba(255,255,255,1)", 12);
-  node.__sprite = sprite; // keep ref for hover scaling
-
-  const labelDiv = document.createElement("div");
-  labelDiv.textContent = node.id;
-  labelDiv.style.color = "#fff";
-  labelDiv.style.fontSize = "12px";
-  labelDiv.style.whiteSpace = "nowrap";
-  const labelObj = new THREE.CSS2DObject(labelDiv);
-  sprite.add(labelObj);
-
-  return sprite;
-});
 </script>
-
 </body>
 </html>
