@@ -90,47 +90,50 @@
 
       const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
         .graphData(gData)
-        .nodeThreeObject(node => {
-          // Create a group to hold the node sphere + label
-          const group = new THREE.Group();
+.nodeThreeObject(node => {
+  const group = new THREE.Group();
 
-          // Create node sphere
-          const sphere = new THREE.Mesh(
-            new THREE.SphereGeometry(5),
-            new THREE.MeshBasicMaterial({ color: 'cyan' })
-          );
-          group.add(sphere);
+  // Use default sphere size smaller (default ForceGraph node radius ~4)
+  const radius = 4;
+  const sphere = new THREE.Mesh(
+    new THREE.SphereGeometry(radius),
+    new THREE.MeshBasicMaterial({ color: 'rgb(31, 120, 180)' }) // default ForceGraph blueish node color
+  );
+  group.add(sphere);
 
-          // Create label as canvas texture on sprite
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          const fontSize = 24;
-          ctx.font = `${fontSize}px Arial`;
-          const text = node.skill || '';
-          const textWidth = ctx.measureText(text).width;
+  // Create label canvas
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  const fontSize = 48;  // Bigger font size for clearer text
+  ctx.font = `${fontSize}px Arial`;
+  const text = node.skill || `Skill ${node.id}`;
+  
+  const textWidth = ctx.measureText(text).width;
+  canvas.width = textWidth + 40;  // More padding for crisp edges
+  canvas.height = fontSize + 20;
 
-          canvas.width = textWidth + 20;
-          canvas.height = fontSize + 10;
+  ctx.font = `${fontSize}px Arial`;
+  ctx.fillStyle = 'white';
+  ctx.fillText(text, 20, fontSize);
 
-          // set font again after canvas resize
-          ctx.font = `${fontSize}px Arial`;
-          ctx.fillStyle = 'white';
-          ctx.fillText(text, 10, fontSize);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter; // keep text crisp on scale
 
-          const texture = new THREE.CanvasTexture(canvas);
-          texture.minFilter = THREE.LinearFilter; // improves text crispness
+  const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+  const sprite = new THREE.Sprite(spriteMaterial);
 
-          const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
-          const sprite = new THREE.Sprite(spriteMaterial);
+  // Position the label slightly above the sphere based on radius
+  sprite.position.set(0, radius + (fontSize * 0.08), 0);
 
-          // Position sprite above the node sphere
-          sprite.position.set(0, 10, 0);
-          sprite.scale.set(canvas.width * 0.1, canvas.height * 0.1, 1); // scale down to fit nicely
+  // Scale sprite to keep readable size relative to graph scale
+  sprite.scale.set(canvas.width * 0.15, canvas.height * 0.15, 1);
 
-          group.add(sprite);
+  group.add(sprite);
 
-          return group;
-        });
+  return group;
+})
+
     </script>
   </body>
 </html>
