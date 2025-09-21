@@ -2,100 +2,130 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Skills Constellation</title>
+    <title>300 Skills Graph</title>
     <style>
-      body { margin: 0; background: black; }
+      body { margin: 0; }
       #3d-graph { width: 100vw; height: 100vh; }
     </style>
   </head>
   <body>
     <div id="3d-graph"></div>
 
-    <!-- Libraries -->
-    <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
-    <script src="https://unpkg.com/3d-force-graph"></script>
-    <script src="https://unpkg.com/three-spritetext"></script>
+    <!-- Load libraries -->
+    <script src="//cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/3d-force-graph"></script>
 
     <script>
-      // === Your Skills ===
-      const skills = [
-        "Excel","Power BI","SAP FICO","Tally","GST Filing","Versapay","TANDEM","ISR","C-Mod",
-        "Micro Dynamics","Quadient Impress","Cash Application","Accounts Receivable","O2C",
-        "Collections","NSF Returns","Demand Letters","Audit Support","Customer Aging",
-        "Bank Reconciliation","Wells Fargo","JP Morgan","Bank of America","PNC","US Bank",
-        "QuickBooks","Zoho Books","Xero","Sage","Reporting Automation","Foxtrot RPA",
-        "Workflow Optimization","Process Improvement","Compliance","Business Ethics",
-        "Customer Communication","Team Leadership","E-Filing","Analytics","Finance","ERP",
-        "Leadership","Problem Solving","Critical Thinking","Adaptability","Excel VBA","Data Modelling"
+      const skillList = [
+        "Excel", "Power BI", "SAP FICO", "Tally", "Financial Accounting", 
+        "Cost Accounting", "Business Laws", "Taxation", "AR Management",
+        "Cash Application", "Invoice Processing", "Bank Reconciliation", 
+        "Versapay", "Micro Dynamics", "C MOD", "ISR", "Open Scan",
+        "Credit Management", "Demand Letter", "ACH Processing",
+        "Wire Payment", "NSF Handling", "Customer Communication",
+        "Remittance Matching", "Data Analysis", "MS Office", "Python",
+        "Tableau", "Automation", "Problem Solving", "Time Management",
+        "VBA", "Excel Macros", "Pivot Tables", "Power Query", "Data Visualization",
+        "SAP MM", "SAP SD", "SAP CO", "Tally ERP", "Accounting Principles",
+        "Balance Sheet", "Profit & Loss", "Trial Balance", "General Ledger", "Journal Entries",
+        "Costing", "Variance Analysis", "Material Ledger", "Indirect Tax", "Direct Tax",
+        "GST", "TDS", "Income Tax", "Payroll Accounting", "Bank Statements",
+        "Collections", "Credit Analysis", "AR Aging Report", "Customer Queries", "Payment Reconciliation",
+        "Remittance Advice", "Invoice Distribution", "Billing Software", "ERP Systems", "MIS Reporting",
+        "Data Entry", "Document Verification", "Bank Payment Processing", "Cheque Handling", "Wire Transfer",
+        "ACH", "NSF Checks", "Stop Payment", "Bank Charges", "Write-Offs",
+        "Debit/Credit Notes", "Customer Support", "Email Communication", "Internal Coordination", "Vendor Management",
+        "Supplier Reconciliation", "Purchase Orders", "Inventory Accounting", "Fixed Assets", "Depreciation",
+        "Stock Ledger", "Stock Valuation", "Cost Allocation", "Budgeting", "Forecasting",
+        "Financial Analysis", "Ratio Analysis", "KPI Reporting", "Dashboard Creation", "Scenario Planning",
+        "Strategic Planning", "Business Analytics", "Data Modeling", "SQL Queries", "Database Management",
+        "Python Scripting", "Automation Scripts", "Power Automate", "RPA", "Macros Development",
+        "ERP Customization", "System Integration", "Audit Compliance", "Internal Audit", "SOX Compliance",
+        "IFRS Standards", "GAAP Standards", "Financial Statements", "Regulatory Reporting", "Management Reporting",
+        "Performance Metrics", "Cost Control", "Expense Tracking", "Revenue Analysis", "Profit Analysis",
+        "Project Accounting", "Project Costing", "Resource Planning", "Workforce Management", "Team Coordination",
+        "Client Reporting", "Client Communication", "Stakeholder Management", "Presentation Skills", "Documentation",
+        "Policy Compliance", "Risk Assessment", "Business Process", "Process Improvement", "Lean Six Sigma",
+        "Kaizen", "Operational Excellence", "Quality Management", "ISO Standards", "Workflow Automation",
+        "Data Cleaning", "Data Transformation", "Data Aggregation", "Data Insights", "Business Intelligence",
+        "Visualization Tools", "Storytelling with Data", "Dashboard Design", "Interactive Charts", "Heat Maps",
+        "Graphs & Tables", "Scenario Analysis", "Forecast Models", "Variance Reporting", "Trend Analysis",
+        "Key Metrics", "Benchmarking", "Decision Support", "Analytical Thinking", "Critical Thinking",
+        "Problem Solving", "Logical Reasoning", "Attention to Detail", "Accuracy", "Efficiency",
+        "Time Management", "Multitasking", "Prioritization", "Deadlines", "Stress Management",
+        "Team Collaboration", "Conflict Resolution", "Negotiation", "Adaptability", "Flexibility",
+        "Continuous Learning", "Self-Motivation", "Goal Setting", "Planning", "Organizational Skills",
+        "Communication Skills", "Listening Skills", "Presentation Skills", "Report Writing", "Email Etiquette",
+        "Customer Relationship", "Vendor Relations", "Supplier Coordination", "Stakeholder Communication", "Internal Reporting",
+        "Decision Making", "Problem Identification", "Solution Implementation", "Change Management", "Project Planning",
+        "Project Execution", "Project Monitoring", "Resource Allocation", "Task Scheduling", "Performance Evaluation",
+        "Recruitment", "Training & Development", "Mentoring", "Coaching", "Employee Engagement",
+        "Leadership", "Team Management", "Delegation", "Motivation", "Conflict Management",
+        "Negotiation Skills", "Persuasion", "Influencing", "Strategic Thinking", "Innovation",
+        "Creative Thinking", "Idea Generation", "Brainstorming", "Critical Analysis", "SWOT Analysis",
+        "PESTLE Analysis", "Porter's Five Forces", "Market Research", "Competitor Analysis", "Customer Insights",
+        "Sales Analytics", "Revenue Forecasting", "Pricing Strategies", "Promotional Analysis", "Campaign Analysis",
+        "Digital Marketing", "SEO", "SEM", "Content Creation", "Social Media Management",
+        "Brand Management", "Product Management", "Project Documentation", "Workflow Optimization", "Process Mapping",
+        "Risk Mitigation", "Compliance Checks", "Audit Preparation", "Financial Modelling", "Investment Analysis",
+        "Portfolio Management", "Asset Management", "Treasury Operations", "Cash Flow Management", "Liquidity Analysis",
+        "Debt Management", "Equity Analysis", "Capital Budgeting", "Funding Strategy", "Business Valuation",
+        "Mergers & Acquisitions", "Corporate Finance", "Tax Planning", "Budget Control", "Expense Management",
+        "Profit Maximization", "Cost Reduction", "Operational Efficiency", "Supply Chain Management", "Logistics",
+        "Inventory Control", "Demand Planning", "Production Planning", "Quality Assurance", "Customer Satisfaction",
+        "Service Delivery", "Contract Management", "Legal Documentation", "Regulatory Filing", "Policy Implementation",
+        "Knowledge Management", "Information Security", "IT Support", "System Maintenance", "Troubleshooting",
+        "Technical Documentation", "Software Testing", "Quality Control", "Product Testing", "User Acceptance Testing",
+        "Test Cases", "Bug Reporting", "Issue Tracking", "Version Control", "Release Management",
+        "Deployment", "Configuration", "Monitoring", "Alerts & Notifications", "System Optimization"
       ];
 
-      // Build nodes & links
-      const nodes = skills.map(s => ({ id: s }));
-      const links = [];
-      nodes.forEach((n,i) => {
-        if (i > 0) {
-          const target = nodes[Math.floor(Math.random() * i)];
-          links.push({ source: n.id, target: target.id });
-        }
-      });
-      const gData = { nodes, links };
+      // Fill 300 nodes
+      const N = skillList.length;
+      const gData = {
+        nodes: skillList.map((skill, i) => ({ id: i, skill })),
+        links: [...Array(N).keys()]
+          .filter(id => id)
+          .map(id => ({
+            source: id,
+            target: Math.floor(Math.random() * id)
+          }))
+      };
 
-      // Star texture (use your uploaded star image URL instead if hosted)
-      const starTextureUrl = "https://i.ibb.co/pj2RjrN/star-texture.png"; 
-
-      // Graph
       const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
         .graphData(gData)
-        .backgroundColor('#000010')
-        .showNavInfo(false)
-        .enableNodeDrag(false)
-        .linkOpacity(0.3)
-        .linkWidth(1.2)
-        .linkDirectionalParticles(2)
-        .linkDirectionalParticleSpeed(0.004)
         .nodeThreeObject(node => {
-          // Star sprite
-          const texture = new THREE.TextureLoader().load(starTextureUrl);
-          const material = new THREE.SpriteMaterial({
-            map: texture,
-            transparent: true,
-            opacity: 0.9,
-            color: 0xffffff
-          });
-          const star = new THREE.Sprite(material);
-          star.scale.set(20, 20, 1);
+          const obj = new THREE.Mesh(
+            new THREE.SphereGeometry(5, 16, 16),
+            new THREE.MeshStandardMaterial({ color: 0x0077ff })
+          );
 
-          // Skill label
-          const label = new SpriteText(node.id);
-          label.color = 'lightblue';
-          label.textHeight = 4;
-          label.position.y = 12;
+          const canvas = document.createElement('canvas');
+          canvas.width = 256;
+          canvas.height = 64;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = 'white';
+          ctx.font = '20px Arial';
+          ctx.fillText(node.skill, 10, 40);
 
-          const group = new THREE.Group();
-          group.add(star);
-          group.add(label);
-          return group;
-        });
+          const texture = new THREE.CanvasTexture(canvas);
+          const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+          const sprite = new THREE.Sprite(spriteMaterial);
+          sprite.scale.set(50, 12.5, 1);
+          sprite.position.y = 10;
+          obj.add(sprite);
 
-      // === Hover Highlight ===
-      let highlightNodes = new Set();
-      let highlightLinks = new Set();
+          return obj;
+        })
+        .linkOpacity(0.3)
+        .backgroundColor('#111')
+        .showNavInfo(false)
+        .cameraPosition({ z: 800 });
 
-      Graph.onNodeHover(node => {
-        highlightNodes.clear();
-        highlightLinks.clear();
-
-        if (node) {
-          highlightNodes.add(node);
-          gData.links.forEach(l => {
-            if (l.source.id === node.id) { highlightNodes.add(l.target); highlightLinks.add(l); }
-            if (l.target.id === node.id) { highlightNodes.add(l.source); highlightLinks.add(l); }
-          });
-        }
-
-        Graph.nodeColor(n => highlightNodes.has(n) ? 'yellow' : 'white')
-             .linkColor(l => highlightLinks.has(l) ? 'yellow' : 'rgba(122,162,255,0.3)');
-      });
+      Graph.scene().add(new THREE.AmbientLight(0xffffff, 0.7));
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+      directionalLight.position.set(0, 100, 100);
+      Graph.scene().add(directionalLight);
     </script>
   </body>
 </html>
