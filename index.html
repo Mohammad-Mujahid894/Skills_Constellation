@@ -1659,6 +1659,7 @@ bars.forEach(b => io.observe(b));
 
 
 // === Sharp Spider Web Radar ===
+// === Radar Chart Setup ===
 const ctx = document.getElementById('radarChart').getContext('2d');
 
 let radarChart = new Chart(ctx, {
@@ -1674,7 +1675,7 @@ let radarChart = new Chart(ctx, {
     ],
     datasets: [{
       label: 'Skill Map',
-      data: [85, 80, 60, 75, 82, 88],
+      data: [85, 80, 60, 75, 82, 88], // default All
       fill: true,
       backgroundColor: 'rgba(122,162,255,0.15)',
       borderColor: '#7aa2ff',
@@ -1684,7 +1685,7 @@ let radarChart = new Chart(ctx, {
       pointRadius: 6,
       pointHoverRadius: 9,
       pointHoverBackgroundColor: '#ffcc00',
-      tension: 0 // 👈 removes curved edges → sharp straight lines
+      tension: 0 // straight lines
     }]
   },
   options: {
@@ -1698,7 +1699,7 @@ let radarChart = new Chart(ctx, {
           color: '#eaf2ff',
           font: { size: 15, weight: 'bold' }
         },
-        ticks: { display: false } // 🚫 no numbers around
+        ticks: { display: false }
       }
     },
     plugins: {
@@ -1718,16 +1719,18 @@ let radarChart = new Chart(ctx, {
   }
 });
 
-// Change radar values when tabs are clicked
+// === Radar Data Sets (aligned with your data-filter names) ===
 const radarSets = {
   all: [85, 80, 60, 75, 82, 88],
-  o2c: [88, 50, 45, 55, 95, 70],
-  banking: [50, 90, 55, 45, 65, 70],
-  erps: [55, 50, 85, 45, 55, 65],
-  analytics: [55, 45, 60, 90, 60, 70],
-  professional: [65, 55, 50, 65, 70, 92]
+  ops: [90, 55, 50, 65, 95, 72],       // O2C
+  banking: [55, 92, 60, 50, 70, 68],   // Banking
+  tools: [65, 70, 55, 60, 68, 66],     // Platforms
+  erp: [60, 55, 85, 50, 65, 70],       // ERPs
+  analytics: [60, 50, 55, 92, 65, 72], // Analytics
+  soft: [70, 60, 55, 65, 68, 90]       // Professional
 };
 
+// === Connect Filter Buttons ===
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const cat = btn.dataset.filter;
@@ -1737,7 +1740,6 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     radarChart.update();
   });
 });
-
 </script>
 <script src="https://cdn.jsdelivr.net/npm/TagCloud@2.2.0/dist/TagCloud.min.js"></script>
     <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
