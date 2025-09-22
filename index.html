@@ -94,40 +94,64 @@ function getNodeColor(node) {
 
 const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
   .graphData(gData)
-  .nodeRelSize(10)
-  .nodeThreeObject(node => {
-    const group = new THREE.Group();
+  .nodeRelSize(6)
+.nodeThreeObject(node => {
+  const group = new THREE.Group();
 
-    const radius = 10;
-    const color = getNodeColor(node);
+  // Star glow using a canvas texture
+  const size = 64;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
 
-    const sphere = new THREE.Mesh(
-      new THREE.SphereGeometry(radius),
-      new THREE.MeshStandardMaterial({ color: color })
-    );
-    group.add(sphere);
+  const gradient = ctx.createRadialGradient(
+    size / 2, size / 2, 0,
+    size / 2, size / 2, size / 2
+  );
+  gradient.addColorStop(0, 'rgba(255,255,200,1)');   // bright center
+  gradient.addColorStop(0.4, 'rgba(255,200,100,0.8)');
+  gradient.addColorStop(1, 'rgba(255,165,0,0)');     // fade to transparent
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const fontSize = 48;
-    ctx.font = `${fontSize}px Arial`;
-    const text = node.skill || `Skill ${node.id}`;
-    const textWidth = ctx.measureText(text).width;
-    canvas.width = textWidth + 40;
-    canvas.height = fontSize + 20;
-    ctx.font = `${fontSize}px Arial`;
-    ctx.fillStyle = 'white';
-    ctx.fillText(text, 20, fontSize);
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.minFilter = THREE.LinearFilter;
-    const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
-    const sprite = new THREE.Sprite(spriteMaterial);
-    sprite.position.set(0, radius + (fontSize * 0.08), 0);
-    sprite.scale.set(canvas.width * 0.15, canvas.height * 0.15, 1);
-    group.add(sprite);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
 
-    return group;
+  const texture = new THREE.CanvasTexture(canvas);
+
+  const spriteMaterial = new THREE.SpriteMaterial({
+    map: texture,
+    blending: THREE.AdditiveBlending,
+    transparent: true,
+    depthWrite: false
   });
+
+  const sprite = new THREE.Sprite(spriteMaterial);
+  sprite.scale.set(30, 30, 1); // star size
+  group.add(sprite);
+
+  // Add label above star
+  const labelCanvas = document.createElement('canvas');
+  const labelCtx = labelCanvas.getContext('2d');
+  const fontSize = 48;
+  labelCtx.font = `${fontSize}px Arial`;
+  const text = node.skill || `Skill ${node.id}`;
+  const textWidth = labelCtx.measureText(text).width;
+  labelCanvas.width = textWidth + 40;
+  labelCanvas.height = fontSize + 20;
+  labelCtx.font = `${fontSize}px Arial`;
+  labelCtx.fillStyle = 'white';
+  labelCtx.fillText(text, 20, fontSize);
+
+  const labelTexture = new THREE.CanvasTexture(labelCanvas);
+  const labelMaterial = new THREE.SpriteMaterial({ map: labelTexture, transparent: true });
+  const labelSprite = new THREE.Sprite(labelMaterial);
+  labelSprite.position.set(0, 25, 0);
+  labelSprite.scale.set(labelCanvas.width * 0.15, labelCanvas.height * 0.15, 1);
+  group.add(labelSprite);
+
+  return group;
+})
+
 
     </script>
   </body>
