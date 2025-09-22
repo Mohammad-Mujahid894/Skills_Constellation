@@ -126,7 +126,8 @@ const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
   });
 
   const sprite = new THREE.Sprite(spriteMaterial);
-  sprite.scale.set(30, 30, 1); // star size
+const starSize = 15 + Math.random() * 25; // random size between 15–40
+sprite.scale.set(starSize, starSize, 1);
   group.add(sprite);
 
   // Add label above star
