@@ -93,50 +93,52 @@ const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
   .nodeThreeObject(node => {
     const group = new THREE.Group();
 
-    // --- Glowing Star ---
+    // --- Exotic Glowing Star ---
     const starTexture = new THREE.TextureLoader().load(
       "https://threejs.org/examples/textures/sprites/glow.png"
     );
     const starMaterial = new THREE.SpriteMaterial({
       map: starTexture,
-      color: new THREE.Color(`hsl(${Math.random() * 60 + 30},100%,70%)`), // random warm glow
+      color: new THREE.Color(`hsl(${200 + Math.random() * 100}, 100%, 70%)`), 
       blending: THREE.AdditiveBlending,
-      transparent: true
+      transparent: true,
+      depthWrite: false
     });
     const star = new THREE.Sprite(starMaterial);
-    const size = 12 + Math.random() * 20; // varied sizes
+    const size = 10 + Math.random() * 15;
     star.scale.set(size, size, 1);
     group.add(star);
 
     // --- Label ---
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    const fontSize = 40;
+    const fontSize = 36;
     ctx.font = `${fontSize}px Arial`;
     const text = node.skill;
     const textWidth = ctx.measureText(text).width;
-    canvas.width = textWidth + 40;
-    canvas.height = fontSize + 20;
+    canvas.width = textWidth + 30;
+    canvas.height = fontSize + 15;
     ctx.font = `${fontSize}px Arial`;
-    ctx.fillStyle = 'white';
-    ctx.fillText(text, 20, fontSize);
+    ctx.fillStyle = '#cce6ff'; // light cyan text
+    ctx.fillText(text, 15, fontSize);
 
     const texture = new THREE.CanvasTexture(canvas);
     const labelMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
     const label = new THREE.Sprite(labelMaterial);
-    label.position.set(0, size * 0.8, 0);
+    label.position.set(0, size * 0.7, 0);
     label.scale.set(canvas.width * 0.12, canvas.height * 0.12, 1);
     group.add(label);
 
     return group;
   })
-  .linkDirectionalParticles(4) // glowing particles along edges
-  .linkDirectionalParticleSpeed(d => 0.002 + Math.random() * 0.004) // varied speed
+  // --- Minimal directional links ---
+  .linkColor(() => 'rgba(180,220,255,0.5)')   // soft bluish glow
+  .linkOpacity(0.4)
+  .linkWidth(0.7)
+  .linkDirectionalParticles(1)  // just 1 subtle moving particle
   .linkDirectionalParticleWidth(2)
-  .linkColor(() => 'rgba(255,200,100,0.8)') // glowing orange edges
-  .linkOpacity(0.6)
-  .linkDirectionalArrowLength(6)
-  .linkDirectionalArrowRelPos(1); // arrows at end of links
+  .linkDirectionalParticleSpeed(() => 0.0015); // slow flow, minimal
+
 </script>
 
   </body>
