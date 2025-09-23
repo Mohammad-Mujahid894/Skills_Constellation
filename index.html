@@ -155,7 +155,7 @@ starTexture.magFilter = THREE.LinearFilter;
 starTexture.needsUpdate = true;
 
 /*********************** BUILD 3D GRAPH *************************/
-const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
+const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
   .graphData(gData)
   .nodeThreeObject(node=>{
       const group = new THREE.Group();
@@ -228,7 +228,7 @@ const POLAR_OSC_AMP = 0.08;       // amplitude
 const POLAR_OSC_SPEED_HZ = 0.25;  // frequency
 
 // -------------------- INIT --------------------
-Graph.cameraPosition({ x: 0, y: 0, z: initialZ }, 0);
+Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
 
 // keep forces calm for a steady camera
 Graph.d3Force('charge').strength(REPULSION_STRENGTH);
@@ -281,13 +281,12 @@ controls.addEventListener('end', () => setInteracting(false));
 
 // also gate through DOM-level signals for snappy response
 const dom = controls.domElement;
-['pointerdown', 'touchstart', 'wheel', 'mouseenter'].forEach(evt =>
-  dom.addEventListener(evt, () => setInteracting(true), { passive: true })
-);
-['pointerup', 'touchend', 'mouseleave'].forEach(evt =>
-  dom.addEventListener(evt, () => setInteracting(false), { passive: true })
-);
-
+['pointerdown', 'touchstart', 'wheel'].forEach(evt =>
+    dom.addEventListener(evt, () => setInteracting(true), { passive: true })
+ );
+['pointerup', 'touchend'].forEach(evt =>
+    dom.addEventListener(evt, () => setInteracting(false), { passive: true })
+ );
 // -------------------- RANDOMIZED ROTATION BEHAVIOR --------------------
 let speedSign = 1;
 
