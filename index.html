@@ -210,40 +210,38 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
   ;
 
 /*********************** CAMERA & FORCE *************************/
+/*********************** CAMERA & FORCE *************************/
 const initialZ = 900;   // start far
-const zoomInAmount = 1300; // how much to zoom in
-const zoomDuration = 3000; // 3 seconds
-
 Graph.cameraPosition({x:0, y:0, z: initialZ}, 0); // no animation, set start
 Graph.d3Force('charge').strength(REPULSION_STRENGTH);
 
-Graph.onEngineTickEnd(()=>{
+// after engine settles
+Graph.onEngineTickEnd(() => {
     Graph.onEngineTickEnd(null); // remove callback
 
-    const cam = Graph.camera();
-    const targetZ = initialZ - zoomInAmount;
-    const startTime = performance.now();
+    // wait 3 seconds after page settles
+    setTimeout(() => {
+        // zoom in like mouse wheel (Graph.cameraPosition handles smooth animation)
+        Graph.cameraPosition(
+            { x: 0, y: 0, z: 400 }, // target position (closer)
+            3000                     // duration = 3 seconds
+        );
 
-    function animateZoom(timestamp){
-        const elapsed = timestamp - startTime;
-        const progress = Math.min(elapsed / zoomDuration, 1);
-        cam.position.z = initialZ - (zoomInAmount * progress);
-        cam.lookAt(0,0,0);
-        if(progress < 1) requestAnimationFrame(animateZoom);
-    }
+        // start gentle rotation AFTER zoom finishes
+        setTimeout(() => {
+            let t = 0;
+            function rotate(){
+                t += 0.0007;
+                const cam = Graph.camera();
+                cam.position.x = Math.sin(t*0.7)*50;
+                cam.position.y = Math.cos(t*0.5)*30;
+                cam.lookAt(0,0,0);
+                requestAnimationFrame(rotate);
+            }
+            rotate();
+        }, 3000);
 
-    requestAnimationFrame(animateZoom);
-
-    // start gentle rotation after zoom-in starts
-    let t = 0;
-    function rotate(){
-        t += 0.0007;
-        cam.position.x = Math.sin(t*0.7)*50;
-        cam.position.y = Math.cos(t*0.5)*30;
-        cam.lookAt(0,0,0);
-        requestAnimationFrame(rotate);
-    }
-    rotate();
+    }, 3000); // delay 3 seconds after page settles
 });
 
 
