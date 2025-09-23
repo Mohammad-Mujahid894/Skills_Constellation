@@ -216,23 +216,19 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
 // -------------------- CONFIG --------------------
 /*********************** CAMERA & FORCE (Optimized) *************************/
 /*********************** CAMERA, AUTO-ROTATE & STAR UPDATE (Optimized) *************************/
-const initialZ = 900;        // start far
-const zoomTargetZ = 500;     // target after zoom
-const ZOOM_DURATION = 3000;  // ms
+/*********************** CAMERA, AUTO-ROTATE & STAR UPDATE (Corrected) *************************/
+const initialZ = 900;
+const zoomTargetZ = 500;
+const ZOOM_DURATION = 3000;
+const AUTO_ROTATE_BASE = 0.6;
+const IDLE_RESUME_MS = 1500;
+const POLAR_OSC_AMP = 0.08;
+const POLAR_OSC_SPEED_HZ = 0.25;
 
-const AUTO_ROTATE_BASE = 0.6;     // base rotation speed
-const IDLE_RESUME_MS = 1500;      // wait after user stops interacting
-const DIR_FLIP_MIN = 4000;        // random flip interval min
-const DIR_FLIP_MAX = 9000;        // random flip interval max
-const POLAR_OSC_AMP = 0.08;       // vertical oscillation amplitude
-const POLAR_OSC_SPEED_HZ = 0.25;  // vertical oscillation speed
-
-// Initialize camera
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
 Graph.d3Force('charge').strength(REPULSION_STRENGTH);
 Graph.d3AlphaTarget(0);
 
-// OrbitControls setup
 const controls = Graph.controls();
 controls.enableDamping = true;
 controls.dampingFactor = 0.06;
@@ -241,72 +237,52 @@ controls.maxDistance = 2000;
 controls.autoRotate = true;
 controls.autoRotateSpeed = AUTO_ROTATE_BASE;
 
-// Smooth zoom after graph settles
+// Zoom in smoothly
 requestAnimationFrame(() => {
   const cam = Graph.camera();
-  Graph.cameraPosition(
-    { x: cam.position.x, y: cam.position.y, z: zoomTargetZ },
-    { x: 0, y: 0, z: 0 },
-    ZOOM_DURATION
-  );
+  Graph.cameraPosition({ x: cam.position.x, y: cam.position.y, z: zoomTargetZ }, { x:0, y:0, z:0 }, ZOOM_DURATION);
 });
 
-// Interaction gating (pause auto-rotate on user drag/zoom)
+// Interaction pause
 let interacting = false;
 let resumeTimer = null;
-
 function setInteracting(state) {
   if (state === interacting) return;
   interacting = state;
-
   if (interacting) {
     controls.autoRotate = false;
     if (resumeTimer) clearTimeout(resumeTimer);
   } else {
-    resumeTimer = setTimeout(() => { controls.autoRotate = true; }, IDLE_RESUME_MS);
+    resumeTimer = setTimeout(()=>controls.autoRotate=true, IDLE_RESUME_MS);
   }
 }
+controls.addEventListener('start', ()=>setInteracting(true));
+controls.addEventListener('end', ()=>setInteracting(false));
+['pointerdown','touchstart','wheel'].forEach(e => controls.domElement.addEventListener(e, ()=>setInteracting(true), {passive:true}));
+['pointerup','touchend'].forEach(e => controls.domElement.addEventListener(e, ()=>setInteracting(false), {passive:true}));
 
-// Listen for interaction events
-controls.addEventListener('start', () => setInteracting(true));
-controls.addEventListener('end', () => setInteracting(false));
-['pointerdown', 'touchstart', 'wheel'].forEach(evt =>
-  controls.domElement.addEventListener(evt, () => setInteracting(true), { passive: true })
-);
-['pointerup', 'touchend'].forEach(evt =>
-  controls.domElement.addEventListener(evt, () => setInteracting(false), { passive: true })
-);
-
-// Random rotation direction flip
+// Random flip of rotation direction
 let speedSign = 1;
-function scheduleFlip() {
-  const next = Math.random() * (DIR_FLIP_MAX - DIR_FLIP_MIN) + DIR_FLIP_MIN;
-  setTimeout(() => { speedSign *= -1; scheduleFlip(); }, next);
-}
-scheduleFlip();
+(function flipDir(){
+  const next = Math.random()*5000+4000;
+  setTimeout(()=>{ speedSign*=-1; flipDir(); }, next);
+})();
 
-// Combined tick loop: auto-rotate, polar oscillation & star texture
+// Animation loop
 let t0 = performance.now();
-function tickAll() {
-  const t = (performance.now() - t0) / 1000;
-
-  // Modulate rotation speed
-  const mod = 1 + 0.4 * Math.sin(t * 0.5) + 0.2 * Math.sin(t * 0.13 + 1.7);
+function tickAll(){
+  const t = (performance.now()-t0)/1000;
+  const mod = 1 + 0.4*Math.sin(t*0.5) + 0.2*Math.sin(t*0.13+1.7);
   controls.autoRotateSpeed = AUTO_ROTATE_BASE * mod * speedSign;
-
-  // Gentle up/down oscillation
-  if (!interacting) {
-    const deltaPolar = POLAR_OSC_AMP * 0.016 * Math.sin(2 * Math.PI * POLAR_OSC_SPEED_HZ * t);
-    controls.rotateUp(deltaPolar);
+  if(!interacting){
+    controls.rotateUp(POLAR_OSC_AMP*0.016*Math.sin(2*Math.PI*POLAR_OSC_SPEED_HZ*t));
   }
-
-  // Update controls and star texture
   controls.update();
-  starTexture.needsUpdate = true;
-
+  starTexture.needsUpdate = true; // single texture reused for all nodes
   requestAnimationFrame(tickAll);
 }
 tickAll();
+
 
 
 
