@@ -224,6 +224,7 @@ const IDLE_RESUME_MS = 1500;
 const POLAR_OSC_AMP = 0.08;
 const POLAR_OSC_SPEED_HZ = 0.25;
 
+// Initial camera far
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
 Graph.d3Force('charge').strength(REPULSION_STRENGTH);
 Graph.d3AlphaTarget(0);
@@ -233,14 +234,20 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.06;
 controls.minDistance = 150;
 controls.maxDistance = 2000;
-controls.autoRotate = true;
+controls.autoRotate = false; // start off paused
 controls.autoRotateSpeed = AUTO_ROTATE_BASE;
 
-// Zoom in smoothly
-requestAnimationFrame(() => {
+// Wait 3 seconds, then zoom in & start auto-rotate
+setTimeout(() => {
   const cam = Graph.camera();
-  Graph.cameraPosition({ x: cam.position.x, y: cam.position.y, z: zoomTargetZ }, { x:0, y:0, z:0 }, ZOOM_DURATION);
-});
+  Graph.cameraPosition(
+    { x: cam.position.x, y: cam.position.y, z: zoomTargetZ }, 
+    { x:0, y:0, z:0 }, 
+    ZOOM_DURATION
+  );
+  controls.autoRotate = true; // start rotation after zoom
+}, 3000);
+
 
 // Interaction pause
 let interacting = false;
