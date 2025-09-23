@@ -214,49 +214,43 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
 /*********************** CAMERA & FORCE *************************/
 /*********************** CAMERA & FORCE *************************/
 // -------------------- CONFIG --------------------
+/*********************** CAMERA & FORCE (Optimized) *************************/
 const initialZ = 900;        // start far
-const zoomTargetZ = 500;     // target after 3s
-const zoomDuration = 3000;   // ms
+const zoomTargetZ = 500;     // target after zoom
+const ZOOM_DURATION = 3000;  // ms
 
 const AUTO_ROTATE_BASE = 0.6;     // gentle base rotation speed
-const IDLE_RESUME_MS = 1500;      // wait after last interaction before resuming
-const DIR_FLIP_MIN = 4000;        // random direction flip: min interval ms
-const DIR_FLIP_MAX = 9000;        // random direction flip: max interval ms
-
-// small vertical precession so it's not only one direction (in radians)
-const POLAR_OSC_AMP = 0.08;       // amplitude
+const IDLE_RESUME_MS = 1500;      // wait after last interaction
+const DIR_FLIP_MIN = 4000;        // random flip interval min
+const DIR_FLIP_MAX = 9000;        // random flip interval max
+const POLAR_OSC_AMP = 0.08;       // small vertical precession amplitude
 const POLAR_OSC_SPEED_HZ = 0.25;  // frequency
 
-// -------------------- INIT --------------------
+// Initialize camera
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
-
-// keep forces calm for a steady camera
 Graph.d3Force('charge').strength(REPULSION_STRENGTH);
 Graph.d3AlphaTarget(0);
 
-// controls from 3d-force-graph (OrbitControls underneath)
+// OrbitControls setup
 const controls = Graph.controls();
-controls.enableDamping = true;       // smoother camera easing
+controls.enableDamping = true;
 controls.dampingFactor = 0.06;
-controls.minDistance = 150;          // clamp zoom-in
-controls.maxDistance = 2000;         // clamp zoom-out
-
-// enable autorotate (we’ll modulate speed and direction below)
+controls.minDistance = 150;
+controls.maxDistance = 2000;
 controls.autoRotate = true;
 controls.autoRotateSpeed = AUTO_ROTATE_BASE;
 
-// -------------------- SMOOTH AUTO ZOOM (after 3s) --------------------
+// Smooth zoom after graph settles
 setTimeout(() => {
   const cam = Graph.camera();
-  // preserve current x/y, animate z only; keep looking at the origin
   Graph.cameraPosition(
     { x: cam.position.x, y: cam.position.y, z: zoomTargetZ },
     { x: 0, y: 0, z: 0 },
-    zoomDuration
+    ZOOM_DURATION
   );
-}, 3000);
+}, 1000); // slight delay to ensure graph is ready
 
-// -------------------- INTERACTION GATING (pause rotation) --------------------
+// Interaction gating (pause auto-rotate on user drag/zoom)
 let interacting = false;
 let resumeTimer = null;
 
@@ -265,59 +259,52 @@ function setInteracting(state) {
   interacting = state;
 
   if (interacting) {
-    controls.autoRotate = false;        // stop rotation immediately
-    if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+    controls.autoRotate = false;
+    if (resumeTimer) clearTimeout(resumeTimer);
   } else {
-    // resume after the user is idle
     resumeTimer = setTimeout(() => {
       controls.autoRotate = true;
     }, IDLE_RESUME_MS);
   }
 }
 
-// OrbitControls emits 'start' when user begins drag/zoom/pan, 'end' when stops
+// Listen for OrbitControls events
 controls.addEventListener('start', () => setInteracting(true));
 controls.addEventListener('end', () => setInteracting(false));
-
-// also gate through DOM-level signals for snappy response
-const dom = controls.domElement;
 ['pointerdown', 'touchstart', 'wheel'].forEach(evt =>
-    dom.addEventListener(evt, () => setInteracting(true), { passive: true })
- );
+  controls.domElement.addEventListener(evt, () => setInteracting(true), { passive: true })
+);
 ['pointerup', 'touchend'].forEach(evt =>
-    dom.addEventListener(evt, () => setInteracting(false), { passive: true })
- );
-// -------------------- RANDOMIZED ROTATION BEHAVIOR --------------------
-let speedSign = 1;
+  controls.domElement.addEventListener(evt, () => setInteracting(false), { passive: true })
+);
 
-// Randomly flip direction every 4–9s
+// Randomized rotation direction flip
+let speedSign = 1;
 function scheduleFlip() {
   const next = Math.random() * (DIR_FLIP_MAX - DIR_FLIP_MIN) + DIR_FLIP_MIN;
   setTimeout(() => {
-    speedSign *= -1;         // invert direction
-    scheduleFlip();          // schedule next flip
+    speedSign *= -1;
+    scheduleFlip();
   }, next);
 }
 scheduleFlip();
 
-// Add gentle speed modulation and vertical precession
+// Main tick loop for smooth auto-rotation & polar oscillation
 let t0 = performance.now();
 function tick() {
   const t = (performance.now() - t0) / 1000;
 
-  // smoothly vary speed (keeps it feeling “alive” without being chaotic)
-  const mod =
-    1 + 0.4 * Math.sin(t * 0.5) +      // slow wave
-        0.2 * Math.sin(t * 0.13 + 1.7); // even slower wave
+  // Modulate rotation speed
+  const mod = 1 + 0.4 * Math.sin(t * 0.5) + 0.2 * Math.sin(t * 0.13 + 1.7);
   controls.autoRotateSpeed = AUTO_ROTATE_BASE * mod * speedSign;
 
-  // gentle up/down oscillation so it’s not a flat, single-axis orbit
+  // Gentle up/down oscillation
   if (!interacting) {
-    // rotateUp expects radians; small delta each frame
     const deltaPolar = POLAR_OSC_AMP * 0.016 * Math.sin(2 * Math.PI * POLAR_OSC_SPEED_HZ * t);
     controls.rotateUp(deltaPolar);
   }
 
+  controls.update(); // crucial for auto-rotate and damping
   requestAnimationFrame(tick);
 }
 tick();
@@ -326,6 +313,8 @@ tick();
 
 
 
+
+  
 
 
 /*********************** KEEP STAR TEXTURE ANIMATED *************************/
