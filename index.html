@@ -270,7 +270,7 @@ function startRandomRotation() {
     const baseZ = camera.position.z;
 
     function rotate() {
-        t += 0.0007; // very slow rotation
+        t += 0.0015; // very slow rotation
 
         // small random-ish offsets for 3D rotation
         const offsetX = Math.sin(t * 0.7) * 50; 
@@ -279,7 +279,7 @@ function startRandomRotation() {
 
         camera.position.x = offsetX;
         camera.position.y = offsetY;
-        camera.position.z = baseZ - 200 + offsetZ; // zoomed closer
+        camera.position.z = baseZ - 500 + offsetZ; // zoomed closer
 
         camera.lookAt(0, 0, 0); // always face center
         requestAnimationFrame(rotate);
