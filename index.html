@@ -87,59 +87,61 @@ const gData = {
     .filter(id => id)
     .map(id => ({ source: id, target: Math.round(Math.random() * (id - 1)) }))
 };
+      const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
+        .graphData(gData)
 
-const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
-  .graphData(gData)
-  .nodeThreeObject(node => {
-    const group = new THREE.Group();
+        // ⭐ Custom star nodes
+        .nodeThreeObject(node => {
+          const group = new THREE.Group();
 
-  const starTexture = new THREE.TextureLoader().load(
-  "https://threejs.org/examples/textures/sprites/disc.png"
-);
+          // Star texture
+          const starTexture = new THREE.TextureLoader().load(
+            "https://threejs.org/examples/textures/sprites/disc.png"
+          );
+          const material = new THREE.SpriteMaterial({
+            map: starTexture,
+            color: new THREE.Color(`hsl(${Math.random() * 360}, 70%, 70%)`), 
+            transparent: true,
+            blending: THREE.AdditiveBlending
+          });
 
-const material = new THREE.SpriteMaterial({
-  map: starTexture,
-  color: new THREE.Color(`hsl(${Math.random() * 360}, 70%, 70%)`), // exotic colors
-  transparent: true,
-  blending: THREE.AdditiveBlending,
-});
+          const sprite = new THREE.Sprite(material);
+          const starSize = 20 + Math.random() * 20; // different star sizes
+          sprite.scale.set(starSize, starSize, 1);
+          group.add(sprite);
 
-const sprite = new THREE.Sprite(material);
-sprite.scale.set(25, 25, 1); // tweak star size
-node.__threeObj.add(sprite);
+          // --- Label ---
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const fontSize = 36;
+          ctx.font = `${fontSize}px Arial`;
+          const text = node.skill;
+          const textWidth = ctx.measureText(text).width;
+          canvas.width = textWidth + 30;
+          canvas.height = fontSize + 15;
+          ctx.font = `${fontSize}px Arial`;
+          ctx.fillStyle = '#cce6ff';
+          ctx.fillText(text, 15, fontSize);
 
+          const texture = new THREE.CanvasTexture(canvas);
+          const labelMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+          const label = new THREE.Sprite(labelMaterial);
+          label.position.set(0, starSize * 0.7, 0);
+          label.scale.set(canvas.width * 0.12, canvas.height * 0.12, 1);
+          group.add(label);
 
-    // --- Label ---
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const fontSize = 36;
-    ctx.font = `${fontSize}px Arial`;
-    const text = node.skill;
-    const textWidth = ctx.measureText(text).width;
-    canvas.width = textWidth + 30;
-    canvas.height = fontSize + 15;
-    ctx.font = `${fontSize}px Arial`;
-    ctx.fillStyle = '#cce6ff'; // light cyan text
-    ctx.fillText(text, 15, fontSize);
+          return group;
+        })
 
-    const texture = new THREE.CanvasTexture(canvas);
-    const labelMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
-    const label = new THREE.Sprite(labelMaterial);
-    label.position.set(0, size * 0.7, 0);
-    label.scale.set(canvas.width * 0.12, canvas.height * 0.12, 1);
-    group.add(label);
+        // --- Glowy connectors with "pipe effect" ---
+        .linkColor(() => 'rgba(180,220,255,0.6)') 
+        .linkOpacity(0.4)
+        .linkWidth(1.2)
 
-    return group;
-  })
-  // --- Minimal directional links ---
-  .linkColor(() => 'rgba(180,220,255,0.5)')   // soft bluish glow
-  .linkOpacity(0.4)
-  .linkWidth(0.7)
-  .linkDirectionalParticles(1)  // just 1 subtle moving particle
-  .linkDirectionalParticleWidth(2)
-  .linkDirectionalParticleSpeed(() => 0.0015); // slow flow, minimal
-
-</script>
-
+        // Pipe effect = multiple moving particles per link
+        .linkDirectionalParticles(12)   // more particles inside link
+        .linkDirectionalParticleWidth(2.2)
+        .linkDirectionalParticleSpeed(() => 0.003); // smooth slow flow
+    </script>
   </body>
 </html>
