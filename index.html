@@ -227,7 +227,7 @@ setTimeout(() => {
     Graph.cameraPosition(
         { x: 0, y: 0, z: zoomTargetZ },  // target
         zoomDuration,                    // smooth duration
-        () => { /* zoom complete, no need for extra logic */ }
+        () => { /* zoom complete, nothing else */ }
     );
 }, 3000);
 
@@ -237,15 +237,15 @@ function rotate() {
     // Only rotate if user is NOT interacting
     if (!Graph.isDragging && !Graph.isMoving && !Graph.mouseDown) {
         t += 0.0007;
-        Graph.cameraPosition({
-            x: Math.sin(t * 0.7) * 50,
-            y: Math.cos(t * 0.5) * 30,
-            z: Graph.camera().position.z // keep current z
-        }, 0); // instant update for rotation, not smooth
+        const cam = Graph.camera();
+        cam.position.x = Math.sin(t * 0.7) * 50;
+        cam.position.y = Math.cos(t * 0.5) * 30;
+        cam.lookAt(0, 0, 0);
     }
     requestAnimationFrame(rotate);
 }
 rotate();
+
 
 
 
