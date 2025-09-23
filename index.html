@@ -2,285 +2,256 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Star Nodes + Single Directional Particle</title>
+  <title>Star Nodes + 3D Force Graph</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    html,body { height:100%; margin:0; background:#040414; } /* dark */
+    html, body { height:100%; margin:0; background:#040414; }
     #3d-graph { width:100vw; height:100vh; display:block; }
-    /* Hidden animated canvas used as texture */
     #starCanvas { display:none; width:256px; height:256px; }
   </style>
 </head>
 <body>
-  <!-- animated star canvas (hidden) -->
-  <canvas id="starCanvas" width="256" height="256"></canvas>
+<canvas id="starCanvas" width="256" height="256"></canvas>
+<div id="3d-graph"></div>
 
-  <!-- graph container -->
-  <div id="3d-graph"></div>
-
-  <!-- Module imports (Three as module + 3d-force-graph ES module) -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
 <script>
+/*********************** CONFIG/TWEAKABLE SETTINGS *************************/
+// Node star size
+const STAR_SIZE = 6; // smaller = tiny, bigger = large
+// Label size
+const LABEL_FONT_SIZE = 32; // bigger = more readable
+// Graph spacing (repulsion)
+const REPULSION_STRENGTH = -18; // bigger negative = more spread out
+// Target zoom after graph settles
+const ZOOM_IN_AMOUNT = 200; // how much closer after standby
+// Zoom-in duration (ms)
+const ZOOM_DURATION = 3000;
+// Directional particle dimness
+const PARTICLE_WIDTH = 1.0; // thinner = less visible
+const PARTICLE_SPEED = 0.001; // slower particle
+const PARTICLE_OPACITY = 0.3; // dim
 
+/*********************** SKILLS DATA *************************/
+const skills = [
+        "Excel", "Power BI", "SAP FICO", "Tally", "Financial Accounting", 
+        "Cost Accounting", "Business Laws", "Taxation", "AR Management",
+        "Cash Application", "Invoice Processing", "Bank Reconciliation", 
+        "Versapay", "Micro Dynamics", "C MOD", "ISR", "Open Scan",
+        "Credit Management", "Demand Letter", "ACH Processing",
+        "Wire Payment", "NSF Handling", "Customer Communication",
+        "Remittance Matching", "Data Analysis", "MS Office", "Python",
+        "Tableau", "Automation", "Problem Solving", "Time Management",
+        "VBA", "Excel Macros", "Pivot Tables", "Power Query", "Data Visualization",
+        "SAP MM", "SAP SD", "SAP CO", "Tally ERP", "Accounting Principles",
+        "Balance Sheet", "Profit & Loss", "Trial Balance", "General Ledger", "Journal Entries",
+        "Costing", "Variance Analysis", "Material Ledger", "Indirect Tax", "Direct Tax",
+        "GST", "TDS", "Income Tax", "Payroll Accounting", "Bank Statements",
+        "Collections", "Credit Analysis", "AR Aging Report", "Customer Queries", "Payment Reconciliation",
+        "Remittance Advice", "Invoice Distribution", "Billing Software", "ERP Systems", "MIS Reporting",
+        "Data Entry", "Document Verification", "Bank Payment Processing", "Cheque Handling", "Wire Transfer",
+        "ACH", "NSF Checks", "Stop Payment", "Bank Charges", "Write-Offs",
+        "Debit/Credit Notes", "Customer Support", "Email Communication", "Internal Coordination", "Vendor Management",
+        "Supplier Reconciliation", "Purchase Orders", "Inventory Accounting", "Fixed Assets", "Depreciation",
+        "Stock Ledger", "Stock Valuation", "Cost Allocation", "Budgeting", "Forecasting",
+        "Financial Analysis", "Ratio Analysis", "KPI Reporting", "Dashboard Creation", "Scenario Planning",
+        "Strategic Planning", "Business Analytics", "Data Modeling", "SQL Queries", "Database Management",
+        "Python Scripting", "Automation Scripts", "Power Automate", "RPA", "Macros Development",
+        "ERP Customization", "System Integration", "Audit Compliance", "Internal Audit", "SOX Compliance",
+        "IFRS Standards", "GAAP Standards", "Financial Statements", "Regulatory Reporting", "Management Reporting",
+        "Performance Metrics", "Cost Control", "Expense Tracking", "Revenue Analysis", "Profit Analysis",
+        "Project Accounting", "Project Costing", "Resource Planning", "Workforce Management", "Team Coordination",
+        "Client Reporting", "Client Communication", "Stakeholder Management", "Presentation Skills", "Documentation",
+        "Policy Compliance", "Risk Assessment", "Business Process", "Process Improvement", "Lean Six Sigma",
+        "Kaizen", "Operational Excellence", "Quality Management", "ISO Standards", "Workflow Automation",
+        "Data Cleaning", "Data Transformation", "Data Aggregation", "Data Insights", "Business Intelligence",
+        "Visualization Tools", "Storytelling with Data", "Dashboard Design", "Interactive Charts", "Heat Maps",
+        "Graphs & Tables", "Scenario Analysis", "Forecast Models", "Variance Reporting", "Trend Analysis",
+        "Key Metrics", "Benchmarking", "Decision Support", "Analytical Thinking", "Critical Thinking",
+        "Problem Solving", "Logical Reasoning", "Attention to Detail", "Accuracy", "Efficiency",
+        "Time Management", "Multitasking", "Prioritization", "Deadlines", "Stress Management",
+        "Team Collaboration", "Conflict Resolution", "Negotiation", "Adaptability", "Flexibility",
+        "Continuous Learning", "Self-Motivation", "Goal Setting", "Planning", "Organizational Skills",
+        "Communication Skills", "Listening Skills", "Presentation Skills", "Report Writing", "Email Etiquette",
+        "Customer Relationship", "Vendor Relations", "Supplier Coordination", "Stakeholder Communication", "Internal Reporting",
+        "Decision Making", "Problem Identification", "Solution Implementation", "Change Management", "Project Planning",
+        "Project Execution", "Project Monitoring", "Resource Allocation", "Task Scheduling", "Performance Evaluation",
+        "Recruitment", "Training & Development", "Mentoring", "Coaching", "Employee Engagement",
+        "Leadership", "Team Management", "Delegation", "Motivation", "Conflict Management",
+        "Negotiation Skills", "Persuasion", "Influencing", "Strategic Thinking", "Innovation",
+        "Creative Thinking", "Idea Generation", "Brainstorming", "Critical Analysis", "SWOT Analysis",
+        "PESTLE Analysis", "Porter's Five Forces", "Market Research", "Competitor Analysis", "Customer Insights",
+        "Sales Analytics", "Revenue Forecasting", "Pricing Strategies", "Promotional Analysis", "Campaign Analysis",
+        "Digital Marketing", "SEO", "SEM", "Content Creation", "Social Media Management",
+        "Brand Management", "Product Management", "Project Documentation", "Workflow Optimization", "Process Mapping",
+        "Risk Mitigation", "Compliance Checks", "Audit Preparation", "Financial Modelling", "Investment Analysis",
+        "Portfolio Management", "Asset Management", "Treasury Operations", "Cash Flow Management", "Liquidity Analysis",
+        "Debt Management", "Equity Analysis", "Capital Budgeting", "Funding Strategy", "Business Valuation",
+        "Mergers & Acquisitions", "Corporate Finance", "Tax Planning", "Budget Control", "Expense Management",
+        "Profit Maximization", "Cost Reduction", "Operational Efficiency", "Supply Chain Management", "Logistics",
+        "Inventory Control", "Demand Planning", "Production Planning", "Quality Assurance", "Customer Satisfaction",
+        "Service Delivery", "Contract Management", "Legal Documentation", "Regulatory Filing", "Policy Implementation",
+        "Knowledge Management", "Information Security", "IT Support", "System Maintenance", "Troubleshooting",
+        "Technical Documentation", "Software Testing", "Quality Control", "Product Testing", "User Acceptance Testing",
+        "Test Cases", "Bug Reporting", "Issue Tracking", "Version Control", "Release Management",
+        "Deployment", "Configuration", "Monitoring", "Alerts & Notifications", "System Optimization"
+];
 
-  /*********************** FULL SKILLS ARRAY (as requested) *************************/
-  const skills = [
-    "Excel", "Power BI", "SAP FICO", "Tally", "Financial Accounting",
-    "Cost Accounting", "Business Laws", "Taxation", "AR Management",
-    "Cash Application", "Invoice Processing", "Bank Reconciliation",
-    "Versapay", "Micro Dynamics", "C MOD", "ISR", "Open Scan",
-    "Credit Management", "Demand Letter", "ACH Processing",
-    "Wire Payment", "NSF Handling", "Customer Communication",
-    "Remittance Matching", "Data Analysis", "MS Office", "Python",
-    "Tableau", "Automation", "Problem Solving", "Time Management",
-    "VBA", "Excel Macros", "Pivot Tables", "Power Query", "Data Visualization",
-    "SAP MM", "SAP SD", "SAP CO", "Tally ERP", "Accounting Principles",
-    "Balance Sheet", "Profit & Loss", "Trial Balance", "General Ledger", "Journal Entries",
-    "Costing", "Variance Analysis", "Material Ledger", "Indirect Tax", "Direct Tax",
-    "GST", "TDS", "Income Tax", "Payroll Accounting", "Bank Statements",
-    "Collections", "Credit Analysis", "AR Aging Report", "Customer Queries", "Payment Reconciliation",
-    "Remittance Advice", "Invoice Distribution", "Billing Software", "ERP Systems", "MIS Reporting",
-    "Data Entry", "Document Verification", "Bank Payment Processing", "Cheque Handling", "Wire Transfer",
-    "ACH", "NSF Checks", "Stop Payment", "Bank Charges", "Write-Offs",
-    "Debit/Credit Notes", "Customer Support", "Email Communication", "Internal Coordination", "Vendor Management",
-    "Supplier Reconciliation", "Purchase Orders", "Inventory Accounting", "Fixed Assets", "Depreciation",
-    "Stock Ledger", "Stock Valuation", "Cost Allocation", "Budgeting", "Forecasting",
-    "Financial Analysis", "Ratio Analysis", "KPI Reporting", "Dashboard Creation", "Scenario Planning",
-    "Strategic Planning", "Business Analytics", "Data Modeling", "SQL Queries", "Database Management",
-    "Python Scripting", "Automation Scripts", "Power Automate", "RPA", "Macros Development",
-    "ERP Customization", "System Integration", "Audit Compliance", "Internal Audit", "SOX Compliance",
-    "IFRS Standards", "GAAP Standards", "Financial Statements", "Regulatory Reporting", "Management Reporting",
-    "Performance Metrics", "Cost Control", "Expense Tracking", "Revenue Analysis", "Profit Analysis",
-    "Project Accounting", "Project Costing", "Resource Planning", "Workforce Management", "Team Coordination",
-    "Client Reporting", "Client Communication", "Stakeholder Management", "Presentation Skills", "Documentation",
-    "Policy Compliance", "Risk Assessment", "Business Process", "Process Improvement", "Lean Six Sigma",
-    "Kaizen", "Operational Excellence", "Quality Management", "ISO Standards", "Workflow Automation",
-    "Data Cleaning", "Data Transformation", "Data Aggregation", "Data Insights", "Business Intelligence",
-    "Visualization Tools", "Storytelling with Data", "Dashboard Design", "Interactive Charts", "Heat Maps",
-    "Graphs & Tables", "Scenario Analysis", "Forecast Models", "Variance Reporting", "Trend Analysis",
-    "Key Metrics", "Benchmarking", "Decision Support", "Analytical Thinking", "Critical Thinking",
-    "Problem Solving", "Logical Reasoning", "Attention to Detail", "Accuracy", "Efficiency",
-    "Time Management", "Multitasking", "Prioritization", "Deadlines", "Stress Management",
-    "Team Collaboration", "Conflict Resolution", "Negotiation", "Adaptability", "Flexibility",
-    "Continuous Learning", "Self-Motivation", "Goal Setting", "Planning", "Organizational Skills",
-    "Communication Skills", "Listening Skills", "Presentation Skills", "Report Writing", "Email Etiquette",
-    "Customer Relationship", "Vendor Relations", "Supplier Coordination", "Stakeholder Communication", "Internal Reporting",
-    "Decision Making", "Problem Identification", "Solution Implementation", "Change Management", "Project Planning",
-    "Project Execution", "Project Monitoring", "Resource Allocation", "Task Scheduling", "Performance Evaluation",
-    "Recruitment", "Training & Development", "Mentoring", "Coaching", "Employee Engagement",
-    "Leadership", "Team Management", "Delegation", "Motivation", "Conflict Management",
-    "Negotiation Skills", "Persuasion", "Influencing", "Strategic Thinking", "Innovation",
-    "Creative Thinking", "Idea Generation", "Brainstorming", "Critical Analysis", "SWOT Analysis",
-    "PESTLE Analysis", "Porter's Five Forces", "Market Research", "Competitor Analysis", "Customer Insights",
-    "Sales Analytics", "Revenue Forecasting", "Pricing Strategies", "Promotional Analysis", "Campaign Analysis",
-    "Digital Marketing", "SEO", "SEM", "Content Creation", "Social Media Management",
-    "Brand Management", "Product Management", "Project Documentation", "Workflow Optimization", "Process Mapping",
-    "Risk Mitigation", "Compliance Checks", "Audit Preparation", "Financial Modelling", "Investment Analysis",
-    "Portfolio Management", "Asset Management", "Treasury Operations", "Cash Flow Management", "Liquidity Analysis",
-    "Debt Management", "Equity Analysis", "Capital Budgeting", "Funding Strategy", "Business Valuation",
-    "Mergers & Acquisitions", "Corporate Finance", "Tax Planning", "Budget Control", "Expense Management",
-    "Profit Maximization", "Cost Reduction", "Operational Efficiency", "Supply Chain Management", "Logistics",
-    "Inventory Control", "Demand Planning", "Production Planning", "Quality Assurance", "Customer Satisfaction",
-    "Service Delivery", "Contract Management", "Legal Documentation", "Regulatory Filing", "Policy Implementation",
-    "Knowledge Management", "Information Security", "IT Support", "System Maintenance", "Troubleshooting",
-    "Technical Documentation", "Software Testing", "Quality Control", "Product Testing", "User Acceptance Testing",
-    "Test Cases", "Bug Reporting", "Issue Tracking", "Version Control", "Release Management",
-    "Deployment", "Configuration", "Monitoring", "Alerts & Notifications", "System Optimization"
-  ];
+/*********************** GRAPH DATA *************************/
+const N = 300; // node count
+const gData = {
+  nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
+  links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
+};
 
-  /*********************** GRAPH DATA (change N if you want) *************************/
-  const N = 300; // safe default; drop if performance issues
-  const gData = {
-    nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
-    links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
-  };
+/*********************** STAR CANVAS *************************/
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
 
-  /************************* STAR CANVAS (your exact shader-like draw) *************************/
-  const canvas = document.getElementById('starCanvas');
-  const ctx = canvas.getContext('2d');
-  const cx = canvas.width / 2;
-  const cy = canvas.height / 2;
+function drawGlowingStar() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  function drawGlowingStar() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Glowing aura layers (multi-color, multi-blur)
-    for (let i = 8; i > 0; i--) {
-      ctx.save();
-      const glowRadius = 70 + i * 14 + Math.sin(Date.now() / 900) * 4;
-      ctx.globalAlpha = 0.03 + 0.06 * (i / 8);
-      ctx.beginPath();
-      ctx.arc(cx, cy, glowRadius, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.fillStyle =
-        i % 2 === 0
-          ? 'rgba(62,189,255,0.7)'
-          : 'rgba(255,236,128,0.3)';
-      ctx.shadowColor = i % 2 === 0 ? '#60ecff' : '#fffadc';
-      ctx.shadowBlur = 60 + i * 10;
-      ctx.fill();
-      ctx.restore();
+    // Glowing aura
+    for (let i = 8; i>0; i--){
+        ctx.save();
+        const glowRadius = 50 + i*10 + Math.sin(Date.now()/900)*2;
+        ctx.globalAlpha = 0.03 + 0.06*(i/8);
+        ctx.beginPath();
+        ctx.arc(cx,cy,glowRadius,0,Math.PI*2);
+        ctx.closePath();
+        ctx.fillStyle = i%2===0 ? 'rgba(62,189,255,0.7)' : 'rgba(255,236,128,0.3)';
+        ctx.shadowColor = i%2===0 ? '#60ecff' : '#fffadc';
+        ctx.shadowBlur = 30 + i*5;
+        ctx.fill();
+        ctx.restore();
     }
 
-    // Central burning sphere
+    // Central core
     ctx.save();
-    const grad = ctx.createRadialGradient(cx, cy, 8, cx, cy, 40);
-    grad.addColorStop(0, '#fff');
-    grad.addColorStop(0.2, '#fff6b5');
-    grad.addColorStop(0.55, '#ffe380');
-    grad.addColorStop(1, '#fffacd11');
+    const grad = ctx.createRadialGradient(cx,cy,5,cx,cy,20);
+    grad.addColorStop(0,'#fff');
+    grad.addColorStop(0.3,'#fff6b5');
+    grad.addColorStop(1,'#fffacd11');
     ctx.beginPath();
-    ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+    ctx.arc(cx,cy,20,0,Math.PI*2);
     ctx.closePath();
     ctx.fillStyle = grad;
-    ctx.shadowColor = 'gold';
-    ctx.shadowBlur = 50;
-    ctx.fill();
-    ctx.restore();
-
-    // Lensing bloom highlight
-    ctx.save();
-    ctx.globalAlpha = 0.11 + 0.05 * Math.sin(Date.now() / 1300);
-    ctx.beginPath();
-    ctx.ellipse(cx, cy, 68, 29, Math.PI / 7, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.fillStyle = '#ffe09a';
-    ctx.shadowColor = '#fffbe2';
-    ctx.shadowBlur = 80;
-    ctx.fill();
-    ctx.restore();
-
-    // Flickering core
-    ctx.save();
-    ctx.globalAlpha = 0.21 + 0.4 * Math.abs(Math.sin(Date.now() / 500));
-    ctx.beginPath();
-    ctx.arc(cx, cy, 25, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.fillStyle = '#fff9ae';
-    ctx.shadowColor = 'white';
-    ctx.shadowBlur = 60;
+    ctx.shadowColor='gold';
+    ctx.shadowBlur = 30;
     ctx.fill();
     ctx.restore();
 
     requestAnimationFrame(drawGlowingStar);
-  }
-  drawGlowingStar();
+}
+drawGlowingStar();
 
-  /***************** Create a THREE.CanvasTexture from the animated canvas *****************/
-  const starTexture = new THREE.CanvasTexture(canvas);
-  starTexture.minFilter = THREE.LinearFilter;
-  starTexture.magFilter = THREE.LinearFilter;
-  starTexture.needsUpdate = true;
+/*********************** CREATE TEXTURE *************************/
+const starTexture = new THREE.CanvasTexture(canvas);
+starTexture.minFilter = THREE.LinearFilter;
+starTexture.magFilter = THREE.LinearFilter;
+starTexture.needsUpdate = true;
 
-  /****************************** Build the 3D Force Graph *********************************/
-  const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
-    .graphData(gData)
+/*********************** BUILD 3D GRAPH *************************/
+const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
+  .graphData(gData)
+  .nodeThreeObject(node=>{
+      const group = new THREE.Group();
 
-    // Use a GROUP per node: sprite (animated star) + label
-.nodeThreeObject(node => {
-    const group = new THREE.Group();
+      // star sprite
+      const starCanvas = document.createElement('canvas');
+      starCanvas.width = starCanvas.height = 64;
+      const ctx = starCanvas.getContext('2d');
+      const gradient = ctx.createRadialGradient(32,32,0,32,32,32);
+      gradient.addColorStop(0,'rgba(255,255,200,1)');
+      gradient.addColorStop(0.3,'rgba(255,220,120,0.8)');
+      gradient.addColorStop(0.6,'rgba(255,180,60,0.5)');
+      gradient.addColorStop(1,'rgba(255,180,60,0)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0,0,64,64);
 
-    // Create a circular glowing star texture
-    const size = 64; // smaller texture
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = size;
-    const ctx = canvas.getContext('2d');
+      const texture = new THREE.CanvasTexture(starCanvas);
+      const material = new THREE.SpriteMaterial({map: texture, transparent:true});
+      const sprite = new THREE.Sprite(material);
+      sprite.scale.set(STAR_SIZE, STAR_SIZE, 1);
+      group.add(sprite);
 
-    // central circle
-    const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
-    gradient.addColorStop(0, 'rgba(255,255,200,1)');   // core
-    gradient.addColorStop(0.3, 'rgba(255,220,120,0.8)');
-    gradient.addColorStop(0.6, 'rgba(255,180,60,0.5)');
-    gradient.addColorStop(1, 'rgba(255,180,60,0)');    // fade out
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, size, size);
+      // label
+      const labelCanvas = document.createElement('canvas');
+      const labelCtx = labelCanvas.getContext('2d');
+      labelCtx.font = `${LABEL_FONT_SIZE}px Arial`;
+      const text = node.skill;
+      const textWidth = labelCtx.measureText(text).width;
+      labelCanvas.width = textWidth+20;
+      labelCanvas.height = LABEL_FONT_SIZE+10;
+      labelCtx.font = `${LABEL_FONT_SIZE}px Arial`;
+      labelCtx.fillStyle = '#cce6ff';
+      labelCtx.fillText(text,5,LABEL_FONT_SIZE);
 
-    const texture = new THREE.CanvasTexture(canvas);
-    const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
-    const sprite = new THREE.Sprite(material);
+      const labelTexture = new THREE.CanvasTexture(labelCanvas);
+      const labelMaterial = new THREE.SpriteMaterial({map:labelTexture,transparent:true});
+      const label = new THREE.Sprite(labelMaterial);
+      label.position.set(0, LABEL_FONT_SIZE*0.2, 0);
+      label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
+      group.add(label);
 
-    sprite.scale.set(10, 10, 1); // smaller star size
-    group.add(sprite);
+      return group;
+  })
+  .linkWidth(1.0)
+  .linkColor(()=> 'rgba(160,200,220,0.08)')
+  .linkOpacity(1)
+  .linkDirectionalParticles(1)
+  .linkDirectionalParticleWidth(PARTICLE_WIDTH)
+  .linkDirectionalParticleSpeed(()=> PARTICLE_SPEED)
+  .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
+  .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
+  ;
 
-    // --- label ---
-    const labelCanvas = document.createElement('canvas');
-    const labelCtx = labelCanvas.getContext('2d');
-    const fontSize = 24;
-    labelCtx.font = `${fontSize}px Arial`;
-    const text = node.skill;
-    const textWidth = labelCtx.measureText(text).width;
-    labelCanvas.width = textWidth + 20;
-    labelCanvas.height = fontSize + 10;
-    labelCtx.font = `${fontSize}px Arial`;
-    labelCtx.fillStyle = '#cce6ff';
-    labelCtx.fillText(text, 5, fontSize);
+/*********************** CAMERA & FORCE *************************/
+const initialZ = 700;
+Graph.cameraPosition({x:0,y:0,z:initialZ},1500);
+Graph.d3Force('charge').strength(REPULSION_STRENGTH);
 
-    const labelTexture = new THREE.CanvasTexture(labelCanvas);
-    const labelMaterial = new THREE.SpriteMaterial({ map: labelTexture, transparent: true });
-    const label = new THREE.Sprite(labelMaterial);
-    label.position.set(0, 12, 0); // slightly above the star
-    label.scale.set(labelCanvas.width * 0.08, labelCanvas.height * 0.08, 1);
-    group.add(label);
+/*********************** ZOOM-IN AFTER STANDBY *************************/
+Graph.onEngineTickEnd(()=>{
+    Graph.onEngineTickEnd(null); // remove first tick callback
 
-    return group;
-})
+    // smooth zoom in
+    const targetZ = initialZ - ZOOM_IN_AMOUNT;
+    let startTime = null;
 
+    function smoothZoom(timestamp){
+        if(!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed/ZOOM_DURATION,1);
+        Graph.camera().position.z = initialZ - (ZOOM_IN_AMOUNT * progress);
+        Graph.camera().lookAt(0,0,0);
+        if(progress<1) requestAnimationFrame(smoothZoom);
+    }
+    requestAnimationFrame(smoothZoom);
 
-    // LINKS: subtle, minimal. EXACTLY ONE particle per link (as you wanted)
-    .linkWidth(1.5) // thin pipe feel
-    .linkColor(() => 'rgba(160,200,220,0.12)') // very faint tube color
-    .linkOpacity(1)
-    .linkDirectionalParticles(1) // single particle per link
-    .linkDirectionalParticleWidth(2.0)
-    .linkDirectionalParticleSpeed(() => 0.0014) // slow subtle movement
-    .linkDirectionalParticleColor(() => 'rgba(255,246,200,0.95)') // warm subtle particle
-
-    // small UX: show pointer cursor on hover
-    .onNodeHover(node => document.body.style.cursor = node ? 'pointer' : null)
-    ;
-
-  // camera and force settings
-Graph.cameraPosition({ x: 0, y: 0, z: 700 }, 1500);
-
-  Graph.d3Force('charge').strength(-8);
-
-  
-Graph.onEngineTickEnd(() => {
-    Graph.onEngineTickEnd(null); // remove this callback after first call
-    startRandomRotation();       // call the function that will rotate the camera
+    // start random rotation
+    let t = 0;
+    function rotate(){
+        t += 0.0007;
+        const cam = Graph.camera();
+        cam.position.x = Math.sin(t*0.7)*50;
+        cam.position.y = Math.cos(t*0.5)*30;
+        cam.position.z = cam.position.z; // keep zoom fixed after initial zoom
+        cam.lookAt(0,0,0);
+        requestAnimationFrame(rotate);
+    }
+    rotate();
 });
-  /*********************** QUICK TWEAKS (what to change) ************************
-  - Change global star size: edit `const starSize = 36` inside nodeThreeObject
-  - Reduce node count: change `const N = 200` earlier to, say, 120
-  - Make particle faster/slower: edit `.linkDirectionalParticleSpeed(...)`
-  - Hide labels: remove the label sprite creation block
-  *****************************************************************************/
 
-  // Keep the canvas texture updating so nodes animate (starTexture tracks canvas automatically)
-  function tickUpdate() {
+/*********************** KEEP STAR TEXTURE ANIMATED *************************/
+function tickUpdate(){
     starTexture.needsUpdate = true;
     requestAnimationFrame(tickUpdate);
-  }
-  tickUpdate();
-
-let targetZoom = baseZ - 200;
-let currentZoom = baseZ;
-
-function rotate() {
-    t += 0.0007;
-
-    // slowly move towards target zoom
-    currentZoom += (targetZoom - currentZoom) * 0.015; // tweak 0.005 for speed
-
-    camera.position.x = Math.sin(t * 0.7) * 50;
-    camera.position.y = Math.cos(t * 0.5) * 30;
-    camera.position.z = currentZoom + Math.sin(t * 0.3) * 50;
-
-    camera.lookAt(0,0,0);
-    requestAnimationFrame(rotate);
 }
-
-  </script>
+tickUpdate();
+</script>
 </body>
 </html>
