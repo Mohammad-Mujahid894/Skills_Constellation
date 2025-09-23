@@ -220,6 +220,7 @@ const zoomDuration = 3000; // Duration of smooth zoom (ms)
 // Start far away
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ }, 0);
 Graph.d3Force('charge').strength(REPULSION_STRENGTH);
+  Graph.d3AlphaTarget(0); // stops nodes from moving/jittering
 
 // Smooth zoom after 3 seconds
 setTimeout(() => {
@@ -246,7 +247,8 @@ setTimeout(() => {
 // Gentle random rotation
 let t = 0;
 function rotate() {
-    if (!Graph.isDragging && !Graph.isMoving) {
+    // Stop rotation when user interacts (drag, click, scroll)
+    if (!Graph.isDragging && !Graph.isMoving && !Graph.mouseDown) {
         t += 0.0007;
         const cam = Graph.camera();
         cam.position.x = Math.sin(t * 0.7) * 50;
@@ -260,12 +262,17 @@ rotate();
 
 
 
+
 /*********************** KEEP STAR TEXTURE ANIMATED *************************/
 function tickUpdate(){
     starTexture.needsUpdate = true;
     requestAnimationFrame(tickUpdate);
 }
 tickUpdate();
+  Graph.onNodeHover(node => {
+    document.body.style.cursor = node ? 'pointer' : 'default';
+});
+
 </script>
 </body>
 </html>
