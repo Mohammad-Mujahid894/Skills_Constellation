@@ -241,7 +241,10 @@
     ;
 
   // camera and force settings
-  Graph.cameraPosition({ x: 0, y: 0, z: 700 },1500);
+Graph.cameraPosition({ x: 0, y: 0, z: 450 }, 2500, () => {
+    startRandomRotation(); // call rotation after zoom finishes
+});
+
   Graph.d3Force('charge').strength(-8);
 
   /*********************** QUICK TWEAKS (what to change) ************************
@@ -257,6 +260,30 @@
     requestAnimationFrame(tickUpdate);
   }
   tickUpdate();
+
+  function startRandomRotation() {
+    let t = 0;
+    const radius = 450; // base distance from center (matches zoom)
+
+    function rotate() {
+        t += 0.0007; // very slow rotation speed
+
+        // subtle random 3D offsets
+        const offsetX = Math.sin(t * 0.7) * 15; 
+        const offsetY = Math.cos(t * 0.5) * 12; 
+        const offsetZ = Math.sin(t * 0.3) * 10; 
+
+        Graph.camera().position.x = radius + offsetX;
+        Graph.camera().position.y = radius / 2 + offsetY;
+        Graph.camera().position.z = radius + offsetZ;
+        Graph.camera().lookAt(0, 0, 0);
+
+        requestAnimationFrame(rotate);
+    }
+
+    rotate();
+}
+
 
   </script>
 </body>
