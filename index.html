@@ -93,21 +93,21 @@ const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
   .nodeThreeObject(node => {
     const group = new THREE.Group();
 
-    // --- Exotic Glowing Star ---
-    const starTexture = new THREE.TextureLoader().load(
-      "https://threejs.org/examples/textures/sprites/glow.png"
-    );
-    const starMaterial = new THREE.SpriteMaterial({
-      map: starTexture,
-      color: new THREE.Color(`hsl(${200 + Math.random() * 100}, 100%, 70%)`), 
-      blending: THREE.AdditiveBlending,
-      transparent: true,
-      depthWrite: false
-    });
-    const star = new THREE.Sprite(starMaterial);
-    const size = 10 + Math.random() * 15;
-    star.scale.set(size, size, 1);
-    group.add(star);
+  const starTexture = new THREE.TextureLoader().load(
+  "https://threejs.org/examples/textures/sprites/disc.png"
+);
+
+const material = new THREE.SpriteMaterial({
+  map: starTexture,
+  color: new THREE.Color(`hsl(${Math.random() * 360}, 70%, 70%)`), // exotic colors
+  transparent: true,
+  blending: THREE.AdditiveBlending,
+});
+
+const sprite = new THREE.Sprite(material);
+sprite.scale.set(25, 25, 1); // tweak star size
+node.__threeObj.add(sprite);
+
 
     // --- Label ---
     const canvas = document.createElement('canvas');
