@@ -215,26 +215,46 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
 /*********************** CAMERA & FORCE *************************/
 const initialZ = 900;
 const zoomTargetZ = 500;
+const zoomDuration = 3000; // 3 seconds
 
-// start far
+// Start far
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ }, 0);
-
-// repulsion force
 Graph.d3Force('charge').strength(REPULSION_STRENGTH);
 
-// smooth zoom after 3 seconds
+// Smooth “wheel-like” zoom after 3 seconds
 setTimeout(() => {
-    Graph.cameraPosition({ x: 0, y: 0, z: zoomTargetZ }, 3000); // smooth zoom
+    const cam = Graph.camera();
+    const startZ = cam.position.z;
+    const startTime = performance.now();
+
+    function animateZoom(timestamp) {
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / zoomDuration, 1);
+
+        // easing function for smooth wheel-like feel
+        const eased = progress < 0.5 
+            ? 2*progress*progress 
+            : -1 + (4 - 2*progress) * progress;
+
+        cam.position.z = startZ + (zoomTargetZ - startZ) * eased;
+        cam.lookAt(0, 0, 0);
+
+        if (progress < 1) {
+            requestAnimationFrame(animateZoom);
+        }
+    }
+
+    requestAnimationFrame(animateZoom);
 }, 3000);
 
-// gentle auto rotation ONLY when user is NOT interacting
+// Gentle idle rotation — won’t interfere with user
 let t = 0;
 function rotate() {
     if (!Graph.isDragging && !Graph.isMoving) {
-        t += 0.0002; // slower rotation for smoother feel
+        t += 0.0002;
         const cam = Graph.camera();
-        cam.position.x = cam.position.x + Math.sin(t*0.7)*0.3; // very subtle
-        cam.position.y = cam.position.y + Math.cos(t*0.5)*0.3; // very subtle
+        cam.position.x = Math.sin(t*0.7)*50;
+        cam.position.y = Math.cos(t*0.5)*30;
         cam.lookAt(0, 0, 0);
     }
     requestAnimationFrame(rotate);
