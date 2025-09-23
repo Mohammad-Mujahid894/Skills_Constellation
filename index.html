@@ -264,30 +264,22 @@ Graph.onEngineTickEnd(() => {
   }
   tickUpdate();
 
-function startRandomRotation() {
-    const camera = Graph.camera();
-    let t = 0;
-    const baseZ = camera.position.z;
+let targetZoom = baseZ - 200;
+let currentZoom = baseZ;
 
-    function rotate() {
-        t += 0.0015; // very slow rotation
+function rotate() {
+    t += 0.0007;
 
-        // small random-ish offsets for 3D rotation
-        const offsetX = Math.sin(t * 0.7) * 50; 
-        const offsetY = Math.cos(t * 0.5) * 30; 
-        const offsetZ = Math.sin(t * 0.3) * 50; 
+    // slowly move towards target zoom
+    currentZoom += (targetZoom - currentZoom) * 0.015; // tweak 0.005 for speed
 
-        camera.position.x = offsetX;
-        camera.position.y = offsetY;
-        camera.position.z = baseZ - 500 + offsetZ; // zoomed closer
+    camera.position.x = Math.sin(t * 0.7) * 50;
+    camera.position.y = Math.cos(t * 0.5) * 30;
+    camera.position.z = currentZoom + Math.sin(t * 0.3) * 50;
 
-        camera.lookAt(0, 0, 0); // always face center
-        requestAnimationFrame(rotate);
-    }
-
-    rotate();
+    camera.lookAt(0,0,0);
+    requestAnimationFrame(rotate);
 }
-
 
   </script>
 </body>
