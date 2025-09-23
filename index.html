@@ -245,6 +245,11 @@ Graph.cameraPosition({ x: 0, y: 0, z: 700 }, 1500);
 
   Graph.d3Force('charge').strength(-8);
 
+  
+Graph.onEngineTickEnd(() => {
+    Graph.onEngineTickEnd(null); // remove this callback after first call
+    startRandomRotation();       // call the function that will rotate the camera
+});
   /*********************** QUICK TWEAKS (what to change) ************************
   - Change global star size: edit `const starSize = 36` inside nodeThreeObject
   - Reduce node count: change `const N = 200` earlier to, say, 120
@@ -259,23 +264,24 @@ Graph.cameraPosition({ x: 0, y: 0, z: 700 }, 1500);
   }
   tickUpdate();
 
-  function startRandomRotation() {
+function startRandomRotation() {
+    const camera = Graph.camera();
     let t = 0;
-    const radius = 450; // base distance from center (matches zoom)
+    const baseZ = camera.position.z;
 
     function rotate() {
-        t += 0.0007; // very slow rotation speed
+        t += 0.0007; // very slow rotation
 
-        // subtle random 3D offsets
-        const offsetX = Math.sin(t * 0.7) * 15; 
-        const offsetY = Math.cos(t * 0.5) * 12; 
-        const offsetZ = Math.sin(t * 0.3) * 10; 
+        // small random-ish offsets for 3D rotation
+        const offsetX = Math.sin(t * 0.7) * 50; 
+        const offsetY = Math.cos(t * 0.5) * 30; 
+        const offsetZ = Math.sin(t * 0.3) * 50; 
 
-        Graph.camera().position.x = radius + offsetX;
-        Graph.camera().position.y = radius / 2 + offsetY;
-        Graph.camera().position.z = radius + offsetZ;
-        Graph.camera().lookAt(0, 0, 0);
+        camera.position.x = offsetX;
+        camera.position.y = offsetY;
+        camera.position.z = baseZ - 200 + offsetZ; // zoomed closer
 
+        camera.lookAt(0, 0, 0); // always face center
         requestAnimationFrame(rotate);
     }
 
