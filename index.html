@@ -178,56 +178,54 @@
     .graphData(gData)
 
     // Use a GROUP per node: sprite (animated star) + label
-    .nodeThreeObject(node => {
-      const group = new THREE.Group();
+.nodeThreeObject(node => {
+    const group = new THREE.Group();
 
-      // main star sprite (animated via canvas texture)
-      const spriteMat = new THREE.SpriteMaterial({
-        map: starTexture,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-      });
-      const sprite = new THREE.Sprite(spriteMat);
-      const starSize = 36; // global star size; change this value to scale all nodes
-      sprite.scale.set(starSize, starSize, 1);
-      group.add(sprite);
+    // Create a circular glowing star texture
+    const size = 64; // smaller texture
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
 
-      // faint aura (same texture, lower opacity, larger)
-      const auraMat = new THREE.SpriteMaterial({
-        map: starTexture,
-        transparent: true,
-        opacity: 0.28,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false
-      });
-      const aura = new THREE.Sprite(auraMat);
-      aura.scale.set(starSize * 1.7, starSize * 1.7, 1);
-      group.add(aura);
+    // central circle
+    const gradient = ctx.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+    gradient.addColorStop(0, 'rgba(255,255,200,1)');   // core
+    gradient.addColorStop(0.3, 'rgba(255,220,120,0.8)');
+    gradient.addColorStop(0.6, 'rgba(255,180,60,0.5)');
+    gradient.addColorStop(1, 'rgba(255,180,60,0)');    // fade out
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
 
-      // label canvas
-      const labelCanvas = document.createElement('canvas');
-      const lctx = labelCanvas.getContext('2d');
-      const fontSize = 14;
-      lctx.font = `${fontSize}px Arial`;
-      const text = node.skill;
-      const width = Math.ceil(lctx.measureText(text).width);
-      labelCanvas.width = width + 16;
-      labelCanvas.height = fontSize + 8;
-      lctx.font = `${fontSize}px Arial`;
-      lctx.fillStyle = 'rgba(210,230,255,0.95)';
-      lctx.fillText(text, 8, fontSize);
-      const labelTexture = new THREE.CanvasTexture(labelCanvas);
-      labelTexture.minFilter = THREE.LinearFilter;
-      labelTexture.needsUpdate = true;
-      const labelMat = new THREE.SpriteMaterial({ map: labelTexture, transparent: true, depthWrite: false });
-      const label = new THREE.Sprite(labelMat);
-      label.position.set(0, starSize * 0.95, 0);
-      label.scale.set(labelCanvas.width * 0.06, labelCanvas.height * 0.06, 1);
-      group.add(label);
+    const texture = new THREE.CanvasTexture(canvas);
+    const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+    const sprite = new THREE.Sprite(material);
 
-      return group;
-    })
+    sprite.scale.set(10, 10, 1); // smaller star size
+    group.add(sprite);
+
+    // --- label ---
+    const labelCanvas = document.createElement('canvas');
+    const labelCtx = labelCanvas.getContext('2d');
+    const fontSize = 24;
+    labelCtx.font = `${fontSize}px Arial`;
+    const text = node.skill;
+    const textWidth = labelCtx.measureText(text).width;
+    labelCanvas.width = textWidth + 20;
+    labelCanvas.height = fontSize + 10;
+    labelCtx.font = `${fontSize}px Arial`;
+    labelCtx.fillStyle = '#cce6ff';
+    labelCtx.fillText(text, 5, fontSize);
+
+    const labelTexture = new THREE.CanvasTexture(labelCanvas);
+    const labelMaterial = new THREE.SpriteMaterial({ map: labelTexture, transparent: true });
+    const label = new THREE.Sprite(labelMaterial);
+    label.position.set(0, 12, 0); // slightly above the star
+    label.scale.set(labelCanvas.width * 0.08, labelCanvas.height * 0.08, 1);
+    group.add(label);
+
+    return group;
+})
+
 
     // LINKS: subtle, minimal. EXACTLY ONE particle per link (as you wanted)
     .linkWidth(1.5) // thin pipe feel
