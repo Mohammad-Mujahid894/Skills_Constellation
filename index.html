@@ -213,24 +213,39 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
 /*********************** CAMERA & FORCE *************************/
 /*********************** CAMERA & FORCE *************************/
 /*********************** CAMERA & FORCE *************************/
-const initialZ = 900;
-const zoomTargetZ = 500;
+const initialZ = 900;      // Starting camera distance
+const zoomTargetZ = 500;   // Zoom-in distance
+const zoomDuration = 3000; // Duration of smooth zoom (ms)
 
-// Start far
+// Start far away
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ }, 0);
 Graph.d3Force('charge').strength(REPULSION_STRENGTH);
 
 // Smooth zoom after 3 seconds
 setTimeout(() => {
-    Graph.cameraPosition({ x: 0, y: 0, z: zoomTargetZ }, 3000, 
-        () => { /* zoom done, nothing else */ }
-    );
+    const startTime = performance.now();
+    const startZ = initialZ;
+
+    function smoothZoom(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / zoomDuration, 1);  // 0 → 1
+        const easedProgress = progress < 0.5
+            ? 2 * progress * progress
+            : -1 + (4 - 2 * progress) * progress; // easeInOutQuad
+
+        const cam = Graph.camera();
+        cam.position.z = startZ + (zoomTargetZ - startZ) * easedProgress;
+        cam.lookAt(0, 0, 0);
+
+        if (progress < 1) requestAnimationFrame(smoothZoom);
+    }
+
+    requestAnimationFrame(smoothZoom);
 }, 3000);
 
 // Gentle random rotation
 let t = 0;
 function rotate() {
-    // Only rotate if user is not interacting
     if (!Graph.isDragging && !Graph.isMoving) {
         t += 0.0007;
         const cam = Graph.camera();
@@ -241,6 +256,7 @@ function rotate() {
     requestAnimationFrame(rotate);
 }
 rotate();
+
 
 
 
