@@ -165,10 +165,10 @@ const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
       starCanvas.width = starCanvas.height = 64;
       const ctx = starCanvas.getContext('2d');
       const gradient = ctx.createRadialGradient(32,32,0,32,32,32);
-      gradient.addColorStop(0,'rgba(255,255,200,1)');
-      gradient.addColorStop(0.3,'rgba(255,220,120,0.8)');
-      gradient.addColorStop(0.6,'rgba(255,180,60,0.5)');
-      gradient.addColorStop(1,'rgba(255,180,60,0)');
+gradient.addColorStop(0, 'rgba(255,255,255,1)');   // pure white core
+gradient.addColorStop(0.3, 'rgba(100,180,255,0.7)'); // light blue
+gradient.addColorStop(0.6, 'rgba(30,120,255,0.5)');  // darker blue
+gradient.addColorStop(1, 'rgba(30,120,255,0)');      // fade out
       ctx.fillStyle = gradient;
       ctx.fillRect(0,0,64,64);
 
@@ -210,41 +210,42 @@ const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
   ;
 
 /*********************** CAMERA & FORCE *************************/
-const initialZ = 700;
-Graph.cameraPosition({x:0,y:0,z:initialZ},1500);
+const initialZ = 900;   // start far
+const zoomInAmount = 200; // how much to zoom in
+const zoomDuration = 3000; // 3 seconds
+
+Graph.cameraPosition({x:0, y:0, z: initialZ}, 0); // no animation, set start
 Graph.d3Force('charge').strength(REPULSION_STRENGTH);
 
-/*********************** ZOOM-IN AFTER STANDBY *************************/
 Graph.onEngineTickEnd(()=>{
-    Graph.onEngineTickEnd(null); // remove first tick callback
+    Graph.onEngineTickEnd(null); // remove callback
 
-    // smooth zoom in
-    const targetZ = initialZ - ZOOM_IN_AMOUNT;
-    let startTime = null;
+    const cam = Graph.camera();
+    const targetZ = initialZ - zoomInAmount;
+    const startTime = performance.now();
 
-    function smoothZoom(timestamp){
-        if(!startTime) startTime = timestamp;
+    function animateZoom(timestamp){
         const elapsed = timestamp - startTime;
-        const progress = Math.min(elapsed/ZOOM_DURATION,1);
-        Graph.camera().position.z = initialZ - (ZOOM_IN_AMOUNT * progress);
-        Graph.camera().lookAt(0,0,0);
-        if(progress<1) requestAnimationFrame(smoothZoom);
+        const progress = Math.min(elapsed / zoomDuration, 1);
+        cam.position.z = initialZ - (zoomInAmount * progress);
+        cam.lookAt(0,0,0);
+        if(progress < 1) requestAnimationFrame(animateZoom);
     }
-    requestAnimationFrame(smoothZoom);
 
-    // start random rotation
+    requestAnimationFrame(animateZoom);
+
+    // start gentle rotation after zoom-in starts
     let t = 0;
     function rotate(){
         t += 0.0007;
-        const cam = Graph.camera();
         cam.position.x = Math.sin(t*0.7)*50;
         cam.position.y = Math.cos(t*0.5)*30;
-        cam.position.z = cam.position.z; // keep zoom fixed after initial zoom
         cam.lookAt(0,0,0);
         requestAnimationFrame(rotate);
     }
     rotate();
 });
+
 
 /*********************** KEEP STAR TEXTURE ANIMATED *************************/
 function tickUpdate(){
