@@ -81,67 +81,182 @@
       ];
 
       const N = 300;
-const gData = {
-  nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i] || `Skill ${i}` })),
-  links: [...Array(N).keys()]
-    .filter(id => id)
-    .map(id => ({ source: id, target: Math.round(Math.random() * (id - 1)) }))
-};
-      const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
-        .graphData(gData)
+    const gData = {
+      nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] || `Skill ${i}` })),
+      links: [...Array(N).keys()]
+        .filter(id => id)
+        .map(id => ({ source: id, target: Math.round(Math.random() * (id - 1)) }))
+    };
 
-        // ⭐ Custom star nodes
-        .nodeThreeObject(node => {
-          const group = new THREE.Group();
+    // ---------------- Star canvas drawing (your exact code) ----------------
+    const canvas = document.getElementById('starCanvas');
+    const ctx = canvas.getContext('2d');
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
 
-          // Star texture
-          const starTexture = new THREE.TextureLoader().load(
-            "https://threejs.org/examples/textures/sprites/disc.png"
-          );
-          const material = new THREE.SpriteMaterial({
-            map: starTexture,
-            color: new THREE.Color(`hsl(${Math.random() * 360}, 70%, 70%)`), 
-            transparent: true,
-            blending: THREE.AdditiveBlending
-          });
+    // we'll expose starTexture below so drawGlowingStar can flag texture update
+    let starTexture = null;
 
-          const sprite = new THREE.Sprite(material);
-          const starSize = 20 + Math.random() * 20; // different star sizes
-          sprite.scale.set(starSize, starSize, 1);
-          group.add(sprite);
+    function drawGlowingStar() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-          // --- Label ---
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          const fontSize = 36;
-          ctx.font = `${fontSize}px Arial`;
-          const text = node.skill;
-          const textWidth = ctx.measureText(text).width;
-          canvas.width = textWidth + 30;
-          canvas.height = fontSize + 15;
-          ctx.font = `${fontSize}px Arial`;
-          ctx.fillStyle = '#cce6ff';
-          ctx.fillText(text, 15, fontSize);
+      // Glowing aura layers (multi-color, multi-blur)
+      for (let i = 8; i > 0; i--) {
+        ctx.save();
+        const glowRadius = 70 + i * 14 + Math.sin(Date.now() / 900) * 4;
+        ctx.globalAlpha = 0.03 + 0.06 * (i / 8);
+        ctx.beginPath();
+        ctx.arc(cx, cy, glowRadius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fillStyle =
+          i % 2 === 0
+            ? 'rgba(62,189,255,0.7)'
+            : 'rgba(255,236,128,0.3)';
+        ctx.shadowColor = i % 2 === 0 ? '#60ecff' : '#fffadc';
+        ctx.shadowBlur = 60 + i * 10;
+        ctx.fill();
+        ctx.restore();
+      }
 
-          const texture = new THREE.CanvasTexture(canvas);
-          const labelMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
-          const label = new THREE.Sprite(labelMaterial);
-          label.position.set(0, starSize * 0.7, 0);
-          label.scale.set(canvas.width * 0.12, canvas.height * 0.12, 1);
-          group.add(label);
+      // Central burning sphere
+      ctx.save();
+      const grad = ctx.createRadialGradient(cx, cy, 8, cx, cy, 40);
+      grad.addColorStop(0, '#fff');
+      grad.addColorStop(0.2, '#fff6b5');
+      grad.addColorStop(0.55, '#ffe380');
+      grad.addColorStop(1, '#fffacd11');
+      ctx.beginPath();
+      ctx.arc(cx, cy, 40, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.shadowColor = 'gold';
+      ctx.shadowBlur = 50;
+      ctx.fill();
+      ctx.restore();
 
-          return group;
-        })
+      // Lensing bloom highlight
+      ctx.save();
+      ctx.globalAlpha = 0.11 + 0.05 * Math.sin(Date.now() / 1300);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, 68, 29, Math.PI / 7, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fillStyle = '#ffe09a';
+      ctx.shadowColor = '#fffbe2';
+      ctx.shadowBlur = 80;
+      ctx.fill();
+      ctx.restore();
 
-        // --- Glowy connectors with "pipe effect" ---
-        .linkColor(() => 'rgba(180,220,255,0.6)') 
-        .linkOpacity(0.4)
-        .linkWidth(1.2)
+      // Flickering core
+      ctx.save();
+      ctx.globalAlpha = 0.21 + 0.4 * Math.abs(Math.sin(Date.now() / 500));
+      ctx.beginPath();
+      ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fillStyle = '#fff9ae';
+      ctx.shadowColor = 'white';
+      ctx.shadowBlur = 60;
+      ctx.fill();
+      ctx.restore();
 
-        // Pipe effect = multiple moving particles per link
-        .linkDirectionalParticles(12)   // more particles inside link
-        .linkDirectionalParticleWidth(2.2)
-        .linkDirectionalParticleSpeed(() => 0.003); // smooth slow flow
+      // mark three texture for update so sprite visuals animate
+      if (starTexture) starTexture.needsUpdate = true;
+
+      requestAnimationFrame(drawGlowingStar);
+    }
+
+    // create THREE texture from the canvas so sprites use it
+    function initStarTexture() {
+      starTexture = new THREE.CanvasTexture(canvas);
+      starTexture.needsUpdate = true;
+      // reduce filtering for crisper glow if you want:
+      starTexture.minFilter = THREE.LinearFilter;
+      starTexture.magFilter = THREE.LinearFilter;
+    }
+
+    initStarTexture();
+    requestAnimationFrame(drawGlowingStar);
+
+    // ---------------- Build ForceGraph3D with star sprites ----------------
+    const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
+      .graphData(gData)
+
+      .nodeThreeObject(node => {
+        const group = new THREE.Group();
+
+        // shared animated star texture (the canvas)
+        const spriteMat = new THREE.SpriteMaterial({
+          map: starTexture,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        });
+
+        const sprite = new THREE.Sprite(spriteMat);
+
+        // Uniform star size for all nodes (change below)
+        const starSize = 36; // <-- tweak this to change star size across all nodes
+        sprite.scale.set(starSize, starSize, 1);
+        group.add(sprite);
+
+        // small soft aura clone (optional extra softness)
+        const aura = new THREE.Sprite(new THREE.SpriteMaterial({
+          map: starTexture,
+          transparent: true,
+          opacity: 0.32,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false
+        }));
+        aura.scale.set(starSize * 1.7, starSize * 1.7, 1);
+        group.add(aura);
+
+        // Label (small, readable)
+        const labelCanvas = document.createElement('canvas');
+        const lctx = labelCanvas.getContext('2d');
+        const fontSize = 14;
+        lctx.font = `${fontSize}px Arial`;
+        const text = node.skill;
+        const textWidth = Math.ceil(lctx.measureText(text).width);
+        labelCanvas.width = textWidth + 18;
+        labelCanvas.height = fontSize + 8;
+        lctx.font = `${fontSize}px Arial`;
+        lctx.fillStyle = 'rgba(210,230,255,0.95)';
+        lctx.fillText(text, 8, fontSize);
+        const labelTex = new THREE.CanvasTexture(labelCanvas);
+        labelTex.needsUpdate = true;
+        const labelMat = new THREE.SpriteMaterial({ map: labelTex, transparent: true, depthWrite: false });
+        const label = new THREE.Sprite(labelMat);
+        label.position.set(0, starSize * 0.9, 0);
+        label.scale.set(labelCanvas.width * 0.06, labelCanvas.height * 0.06, 1);
+        group.add(label);
+
+        return group;
+      })
+
+      // LINKS: subtle pipe-feel but minimal; only 1 particle per link
+      .linkWidth(2) // "pipe" thickness (smaller so not overacting)
+      .linkColor(() => 'rgba(120,150,180,0.06)') // very faint tube color
+      .linkOpacity(1)
+
+      // single subtle particle per link (the one directional point you asked)
+      .linkDirectionalParticles(1)
+      .linkDirectionalParticleWidth(2)
+      .linkDirectionalParticleSpeed(() => 0.0014) // slow & minimal
+      .linkDirectionalParticleColor(() => 'rgba(255,245,200,0.95)') // warm tiny spec
+
+      // small UX nicety
+      .onNodeHover(node => document.body.style.cursor = node ? 'pointer' : null)
+      ;
+
+    // camera & force settings
+    Graph.cameraPosition({ x: 0, y: 0, z: 550 }); // adjust if nodes too small
+    Graph.d3Force('charge').strength(-6); // softer repulsion - tweak if needed
+
+    // ---------- quick knobs: how to adjust ----------
+    // - change star size for all nodes: edit `const starSize = 36` inside nodeThreeObject
+    // - change single particle speed: edit .linkDirectionalParticleSpeed(...)
+    // - reduce node count: change N variable
+    // - if you want labels hidden: remove label sprite creation above
+
     </script>
   </body>
 </html>
