@@ -220,40 +220,28 @@ const zoomDuration = 3000; // Duration of smooth zoom (ms)
 // Start far away
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ }, 0);
 Graph.d3Force('charge').strength(REPULSION_STRENGTH);
-  Graph.d3AlphaTarget(0); // stops nodes from moving/jittering
+Graph.d3AlphaTarget(0); // stops nodes from jittering
 
-// Smooth zoom after 3 seconds
+// Smooth zoom after 3 seconds using Graph's internal cameraPosition
 setTimeout(() => {
-    const startTime = performance.now();
-    const startZ = initialZ;
-
-    function smoothZoom(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / zoomDuration, 1);  // 0 → 1
-        const easedProgress = progress < 0.5
-            ? 2 * progress * progress
-            : -1 + (4 - 2 * progress) * progress; // easeInOutQuad
-
-        const cam = Graph.camera();
-        cam.position.z = startZ + (zoomTargetZ - startZ) * easedProgress;
-        cam.lookAt(0, 0, 0);
-
-        if (progress < 1) requestAnimationFrame(smoothZoom);
-    }
-
-    requestAnimationFrame(smoothZoom);
+    Graph.cameraPosition(
+        { x: 0, y: 0, z: zoomTargetZ },  // target
+        zoomDuration,                    // smooth duration
+        () => { /* zoom complete, no need for extra logic */ }
+    );
 }, 3000);
 
 // Gentle random rotation
 let t = 0;
 function rotate() {
-    // Stop rotation when user interacts (drag, click, scroll)
+    // Only rotate if user is NOT interacting
     if (!Graph.isDragging && !Graph.isMoving && !Graph.mouseDown) {
         t += 0.0007;
-        const cam = Graph.camera();
-        cam.position.x = Math.sin(t * 0.7) * 50;
-        cam.position.y = Math.cos(t * 0.5) * 30;
-        cam.lookAt(0, 0, 0);
+        Graph.cameraPosition({
+            x: Math.sin(t * 0.7) * 50,
+            y: Math.cos(t * 0.5) * 30,
+            z: Graph.camera().position.z // keep current z
+        }, 0); // instant update for rotation, not smooth
     }
     requestAnimationFrame(rotate);
 }
