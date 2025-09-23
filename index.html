@@ -165,10 +165,10 @@ const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
       starCanvas.width = starCanvas.height = 64;
       const ctx = starCanvas.getContext('2d');
       const gradient = ctx.createRadialGradient(32,32,0,32,32,32);
-gradient.addColorStop(0, 'rgba(255,255,255,1)');   // pure white core
-gradient.addColorStop(0.3, 'rgba(100,180,255,0.7)'); // light blue
-gradient.addColorStop(0.6, 'rgba(30,120,255,0.5)');  // darker blue
-gradient.addColorStop(1, 'rgba(30,120,255,0)');      // fade out
+gradient.addColorStop(0,'rgba(255,255,200,1)');    // core (white)
+gradient.addColorStop(0.3,'rgba(255,220,120,0.8)');
+gradient.addColorStop(0.6,'rgba(255,180,60,0.5)');
+gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
       ctx.fillStyle = gradient;
       ctx.fillRect(0,0,64,64);
 
@@ -211,7 +211,7 @@ gradient.addColorStop(1, 'rgba(30,120,255,0)');      // fade out
 
 /*********************** CAMERA & FORCE *************************/
 const initialZ = 900;   // start far
-const zoomInAmount = 200; // how much to zoom in
+const zoomInAmount = 1300; // how much to zoom in
 const zoomDuration = 3000; // 3 seconds
 
 Graph.cameraPosition({x:0, y:0, z: initialZ}, 0); // no animation, set start
