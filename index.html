@@ -303,16 +303,13 @@ controls.addEventListener('start', () => {
 });
 
 controls.addEventListener('end', () => {
-  setTimeout(() => {
-    userInteracting = false; // resume rotation after delay
-
-    // Update rotation center to current camera position
-    const cam = Graph.camera();
-    camCenter.x = cam.position.x;
-    camCenter.y = cam.position.y;
-    camCenter.z = cam.position.z;
-  }, 3700); // 2s pause before resuming
+  userInteracting = false; // resume rotation immediately
+  const cam = Graph.camera();
+  camCenter.x = cam.position.x;
+  camCenter.y = cam.position.y;
+  camCenter.z = cam.position.z;
 });
+
 
 // ----- ANIMATION LOOP -----
 (function animateLoop() {
