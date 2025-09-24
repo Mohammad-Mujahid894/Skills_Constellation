@@ -27,7 +27,6 @@ const REPULSION_STRENGTH = -18; // bigger negative = more spread out
 // Target zoom after graph settles
 const ZOOM_IN_AMOUNT = 400; // how much closer after standby
 // Zoom-in duration (ms)
-const ZOOM_DURATION = 3000;
 // Directional particle dimness
 const PARTICLE_WIDTH = 1.0; // thinner = less visible
 const PARTICLE_SPEED = 0.001; // slower particle
@@ -211,7 +210,7 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
 /*********************** CAMERA, AUTO-ROTATE & STAR UPDATE (Corrected) *************************/
 // Initial camera far
 const initialZ = 900;
-const zoomTargetZ = 500;
+
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
 
 const controls = Graph.controls();
@@ -263,20 +262,6 @@ const zoomTargetZ = 500;      // where to end up (inside the graph)
 const ZOOM_DURATION = 3000;   // 3s zoom
 
 // Smooth zoom helper
-function smoothZoom(cam, targetZ, duration) {
-  const startZ = cam.position.z;
-  const startTime = performance.now();
-
-  function animate() {
-    if (userInteracting) return; // cancel zoom if user touches
-    const now = performance.now();
-    const t = Math.min(1, (now - startTime) / duration);
-    cam.position.z = startZ + (targetZ - startZ) * t;
-    controls.update();
-    if (t < 1) requestAnimationFrame(animate);
-  }
-  animate();
-}
 
 // Random rotation
 function randomRotation() {
