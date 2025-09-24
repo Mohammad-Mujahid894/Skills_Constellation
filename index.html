@@ -208,14 +208,6 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
   .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
   .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
   ;
-
-/*********************** CAMERA & FORCE *************************/
-/*********************** CAMERA & FORCE *************************/
-/*********************** CAMERA & FORCE *************************/
-/*********************** CAMERA & FORCE *************************/
-// -------------------- CONFIG --------------------
-/*********************** CAMERA & FORCE (Optimized) *************************/
-/*********************** CAMERA, AUTO-ROTATE & STAR UPDATE (Optimized) *************************/
 /*********************** CAMERA, AUTO-ROTATE & STAR UPDATE (Corrected) *************************/
 // Initial camera far
 const initialZ = 900;
@@ -263,17 +255,6 @@ setTimeout(() => {
   requestAnimationFrame(tickAll);
 })();
 
-
-
-
-
-
-
-
-
-  
-
-
 /*********************** KEEP STAR TEXTURE ANIMATED *************************/
 function tickUpdate(){
     starTexture.needsUpdate = true;
@@ -283,6 +264,41 @@ tickUpdate();
   Graph.onNodeHover(node => {
     document.body.style.cursor = node ? 'pointer' : 'default';
 });
+// -------- RANDOM ROTATION AFTER ZOOM --------
+let autoSpin = false;
+let userInteracting = false;
+
+function randomRotation() {
+  if (!autoSpin || userInteracting) return;
+  const t = performance.now() * 0.0005;
+  const cam = Graph.camera();
+
+  // Smooth drifting in X & Y
+  cam.position.x = Math.sin(t * 0.9) * 800;
+  cam.position.y = Math.cos(t * 0.7) * 400;
+  cam.lookAt(0, 0, 0);
+}
+
+// Start auto rotation AFTER zoom completes
+setTimeout(() => {
+  autoSpin = true;
+}, ZOOM_DURATION + 100);
+
+// Detect when user interacts → pause autoSpin
+controls.addEventListener('start', () => {
+  userInteracting = true;
+});
+controls.addEventListener('end', () => {
+  // Optional: if you want spin to resume when user stops touching
+  // setTimeout(() => userInteracting = false, 2000); // resume after 2s
+  userInteracting = false; // remove timeout if you want instant resume
+});
+
+// Continuous loop
+(function spinLoop(){
+  randomRotation();
+  requestAnimationFrame(spinLoop);
+})();
 
 </script>
 </body>
