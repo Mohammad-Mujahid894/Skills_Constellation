@@ -2,37 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Star Nodes + 3D Force Graph</title>
+  <title>3D Skills Graph</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     html, body { height:100%; margin:0; background:#040414; }
     #3d-graph { width:100vw; height:100vh; display:block; }
-    #starCanvas { display:none; width:256px; height:256px; }
   </style>
 </head>
 <body>
-<canvas id="starCanvas" width="256" height="256"></canvas>
 <div id="3d-graph"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
-<script>
-/*********************** CONFIG/TWEAKABLE SETTINGS *************************/
-// Node star size
-const STAR_SIZE = 8; // smaller = tiny, bigger = large
-// Label size
-const LABEL_FONT_SIZE = 65; // bigger = more readable
-// Graph spacing (repulsion)
-const REPULSION_STRENGTH = -18; // bigger negative = more spread out
-// Target zoom after graph settles
-const ZOOM_IN_AMOUNT = 400; // how much closer after standby
-// Zoom-in duration (ms)
-// Directional particle dimness
-const PARTICLE_WIDTH = 1.0; // thinner = less visible
-const PARTICLE_SPEED = 0.001; // slower particle
-const PARTICLE_OPACITY = 0.3; // dim
 
-/*********************** SKILLS DATA *************************/
+<script>
+/* ==================== SETTINGS YOU CAN CHANGE ==================== */
+
+// How far the camera starts from the graph (big number = zoomed out)
+const START_CAMERA_Z = 900;
+
+// How close camera will zoom after 3 seconds
+const ZOOM_IN_Z = 500;
+
+// How long zoom takes in milliseconds (1000 = 1 second)
+const ZOOM_DURATION = 3000;
+
+// How fast the graph rotates automatically
+const ROTATE_SPEED = 0.0001;
+
+// How long to wait after user stops interacting before resuming rotation
+const ROTATION_RESUME_DELAY = 2000;
+
+/* ==================== SKILLS TO SHOW ==================== */
 const skills = [
   // --- O2C / Cash Application ---
   "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable", 
@@ -120,138 +121,42 @@ const skills = [
   "Productivity Hacks", "Task Prioritization"
 ];
 
-/*********************** GRAPH DATA *************************/
-const N = 400; // node count
-const gData = {
+/* ==================== GRAPH DATA ==================== */
+// Create 400 points and assign skills repeatedly
+const N = 400;
+const graphData = {
   nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
-  links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
+  links: [...Array(N).keys()]
+           .filter(i => i)
+           .map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
 };
 
-/*********************** STAR CANVAS *************************/
-const canvas = document.getElementById('starCanvas');
-const ctx = canvas.getContext('2d');
-const cx = canvas.width / 2;
-const cy = canvas.height / 2;
+/* ==================== CREATE GRAPH ==================== */
+const Graph = ForceGraph3D()(document.getElementById('3d-graph'))
+  .graphData(graphData)
+  .nodeLabel(node => node.skill) // show skill on hover
+  .linkWidth(1)
+  .linkColor(() => 'rgba(160,200,220,0.08)');
 
-function drawGlowingStar() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    // Glowing aura
-    for (let i = 8; i>0; i--){
-        ctx.save();
-        const glowRadius = 50 + i*10 + Math.sin(Date.now()/900)*2;
-        ctx.globalAlpha = 0.03 + 0.06*(i/8);
-        ctx.beginPath();
-        ctx.arc(cx,cy,glowRadius,0,Math.PI*2);
-        ctx.closePath();
-        ctx.fillStyle = i%2===0 ? 'rgba(62,189,255,0.7)' : 'rgba(255,236,128,0.3)';
-        ctx.shadowColor = i%2===0 ? '#60ecff' : '#fffadc';
-        ctx.shadowBlur = 30 + i*5;
-        ctx.fill();
-        ctx.restore();
-    }
-
-    // Central core
-    ctx.save();
-    const grad = ctx.createRadialGradient(cx,cy,5,cx,cy,20);
-    grad.addColorStop(0,'#fff');
-    grad.addColorStop(0.3,'#fff6b5');
-    grad.addColorStop(1,'#fffacd11');
-    ctx.beginPath();
-    ctx.arc(cx,cy,20,0,Math.PI*2);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.shadowColor='gold';
-    ctx.shadowBlur = 30;
-    ctx.fill();
-    ctx.restore();
-
-    requestAnimationFrame(drawGlowingStar);
-}
-drawGlowingStar();
-
-/*********************** CREATE TEXTURE *************************/
-const starTexture = new THREE.CanvasTexture(canvas);
-starTexture.minFilter = THREE.LinearFilter;
-starTexture.magFilter = THREE.LinearFilter;
-starTexture.needsUpdate = true;
-
-/*********************** BUILD 3D GRAPH *************************/
-const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
-  .graphData(gData)
-  .nodeThreeObject(node=>{
-      const group = new THREE.Group();
-
-      // star sprite
-      const starCanvas = document.createElement('canvas');
-      starCanvas.width = starCanvas.height = 64;
-      const ctx = starCanvas.getContext('2d');
-      const gradient = ctx.createRadialGradient(32,32,0,32,32,32);
-gradient.addColorStop(0,'rgba(255,255,200,1)');    // core (white)
-gradient.addColorStop(0.3,'rgba(255,220,120,0.8)');
-gradient.addColorStop(0.6,'rgba(255,180,60,0.5)');
-gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0,0,64,64);
-
-      const texture = new THREE.CanvasTexture(starCanvas);
-      const material = new THREE.SpriteMaterial({map: texture, transparent:true});
-      const sprite = new THREE.Sprite(material);
-      sprite.scale.set(STAR_SIZE, STAR_SIZE, 1);
-      group.add(sprite);
-
-      // label
-      const labelCanvas = document.createElement('canvas');
-      const labelCtx = labelCanvas.getContext('2d');
-      labelCtx.font = `${LABEL_FONT_SIZE}px Arial`;
-      const text = node.skill;
-      const textWidth = labelCtx.measureText(text).width;
-      labelCanvas.width = textWidth+20;
-      labelCanvas.height = LABEL_FONT_SIZE+10;
-      labelCtx.font = `${LABEL_FONT_SIZE}px Arial`;
-      labelCtx.fillStyle = '#cce6ff';
-      labelCtx.fillText(text,5,LABEL_FONT_SIZE);
-
-      const labelTexture = new THREE.CanvasTexture(labelCanvas);
-      const labelMaterial = new THREE.SpriteMaterial({map:labelTexture,transparent:true});
-      const label = new THREE.Sprite(labelMaterial);
-      label.position.set(0, LABEL_FONT_SIZE*0.2, 0);
-      label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
-      group.add(label);
-
-      return group;
-  })
-  .linkWidth(1.0)
-  .linkColor(()=> 'rgba(160,200,220,0.08)')
-  .linkOpacity(1)
-  .linkDirectionalParticles(1)
-  .linkDirectionalParticleWidth(PARTICLE_WIDTH)
-  .linkDirectionalParticleSpeed(()=> PARTICLE_SPEED)
-  .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
-  .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
-  ;
-/*********************** CAMERA, AUTO-ROTATE & STAR UPDATE (Corrected) *************************/
-// Initial camera position
-const initialZ = 900;
-Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
-
-// Controls
+/* ==================== CAMERA & CONTROLS ==================== */
 const controls = Graph.controls();
-controls.enableDamping = true;
+controls.enableDamping = true; // makes movement smoother
 controls.dampingFactor = 0.05;
-controls.zoomSpeed = 0.5;
-controls.minDistance = 150;
-controls.maxDistance = 2000;
-controls.enableRotate = true;
-controls.enablePan = true;
+controls.zoomSpeed = 0.5;      // smaller = smoother zoom
+controls.minDistance = 150;    // cannot zoom too close
+controls.maxDistance = 2000;   // cannot zoom too far
+controls.enableRotate = true;  
+controls.enablePan = true;     
 controls.screenSpacePanning = true;
 
-// Auto-rotation variables
-let autoSpin = false;
-let userInteracting = false;
+Graph.cameraPosition({ x:0, y:0, z: START_CAMERA_Z });
 
-// Zoom function
-function smoothZoom(targetZ, duration = 3000, callback) {
+/* ==================== AUTO ROTATION ==================== */
+let autoSpin = false;       // should it rotate automatically
+let userInteracting = false; // is the user dragging/zooming?
+
+// Move camera smoothly to a new Z position
+function smoothZoom(targetZ, duration, callback) {
   const cam = Graph.camera();
   const startZ = cam.position.z;
   const startTime = performance.now();
@@ -267,39 +172,39 @@ function smoothZoom(targetZ, duration = 3000, callback) {
   animate();
 }
 
-// Auto-rotation function
-function autoRotate() {
+// Slowly rotate the graph
+function autoRotateGraph() {
   if (!autoSpin || userInteracting) return;
   const cam = Graph.camera();
-  const t = performance.now() * 0.0001; // slow rotation
-  cam.position.x = Math.sin(t * 0.8) * 500;
-  cam.position.y = Math.cos(t * 0.6) * 300;
-  cam.lookAt(0, 0, 0);
+  const t = performance.now() * ROTATE_SPEED;
+  cam.position.x = Math.sin(t * 0.8) * ZOOM_IN_Z;
+  cam.position.y = Math.cos(t * 0.6) * (ZOOM_IN_Z/2);
+  cam.lookAt(0,0,0);
 }
 
-// Trigger smooth zoom after 3s, then enable autoSpin
-setTimeout(() => {
-  smoothZoom(500, 3000, () => { // zoom to Z = 500
-    autoSpin = true;
-  });
-}, 3000);
-
-// Handle user interaction
-controls.addEventListener('start', () => { userInteracting = true; });
-controls.addEventListener('end', () => {
-  setTimeout(() => { userInteracting = false; }, 500); // wait a little before resuming auto-spin
+/* ==================== USER INTERACTION HANDLING ==================== */
+controls.addEventListener('start', () => {
+  userInteracting = true; // stop rotation while user moves camera
 });
 
-// Animation loop
-(function animate() {
-  requestAnimationFrame(animate);
-  autoRotate();
-  Graph.tickFrame(); // updates the graph physics
+controls.addEventListener('end', () => {
+  // wait 2 seconds after user stops, then resume rotation
+  setTimeout(() => { userInteracting = false; }, ROTATION_RESUME_DELAY);
+});
+
+/* ==================== INITIAL ZOOM ==================== */
+setTimeout(() => {
+  smoothZoom(ZOOM_IN_Z, ZOOM_DURATION, () => {
+    autoSpin = true; // after zoom completes, rotation starts
+  });
+}, 3000); // wait 3 seconds before starting zoom
+
+/* ==================== ANIMATION LOOP ==================== */
+(function animateLoop() {
+  requestAnimationFrame(animateLoop);
+  autoRotateGraph();    // apply auto-rotation if allowed
+  Graph.tickFrame();    // update the graph physics
 })();
-
-
-
-
 </script>
 </body>
 </html>
