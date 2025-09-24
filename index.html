@@ -19,7 +19,6 @@
 <body>
 <canvas id="starCanvas" width="256" height="256"></canvas>
 <div id="3d-graph"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
 <script>
@@ -37,8 +36,6 @@ const ZOOM_IN_AMOUNT = 400; // how much closer after standby
 const PARTICLE_WIDTH = 1.0; // thinner = less visible
 const PARTICLE_SPEED = 0.001; // slower particle
 const PARTICLE_OPACITY = 0.3; // dim
-
-/*********************** SKILLS DATA *************************/
 const skills = [
   // --- O2C / Cash Application ---
   "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable", 
@@ -51,7 +48,6 @@ const skills = [
   "Versapay Platform", "Micro Dynamics ERP", "C MOD Software", "ISR Tool", 
   "Open Scan Research Tool", "Quadient Impress", "AR SharePoint Management", 
   "Validation File Handling", "My Account Platform Management", "ACH Auto Deduct Coordination",
-
   // --- ICMAI / Accounting & Finance ---
   "Financial Accounting", "Cost Accounting", "Direct Taxation", "Indirect Taxation", 
   "GST Compliance", "TDS Compliance", "Income Tax Calculation", "Payroll Accounting", 
@@ -63,7 +59,6 @@ const skills = [
   "Accounting Principles", "Accounting Software Tally ERP", "SAP FICO Basics", 
   "Accounting Ratios", "KPI Reporting", "MIS Reporting", "Financial Modelling", 
   "Audit Compliance", "Internal Audit Support", "Regulatory Reporting", "SOX Compliance",
-
   // --- Professional Skills ---
   "Email Communication", "Professional Etiquette", "Report Writing", "Documentation Management", 
   "Data Entry Accuracy", "Attention to Detail", "Organizational Skills", "Time Management", 
@@ -74,7 +69,6 @@ const skills = [
   "Problem Solving", "Analytical Thinking", "Critical Thinking", "Logical Reasoning", 
   "Process Improvement", "Workflow Optimization", "Process Mapping", "Operational Efficiency", 
   "Quality Management", "Audit Preparation", "Risk Assessment", "Compliance Checks",
-
   // --- Soft Skills ---
   "Adaptability", "Flexibility", "Continuous Learning", "Self-Motivation", "Goal Setting", 
   "Stress Management", "Conflict Resolution", "Negotiation", "Persuasion", "Influencing Skills", 
@@ -86,7 +80,6 @@ const skills = [
   "Customer Relationship Management", "Vendor Relations", "Service Excellence", 
   "Professionalism", "Positive Attitude", "Work-Life Balance", "Self-Discipline", 
   "Presentation Design", "Report Structuring", "Email Etiquette", "Documentation Standards",
-
   // --- Excel & Tools ---
   "Excel Basics", "Advanced Excel", "Pivot Tables", "VLOOKUP", "HLOOKUP", 
   "Index Match", "Conditional Formatting", "Excel Macros", "Power Query", "Power Pivot", 
@@ -96,7 +89,6 @@ const skills = [
   "Database Management", "SQL Queries Basics", "Report Consolidation", "Data Cleaning", 
   "Data Aggregation", "Data Transformation", "MIS Dashboard", "KPI Dashboard", 
   "Trend Analysis", "Variance Reporting",
-
   // --- ICMAI Specific Concepts ---
   "Bills of Exchange", "Consignment Accounting", "Joint Ventures Accounting", 
   "Sale of Goods Act", "Negotiable Instruments Act", "Acceptance & Dishonour of Instruments", 
@@ -106,7 +98,6 @@ const skills = [
   "Labour Cost Variance", "Material Cost Variance", "Overhead Variance", 
   "Job Costing", "Process Costing", "Contract Costing", "Budgetary Control", 
   "Standard Costing", "Financial Ratios", "Liquidity Ratios", "Profitability Ratios",
-
   // --- Professional Tools ---
   "TANDEM EAST", "TANDEM WEST", "Bank Websites", "Share Drives", "C MOD", "ISR", 
   "Open Scan 7", "Versapay", "Micro Dynamics Group", "AR SharePoint", "My Account Platform", 
@@ -115,7 +106,6 @@ const skills = [
   "Customer Portal Management", "ERP System Navigation", "Software Troubleshooting", 
   "Workflow Automation Tools", "Process Standardization", "Data Backup & Recovery", 
   "Report Distribution", "System Optimization",
-
   // --- Personal Productivity & Learning ---
   "Continuous Improvement", "Self-Study", "Professional Development", "Time Blocking", 
   "Pomodoro Technique", "Focus Management", "Learning New Software", "Skill Upgradation", 
@@ -125,24 +115,17 @@ const skills = [
   "Goal Tracking", "Progress Evaluation", "Learning Efficiency", "Note Making", "Voice Notes", 
   "Productivity Hacks", "Task Prioritization"
 ];
-
-/*********************** GRAPH DATA *************************/
 const N = 400; // node count
 const gData = {
   nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
   links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
 };
-
-/*********************** STAR CANVAS *************************/
 const canvas = document.getElementById('starCanvas');
 const ctx = canvas.getContext('2d');
 const cx = canvas.width / 2;
 const cy = canvas.height / 2;
-
 function drawGlowingStar() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    // Glowing aura
     for (let i = 8; i>0; i--){
         ctx.save();
         const glowRadius = 50 + i*10 + Math.sin(Date.now()/900)*2;
@@ -156,8 +139,6 @@ function drawGlowingStar() {
         ctx.fill();
         ctx.restore();
     }
-
-    // Central core
     ctx.save();
     const grad = ctx.createRadialGradient(cx,cy,5,cx,cy,20);
     grad.addColorStop(0,'#fff');
@@ -171,24 +152,17 @@ function drawGlowingStar() {
     ctx.shadowBlur = 30;
     ctx.fill();
     ctx.restore();
-
     requestAnimationFrame(drawGlowingStar);
 }
 drawGlowingStar();
-
-/*********************** CREATE TEXTURE *************************/
 const starTexture = new THREE.CanvasTexture(canvas);
 starTexture.minFilter = THREE.LinearFilter;
 starTexture.magFilter = THREE.LinearFilter;
 starTexture.needsUpdate = true;
-
-/*********************** BUILD 3D GRAPH *************************/
 const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
   .graphData(gData)
   .nodeThreeObject(node=>{
       const group = new THREE.Group();
-
-      // star sprite
       const starCanvas = document.createElement('canvas');
       starCanvas.width = starCanvas.height = 64;
       const ctx = starCanvas.getContext('2d');
@@ -199,14 +173,11 @@ gradient.addColorStop(0.6,'rgba(255,180,60,0.5)');
 gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
       ctx.fillStyle = gradient;
       ctx.fillRect(0,0,64,64);
-
       const texture = new THREE.CanvasTexture(starCanvas);
       const material = new THREE.SpriteMaterial({map: texture, transparent:true});
       const sprite = new THREE.Sprite(material);
       sprite.scale.set(STAR_SIZE, STAR_SIZE, 1);
       group.add(sprite);
-
-      // label
       const labelCanvas = document.createElement('canvas');
       const labelCtx = labelCanvas.getContext('2d');
       labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
@@ -217,14 +188,12 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
       labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
       labelCtx.fillStyle = '#cce6ff';
       labelCtx.fillText(text,5,LABEL_FONT_SIZE);
-
       const labelTexture = new THREE.CanvasTexture(labelCanvas);
       const labelMaterial = new THREE.SpriteMaterial({map:labelTexture,transparent:true});
       const label = new THREE.Sprite(labelMaterial);
       label.position.set(0, LABEL_FONT_SIZE*0.2, 0);
       label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
       group.add(label);
-
       return group;
   })
   .linkWidth(1.0)
@@ -236,15 +205,8 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
   .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
   .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
   ;
-/*********************** CAMERA, AUTO-ROTATE & STAR UPDATE (Corrected) *************************/
-// Initial camera position
-// Initial camera position
-// Initial camera position
-// ----- INITIAL CAMERA -----
 const initialZ = 900;
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
-
-// ----- CONTROLS -----
 const controls = Graph.controls();
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
@@ -254,18 +216,13 @@ controls.maxDistance = 2000;
 controls.enableRotate = true;
 controls.enablePan = true;
 controls.screenSpacePanning = true;
-
-// ----- AUTO-ROTATION VARIABLES -----
 let autoSpin = false;      // is rotation active
 let userInteracting = false;  // is user dragging/zooming
 let camCenter = { x: 0, y: 0, z: initialZ }; // center point for rotation
-
-// ----- SMOOTH ZOOM FUNCTION -----
 function smoothZoom(targetZ, duration = 3000, callback) {
   const cam = Graph.camera();
   const startZ = cam.position.z;
   const startTime = performance.now();
-
   function animate() {
     const now = performance.now();
     const t = Math.min(1, (now - startTime) / duration);
@@ -277,37 +234,26 @@ function smoothZoom(targetZ, duration = 3000, callback) {
   }
   animate();
 }
-
-// ----- OSCILLATING ROTATION FUNCTION -----
 function autoRotate() {
   if (!autoSpin || userInteracting) return;
-
   const cam = Graph.camera();
   const t = performance.now() * 0.0002;  // time factor for smooth oscillation
-
   // Small oscillation offsets around the center
   const offsetX = Math.sin(t * 0.8) * 50;
   const offsetY = Math.cos(t * 0.6) * 30;
-
   cam.position.x = camCenter.x + offsetX;
   cam.position.y = camCenter.y + offsetY;
   cam.position.z = camCenter.z; // keep zoom level
-
   cam.lookAt(0, 0, 0); // always look at center
 }
-
-// ----- TRIGGER ZOOM AFTER 3 SECONDS -----
 setTimeout(() => {
   smoothZoom(500, 3000, () => { 
     autoSpin = true;  // start rotation after zoom finishes
   });
 }, 3000);
-
-// ----- HANDLE USER INTERACTION -----
 controls.addEventListener('start', () => {
   userInteracting = true; // pause rotation while dragging
 });
-
 controls.addEventListener('end', () => {
   userInteracting = false; // resume rotation immediately
   const cam = Graph.camera();
@@ -315,18 +261,11 @@ controls.addEventListener('end', () => {
   camCenter.y = cam.position.y;
   camCenter.z = cam.position.z;
 });
-
-
-// ----- ANIMATION LOOP -----
 (function animateLoop() {
   requestAnimationFrame(animateLoop);
   autoRotate();
   Graph.tickFrame(); // update physics
 })();
-
-
-
-
 </script>
 </body>
 </html>
