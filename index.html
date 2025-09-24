@@ -234,10 +234,11 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
 // Initial camera position
 // Initial camera position
 // Initial camera position
+// ----- INITIAL CAMERA -----
 const initialZ = 900;
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
 
-// Controls
+// ----- CONTROLS -----
 const controls = Graph.controls();
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
@@ -248,14 +249,12 @@ controls.enableRotate = true;
 controls.enablePan = true;
 controls.screenSpacePanning = true;
 
-// Auto-rotation variables
-let autoSpin = false;
-let userInteracting = false;
+// ----- AUTO-ROTATION VARIABLES -----
+let autoSpin = false;      // is rotation active
+let userInteracting = false;  // is user dragging/zooming
+let camCenter = { x: 0, y: 0, z: initialZ }; // center point for rotation
 
-// Store camera center after zoom
-let camCenter = { x: 0, y: 0, z: initialZ };
-
-// Zoom function
+// ----- SMOOTH ZOOM FUNCTION -----
 function smoothZoom(targetZ, duration = 3000, callback) {
   const cam = Graph.camera();
   const startZ = cam.position.z;
@@ -265,8 +264,7 @@ function smoothZoom(targetZ, duration = 3000, callback) {
     const now = performance.now();
     const t = Math.min(1, (now - startTime) / duration);
     cam.position.z = startZ + (targetZ - startZ) * t;
-    camCenter.z = cam.position.z; // update zoom level
-
+    camCenter.z = cam.position.z;  // update center as we zoom
     controls.update();
     if (t < 1) requestAnimationFrame(animate);
     else if (callback) callback();
@@ -274,45 +272,53 @@ function smoothZoom(targetZ, duration = 3000, callback) {
   animate();
 }
 
-// Oscillating auto-rotation around the zoomed position
+// ----- OSCILLATING ROTATION FUNCTION -----
 function autoRotate() {
   if (!autoSpin || userInteracting) return;
 
   const cam = Graph.camera();
-  const t = performance.now() * 0.0002; // rotation speed
+  const t = performance.now() * 0.0002;  // time factor for smooth oscillation
 
-  // Oscillation offsets (small movement around zoomed center)
-  const offsetX = Math.sin(t * 0.8) * 50; // 50 units left-right
-  const offsetY = Math.cos(t * 0.6) * 30; // 30 units up-down
+  // Small oscillation offsets around the center
+  const offsetX = Math.sin(t * 0.8) * 50;
+  const offsetY = Math.cos(t * 0.6) * 30;
 
   cam.position.x = camCenter.x + offsetX;
   cam.position.y = camCenter.y + offsetY;
-  cam.position.z = camCenter.z; // stay at zoomed Z
+  cam.position.z = camCenter.z; // keep zoom level
 
-  cam.lookAt(0, 0, 0);
+  cam.lookAt(0, 0, 0); // always look at center
 }
 
-// Trigger smooth zoom after 3s, then enable autoSpin
+// ----- TRIGGER ZOOM AFTER 3 SECONDS -----
 setTimeout(() => {
   smoothZoom(500, 3000, () => { 
-    autoSpin = true; // start rotation after zoom finishes
+    autoSpin = true;  // start rotation after zoom finishes
   });
 }, 3000);
 
-// Handle user interaction
-controls.addEventListener('start', () => { 
-  userInteracting = true; // pause auto-spin
+// ----- HANDLE USER INTERACTION -----
+controls.addEventListener('start', () => {
+  userInteracting = true; // pause rotation while dragging
 });
 
 controls.addEventListener('end', () => {
-  setTimeout(() => { userInteracting = false; }, 2000); // resume rotation after 2s
+  setTimeout(() => {
+    userInteracting = false; // resume rotation after delay
+
+    // Update rotation center to current camera position
+    const cam = Graph.camera();
+    camCenter.x = cam.position.x;
+    camCenter.y = cam.position.y;
+    camCenter.z = cam.position.z;
+  }, 2000); // 2s pause before resuming
 });
 
-// Animation loop
+// ----- ANIMATION LOOP -----
 (function animateLoop() {
   requestAnimationFrame(animateLoop);
   autoRotate();
-  Graph.tickFrame(); // update graph physics
+  Graph.tickFrame(); // update physics
 })();
 
 
