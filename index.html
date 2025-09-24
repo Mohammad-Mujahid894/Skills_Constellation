@@ -246,15 +246,6 @@ setTimeout(() => {
   smoothZoom(Graph.camera(), zoomTargetZ, ZOOM_DURATION);
 }, 3000);
 
-// Animation loop
-(function tickAll(){
-  const t = performance.now()/1000;
-  controls.autoRotateSpeed = 0.5 * (1 + 0.4*Math.sin(t*0.5));
-  controls.update();
-  starTexture.needsUpdate = true;
-  requestAnimationFrame(tickAll);
-})();
-
 /*********************** KEEP STAR TEXTURE ANIMATED *************************/
 function tickUpdate(){
     starTexture.needsUpdate = true;
