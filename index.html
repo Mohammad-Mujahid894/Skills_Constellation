@@ -224,19 +224,24 @@ Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
 
 const controls = Graph.controls();
 controls.enableDamping = true;
-controls.dampingFactor = 0.06;
+controls.dampingFactor = 0.05;
+  controls.zoomSpeed = 0.5;  // smaller = smoother zoom
 controls.minDistance = 150;
 controls.maxDistance = 2000;
-controls.autoRotate = true; // enable rotation immediately
-controls.autoRotateSpeed = 0.5;
+controls.autoRotate = false; // enable rotation immediately
+  controls.enableRotate = true; // allow free mouse drag
+controls.enablePan = true;    // allow free panning
+controls.screenSpacePanning = true; 
+controls.autoRotateSpeed = 0.20;
 
 // Smooth zoom function
 function smoothZoom(cam, targetZ, duration) {
   const startZ = cam.position.z;
   const startTime = performance.now();
+
   function animate() {
     const now = performance.now();
-    const t = Math.min(1, (now - startTime) / duration); // progress 0-1
+    const t = Math.min(1, (now - startTime) / duration);
     cam.position.z = startZ + (targetZ - startZ) * t;
     controls.update();
     if (t < 1) requestAnimationFrame(animate);
@@ -244,9 +249,9 @@ function smoothZoom(cam, targetZ, duration) {
   animate();
 }
 
-// Delay 3 seconds then zoom
+// Trigger after 3s
 setTimeout(() => {
-  smoothZoom(Graph.camera(), zoomTargetZ, 3000);
+  smoothZoom(Graph.camera(), zoomTargetZ, ZOOM_DURATION);
 }, 3000);
 
 // Animation loop
