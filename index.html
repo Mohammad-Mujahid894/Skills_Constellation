@@ -34,71 +34,94 @@ const PARTICLE_OPACITY = 0.3; // dim
 
 /*********************** SKILLS DATA *************************/
 const skills = [
-        "Excel", "Power BI", "SAP FICO", "Tally", "Financial Accounting", 
-        "Cost Accounting", "Business Laws", "Taxation", "AR Management",
-        "Cash Application", "Invoice Processing", "Bank Reconciliation", 
-        "Versapay", "Micro Dynamics", "C MOD", "ISR", "Open Scan",
-        "Credit Management", "Demand Letter", "ACH Processing",
-        "Wire Payment", "NSF Handling", "Customer Communication",
-        "Remittance Matching", "Data Analysis", "MS Office", "Python",
-        "Tableau", "Automation", "Problem Solving", "Time Management",
-        "VBA", "Excel Macros", "Pivot Tables", "Power Query", "Data Visualization",
-        "SAP MM", "SAP SD", "SAP CO", "Tally ERP", "Accounting Principles",
-        "Balance Sheet", "Profit & Loss", "Trial Balance", "General Ledger", "Journal Entries",
-        "Costing", "Variance Analysis", "Material Ledger", "Indirect Tax", "Direct Tax",
-        "GST", "TDS", "Income Tax", "Payroll Accounting", "Bank Statements",
-        "Collections", "Credit Analysis", "AR Aging Report", "Customer Queries", "Payment Reconciliation",
-        "Remittance Advice", "Invoice Distribution", "Billing Software", "ERP Systems", "MIS Reporting",
-        "Data Entry", "Document Verification", "Bank Payment Processing", "Cheque Handling", "Wire Transfer",
-        "ACH", "NSF Checks", "Stop Payment", "Bank Charges", "Write-Offs",
-        "Debit/Credit Notes", "Customer Support", "Email Communication", "Internal Coordination", "Vendor Management",
-        "Supplier Reconciliation", "Purchase Orders", "Inventory Accounting", "Fixed Assets", "Depreciation",
-        "Stock Ledger", "Stock Valuation", "Cost Allocation", "Budgeting", "Forecasting",
-        "Financial Analysis", "Ratio Analysis", "KPI Reporting", "Dashboard Creation", "Scenario Planning",
-        "Strategic Planning", "Business Analytics", "Data Modeling", "SQL Queries", "Database Management",
-        "Python Scripting", "Automation Scripts", "Power Automate", "RPA", "Macros Development",
-        "ERP Customization", "System Integration", "Audit Compliance", "Internal Audit", "SOX Compliance",
-        "IFRS Standards", "GAAP Standards", "Financial Statements", "Regulatory Reporting", "Management Reporting",
-        "Performance Metrics", "Cost Control", "Expense Tracking", "Revenue Analysis", "Profit Analysis",
-        "Project Accounting", "Project Costing", "Resource Planning", "Workforce Management", "Team Coordination",
-        "Client Reporting", "Client Communication", "Stakeholder Management", "Presentation Skills", "Documentation",
-        "Policy Compliance", "Risk Assessment", "Business Process", "Process Improvement", "Lean Six Sigma",
-        "Kaizen", "Operational Excellence", "Quality Management", "ISO Standards", "Workflow Automation",
-        "Data Cleaning", "Data Transformation", "Data Aggregation", "Data Insights", "Business Intelligence",
-        "Visualization Tools", "Storytelling with Data", "Dashboard Design", "Interactive Charts", "Heat Maps",
-        "Graphs & Tables", "Scenario Analysis", "Forecast Models", "Variance Reporting", "Trend Analysis",
-        "Key Metrics", "Benchmarking", "Decision Support", "Analytical Thinking", "Critical Thinking",
-        "Problem Solving", "Logical Reasoning", "Attention to Detail", "Accuracy", "Efficiency",
-        "Time Management", "Multitasking", "Prioritization", "Deadlines", "Stress Management",
-        "Team Collaboration", "Conflict Resolution", "Negotiation", "Adaptability", "Flexibility",
-        "Continuous Learning", "Self-Motivation", "Goal Setting", "Planning", "Organizational Skills",
-        "Communication Skills", "Listening Skills", "Presentation Skills", "Report Writing", "Email Etiquette",
-        "Customer Relationship", "Vendor Relations", "Supplier Coordination", "Stakeholder Communication", "Internal Reporting",
-        "Decision Making", "Problem Identification", "Solution Implementation", "Change Management", "Project Planning",
-        "Project Execution", "Project Monitoring", "Resource Allocation", "Task Scheduling", "Performance Evaluation",
-        "Recruitment", "Training & Development", "Mentoring", "Coaching", "Employee Engagement",
-        "Leadership", "Team Management", "Delegation", "Motivation", "Conflict Management",
-        "Negotiation Skills", "Persuasion", "Influencing", "Strategic Thinking", "Innovation",
-        "Creative Thinking", "Idea Generation", "Brainstorming", "Critical Analysis", "SWOT Analysis",
-        "PESTLE Analysis", "Porter's Five Forces", "Market Research", "Competitor Analysis", "Customer Insights",
-        "Sales Analytics", "Revenue Forecasting", "Pricing Strategies", "Promotional Analysis", "Campaign Analysis",
-        "Digital Marketing", "SEO", "SEM", "Content Creation", "Social Media Management",
-        "Brand Management", "Product Management", "Project Documentation", "Workflow Optimization", "Process Mapping",
-        "Risk Mitigation", "Compliance Checks", "Audit Preparation", "Financial Modelling", "Investment Analysis",
-        "Portfolio Management", "Asset Management", "Treasury Operations", "Cash Flow Management", "Liquidity Analysis",
-        "Debt Management", "Equity Analysis", "Capital Budgeting", "Funding Strategy", "Business Valuation",
-        "Mergers & Acquisitions", "Corporate Finance", "Tax Planning", "Budget Control", "Expense Management",
-        "Profit Maximization", "Cost Reduction", "Operational Efficiency", "Supply Chain Management", "Logistics",
-        "Inventory Control", "Demand Planning", "Production Planning", "Quality Assurance", "Customer Satisfaction",
-        "Service Delivery", "Contract Management", "Legal Documentation", "Regulatory Filing", "Policy Implementation",
-        "Knowledge Management", "Information Security", "IT Support", "System Maintenance", "Troubleshooting",
-        "Technical Documentation", "Software Testing", "Quality Control", "Product Testing", "User Acceptance Testing",
-        "Test Cases", "Bug Reporting", "Issue Tracking", "Version Control", "Release Management",
-        "Deployment", "Configuration", "Monitoring", "Alerts & Notifications", "System Optimization"
+  // --- O2C / Cash Application ---
+  "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable", 
+  "ACH Processing", "Wire Payment Processing", "Check Processing", "NSF Handling", 
+  "Remittance Matching", "Customer Communication", "Payment Reconciliation", 
+  "Credit Management", "Debit/Credit Notes", "Invoice Distribution", "Collections",
+  "Customer Queries Handling", "AR Aging Report", "Payment Dispute Resolution", 
+  "Bank Statement Analysis", "Service Charge Management", "Write-Offs Management", 
+  "Vendor Coordination", "Internal Reporting", "US Foods TANDEM System", 
+  "Versapay Platform", "Micro Dynamics ERP", "C MOD Software", "ISR Tool", 
+  "Open Scan Research Tool", "Quadient Impress", "AR SharePoint Management", 
+  "Validation File Handling", "My Account Platform Management", "ACH Auto Deduct Coordination",
+
+  // --- ICMAI / Accounting & Finance ---
+  "Financial Accounting", "Cost Accounting", "Direct Taxation", "Indirect Taxation", 
+  "GST Compliance", "TDS Compliance", "Income Tax Calculation", "Payroll Accounting", 
+  "Balance Sheet Preparation", "Profit & Loss Statement", "Trial Balance", 
+  "General Ledger Management", "Journal Entries", "Bank Reconciliation Statement", 
+  "Financial Analysis", "Variance Analysis", "Budgeting", "Forecasting", 
+  "Cost Allocation", "Material Ledger", "Stock Ledger", "Inventory Accounting", 
+  "Fixed Assets Accounting", "Depreciation Accounting", "Payroll Processing", 
+  "Accounting Principles", "Accounting Software Tally ERP", "SAP FICO Basics", 
+  "Accounting Ratios", "KPI Reporting", "MIS Reporting", "Financial Modelling", 
+  "Audit Compliance", "Internal Audit Support", "Regulatory Reporting", "SOX Compliance",
+
+  // --- Professional Skills ---
+  "Email Communication", "Professional Etiquette", "Report Writing", "Documentation Management", 
+  "Data Entry Accuracy", "Attention to Detail", "Organizational Skills", "Time Management", 
+  "Multitasking", "Prioritization", "Deadline Management", "Internal Coordination", 
+  "Team Collaboration", "Stakeholder Communication", "Vendor Communication", 
+  "Client Communication", "Meeting Coordination", "Workforce Management", 
+  "Task Scheduling", "Performance Tracking", "Presentation Skills", "Decision Making",
+  "Problem Solving", "Analytical Thinking", "Critical Thinking", "Logical Reasoning", 
+  "Process Improvement", "Workflow Optimization", "Process Mapping", "Operational Efficiency", 
+  "Quality Management", "Audit Preparation", "Risk Assessment", "Compliance Checks",
+
+  // --- Soft Skills ---
+  "Adaptability", "Flexibility", "Continuous Learning", "Self-Motivation", "Goal Setting", 
+  "Stress Management", "Conflict Resolution", "Negotiation", "Persuasion", "Influencing Skills", 
+  "Leadership", "Team Management", "Delegation", "Mentoring", "Coaching", 
+  "Employee Engagement", "Professional Ethics", "Interpersonal Skills", "Networking", 
+  "Collaboration", "Time Optimization", "Active Listening", "Problem Identification", 
+  "Solution Implementation", "Project Planning", "Project Execution", "Resource Allocation",
+  "Project Monitoring", "Performance Evaluation", "Decision Support", "Stakeholder Management",
+  "Customer Relationship Management", "Vendor Relations", "Service Excellence", 
+  "Professionalism", "Positive Attitude", "Work-Life Balance", "Self-Discipline", 
+  "Presentation Design", "Report Structuring", "Email Etiquette", "Documentation Standards",
+
+  // --- Excel & Tools ---
+  "Excel Basics", "Advanced Excel", "Pivot Tables", "VLOOKUP", "HLOOKUP", 
+  "Index Match", "Conditional Formatting", "Excel Macros", "Power Query", "Power Pivot", 
+  "Charts & Graphs", "Data Analysis", "Data Visualization", "Tables & Formulas", 
+  "Dashboard Creation", "Power BI Basics", "Power BI Reports", "Data Modeling", 
+  "Excel Reporting", "Spreadsheet Automation", "Tally ERP Reports", "SAP Reports", 
+  "Database Management", "SQL Queries Basics", "Report Consolidation", "Data Cleaning", 
+  "Data Aggregation", "Data Transformation", "MIS Dashboard", "KPI Dashboard", 
+  "Trend Analysis", "Variance Reporting",
+
+  // --- ICMAI Specific Concepts ---
+  "Bills of Exchange", "Consignment Accounting", "Joint Ventures Accounting", 
+  "Sale of Goods Act", "Negotiable Instruments Act", "Acceptance & Dishonour of Instruments", 
+  "Crossing & Endorsement", "Material Alteration", "Rights of Unpaid Seller", 
+  "Auction Sales", "Direct Tax Computation", "Income Tax Filing", 
+  "GST Returns", "TDS Returns", "Indirect Tax Reconciliation", "Costing Methods", 
+  "Labour Cost Variance", "Material Cost Variance", "Overhead Variance", 
+  "Job Costing", "Process Costing", "Contract Costing", "Budgetary Control", 
+  "Standard Costing", "Financial Ratios", "Liquidity Ratios", "Profitability Ratios",
+
+  // --- Professional Tools ---
+  "TANDEM EAST", "TANDEM WEST", "Bank Websites", "Share Drives", "C MOD", "ISR", 
+  "Open Scan 7", "Versapay", "Micro Dynamics Group", "AR SharePoint", "My Account Platform", 
+  "Amerifresh Supplier Info", "Quadient Impress", "SSO Passport Access", "Validation File Management", 
+  "Email Client Tools", "Document Retrieval", "Invoice Management", "Statement Management", 
+  "Customer Portal Management", "ERP System Navigation", "Software Troubleshooting", 
+  "Workflow Automation Tools", "Process Standardization", "Data Backup & Recovery", 
+  "Report Distribution", "System Optimization",
+
+  // --- Personal Productivity & Learning ---
+  "Continuous Improvement", "Self-Study", "Professional Development", "Time Blocking", 
+  "Pomodoro Technique", "Focus Management", "Learning New Software", "Skill Upgradation", 
+  "Knowledge Management", "Online Course Learning", "NPTEL Courses", "ICMAI Test Practice", 
+  "Mock Exam Preparation", "Revision Planning", "Study Scheduling", "Night Shift Management", 
+  "Energy Management", "Sleep Optimization", "Stress Relief Techniques", "Motivation Skills",
+  "Goal Tracking", "Progress Evaluation", "Learning Efficiency", "Note Making", "Voice Notes", 
+  "Productivity Hacks", "Task Prioritization"
 ];
 
 /*********************** GRAPH DATA *************************/
-const N = 300; // node count
+const N = 400; // node count
 const gData = {
   nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
   links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
@@ -208,25 +231,28 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
   .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
   ;
 /*********************** CAMERA, AUTO-ROTATE & STAR UPDATE (Corrected) *************************/
-// Initial camera far
+// Initial camera position
 const initialZ = 900;
-
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
 
+// Controls
 const controls = Graph.controls();
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
-  controls.zoomSpeed = 0.5;  // smaller = smoother zoom
+controls.zoomSpeed = 0.5;
 controls.minDistance = 150;
 controls.maxDistance = 2000;
-controls.autoRotate = false; // enable rotation immediately
-  controls.enableRotate = true; // allow free mouse drag
-controls.enablePan = true;    // allow free panning
-controls.screenSpacePanning = true; 
-controls.autoRotateSpeed = 0.20;
+controls.enableRotate = true;
+controls.enablePan = true;
+controls.screenSpacePanning = true;
 
-// Smooth zoom function
-function smoothZoom(cam, targetZ, duration) {
+// Auto-rotation variables
+let autoSpin = false;
+let userInteracting = false;
+
+// Zoom function
+function smoothZoom(targetZ, duration = 3000, callback) {
+  const cam = Graph.camera();
   const startZ = cam.position.z;
   const startTime = performance.now();
 
@@ -236,67 +262,41 @@ function smoothZoom(cam, targetZ, duration) {
     cam.position.z = startZ + (targetZ - startZ) * t;
     controls.update();
     if (t < 1) requestAnimationFrame(animate);
+    else if (callback) callback();
   }
   animate();
 }
 
-// Trigger after 3s
-setTimeout(() => {
-  smoothZoom(Graph.camera(), zoomTargetZ, ZOOM_DURATION);
-}, 3000);
-
-/*********************** KEEP STAR TEXTURE ANIMATED *************************/
-function tickUpdate(){
-    starTexture.needsUpdate = true;
-    requestAnimationFrame(tickUpdate);
-}
-tickUpdate();
-  Graph.onNodeHover(node => {
-    document.body.style.cursor = node ? 'pointer' : 'default';
-});
-// -------- RANDOM ROTATION AFTER ZOOM --------
-// -------- CAMERA SMOOTH ZOOM + ROTATION --------
-let autoSpin = false;
-let userInteracting = false;
-const zoomTargetZ = 500;      // where to end up (inside the graph)
-const ZOOM_DURATION = 3000;   // 3s zoom
-
-// Smooth zoom helper
-
-// Random rotation
-function randomRotation() {
+// Auto-rotation function
+function autoRotate() {
   if (!autoSpin || userInteracting) return;
-  const t = performance.now() * 0.00018; // slow + smooth
   const cam = Graph.camera();
-  cam.position.x = Math.sin(t * 0.9) * 800;
-  cam.position.y = Math.cos(t * 0.7) * 400;
+  const t = performance.now() * 0.0001; // slow rotation
+  cam.position.x = Math.sin(t * 0.8) * 500;
+  cam.position.y = Math.cos(t * 0.6) * 300;
   cam.lookAt(0, 0, 0);
 }
 
-// Trigger initial zoom after delay
+// Trigger smooth zoom after 3s, then enable autoSpin
 setTimeout(() => {
-  smoothZoom(Graph.camera(), zoomTargetZ, ZOOM_DURATION);
-  autoSpin = true;
-}, 2000); // 2s delay before zoom starts
+  smoothZoom(500, 3000, () => { // zoom to Z = 500
+    autoSpin = true;
+  });
+}, 3000);
 
-// Detect user interaction
-controls.addEventListener('start', () => {
-  userInteracting = true;
-});
-
-// After user stops interacting → wait 1s → re-zoom in + resume rotation
+// Handle user interaction
+controls.addEventListener('start', () => { userInteracting = true; });
 controls.addEventListener('end', () => {
-  setTimeout(() => {
-    userInteracting = false;
-    smoothZoom(Graph.camera(), zoomTargetZ, ZOOM_DURATION); // re-zoom in
-  }, 1000); // 1s delay
+  setTimeout(() => { userInteracting = false; }, 500); // wait a little before resuming auto-spin
 });
 
-// Loop for rotation
-(function spinLoop(){
-  randomRotation();
-  requestAnimationFrame(spinLoop);
+// Animation loop
+(function animate() {
+  requestAnimationFrame(animate);
+  autoRotate();
+  Graph.tickFrame(); // updates the graph physics
 })();
+
 
 
 
