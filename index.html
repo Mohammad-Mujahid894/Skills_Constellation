@@ -9,6 +9,12 @@
     #3d-graph { width:100vw; height:100vh; display:block; }
     #starCanvas { display:none; width:256px; height:256px; }
   </style>
+  <style>
+@font-face {
+    font-family: "MyCustomFont";
+    src: url("FoundationTitlesHand.ttf") format("truetype");
+}
+</style>
 </head>
 <body>
 <canvas id="starCanvas" width="256" height="256"></canvas>
@@ -203,12 +209,12 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
       // label
       const labelCanvas = document.createElement('canvas');
       const labelCtx = labelCanvas.getContext('2d');
-      labelCtx.font = `${LABEL_FONT_SIZE}px Arial`;
+      labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
       const text = node.skill;
       const textWidth = labelCtx.measureText(text).width;
       labelCanvas.width = textWidth+20;
       labelCanvas.height = LABEL_FONT_SIZE+10;
-      labelCtx.font = `${LABEL_FONT_SIZE}px Arial`;
+      labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
       labelCtx.fillStyle = '#cce6ff';
       labelCtx.fillText(text,5,LABEL_FONT_SIZE);
 
