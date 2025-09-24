@@ -270,35 +270,35 @@ let userInteracting = false;
 
 function randomRotation() {
   if (!autoSpin || userInteracting) return;
-  const t = performance.now() * 0.0005;
+  const t = performance.now() * 0.0002; // slower + smoother
   const cam = Graph.camera();
 
-  // Smooth drifting in X & Y
   cam.position.x = Math.sin(t * 0.9) * 800;
   cam.position.y = Math.cos(t * 0.7) * 400;
   cam.lookAt(0, 0, 0);
 }
 
-// Start auto rotation AFTER zoom completes
+// Start spin after zoom
 setTimeout(() => {
   autoSpin = true;
 }, ZOOM_DURATION + 100);
 
-// Detect when user interacts → pause autoSpin
+// Handle user interaction
 controls.addEventListener('start', () => {
   userInteracting = true;
 });
 controls.addEventListener('end', () => {
-  // Optional: if you want spin to resume when user stops touching
-  // setTimeout(() => userInteracting = false, 2000); // resume after 2s
-  userInteracting = false; // remove timeout if you want instant resume
+  setTimeout(() => {
+    userInteracting = false;
+  }, 1200); // delay before resuming spin
 });
 
-// Continuous loop
+// Loop
 (function spinLoop(){
   randomRotation();
   requestAnimationFrame(spinLoop);
 })();
+
 
 </script>
 </body>
