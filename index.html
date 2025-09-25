@@ -217,7 +217,14 @@ controls.enableRotate = true;
 controls.enablePan = true;
 controls.screenSpacePanning = true;
 
+let userInteracting = false;
 
+controls.addEventListener('start', () => {
+  userInteracting = true;
+});
+controls.addEventListener('end', () => {
+  userInteracting = false;
+});
 
   // --- Drifting camera setup ---
 let camTarget = new THREE.Vector3(0, 0, 600); // initial target
