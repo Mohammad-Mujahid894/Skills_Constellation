@@ -216,71 +216,48 @@ controls.maxDistance = 2000;
 controls.enableRotate = true;
 controls.enablePan = true;
 controls.screenSpacePanning = true;
-let autoSpin = false;      // is rotation active
-let userInteracting = false;  // is user dragging/zooming
-let camCenter = { x: 0, y: 0, z: initialZ }; // center point for rotation
-function smoothZoom(targetZ, duration = 4000, callback) {
-  const cam = Graph.camera();
-  const startZ = cam.position.z;
-  const startTime = performance.now();
-  function animate() {
-    const now = performance.now();
-    const t = Math.min(1, (now - startTime) / duration);
-    cam.position.z = startZ + (targetZ - startZ) * t;
-    camCenter.z = cam.position.z;  // update center as we zoom
-    controls.update();
-    if (t < 1) requestAnimationFrame(animate);
-    else if (callback) callback();
-  }
-  animate();
+
+
+
+  // --- Drifting camera setup ---
+let camTarget = new THREE.Vector3(0, 0, 600); // initial target
+let driftSpeed = 0.002;  // smaller = slower drift
+const cam = Graph.camera();
+
+function pickNewTarget() {
+  // pick a random point within a cube around origin
+  const range = 900; // how far camera can wander
+  camTarget.set(
+    (Math.random() - 0.5) * range,
+    (Math.random() - 0.5) * range,
+    (Math.random() - 0.5) * range
+  );
 }
-function autoRotate() {
-  if (!autoSpin || userInteracting) return;
 
-  const dt = clock.getDelta();          // frame-rate independent
-  theta += angularSpeed * dt;           // horizontal spin
-  phi   += angularSpeed * verticalFactor * dt; // vertical sweep
+// initial target
+pickNewTarget();
 
-  // keep phi in a safe range (avoid flipping at poles)
-  const EPS = 0.15;
-  if (phi > Math.PI - EPS) phi = EPS;
-  if (phi < EPS)           phi = Math.PI - EPS;
+function autoDrift() {
+  if (userInteracting) return;
 
-  // spherical -> cartesian
-  const x = orbitRadius * Math.sin(phi) * Math.cos(theta);
-  const y = orbitRadius * Math.cos(phi);
-  const z = orbitRadius * Math.sin(phi) * Math.sin(theta);
+  // Smoothly move camera toward target
+  cam.position.lerp(camTarget, driftSpeed);
 
-  const cam = Graph.camera();
-  cam.position.set(x, y, z);
+  // Always look at graph center
   cam.lookAt(0, 0, 0);
+
+  // If close enough, pick a new target
+  if (cam.position.distanceTo(camTarget) < 20) {
+    pickNewTarget();
+  }
 }
-setTimeout(() => {
-  smoothZoom(500, 4000, () => { 
-    autoSpin = true;  // start rotation after zoom finishes
-  });
-}, 4000);
-controls.addEventListener('start', () => {
-  userInteracting = true; // pause rotation while dragging
-});
-controls.addEventListener('end', () => {
-  userInteracting = false; // resume rotation immediately
-  const cam = Graph.camera();
-  camCenter.x = cam.position.x;
-  camCenter.y = cam.position.y;
-  camCenter.z = cam.position.z;
-});
-  let phi = Math.PI / 2;   // polar angle (0..pi)
-let theta = 0;           // azimuth angle
-const orbitRadius = 650; // farther = bigger orbit circle
-const angularSpeed = 1.2; // radians/sec (increase for faster)
-const verticalFactor = 0.35; // how much vertical motion
+
+
+  
 (function animateLoop() {
   requestAnimationFrame(animateLoop);
-  autoRotate();
-  
-const clock = new THREE.Clock();
-  Graph.tickFrame(); // update physics
+  autoDrift();        // drifting instead of rotation
+  Graph.tickFrame();  // update physics
 })();
 </script>
 </body>
