@@ -236,15 +236,24 @@ function smoothZoom(targetZ, duration = 4000, callback) {
 }
 function autoRotate() {
   if (!autoSpin || userInteracting) return;
+
+  const dt = clock.getDelta();          // frame-rate independent
+  theta += angularSpeed * dt;           // horizontal spin
+  phi   += angularSpeed * verticalFactor * dt; // vertical sweep
+
+  // keep phi in a safe range (avoid flipping at poles)
+  const EPS = 0.15;
+  if (phi > Math.PI - EPS) phi = EPS;
+  if (phi < EPS)           phi = Math.PI - EPS;
+
+  // spherical -> cartesian
+  const x = orbitRadius * Math.sin(phi) * Math.cos(theta);
+  const y = orbitRadius * Math.cos(phi);
+  const z = orbitRadius * Math.sin(phi) * Math.sin(theta);
+
   const cam = Graph.camera();
-  const t = performance.now() * 0.0005;  // time factor for smooth oscillation
-  // Small oscillation offsets around the center
-  const offsetX = Math.sin(t * 0.8) * 50;
-  const offsetY = Math.cos(t * 0.6) * 30;
-  cam.position.x = camCenter.x + offsetX;
-  cam.position.y = camCenter.y + offsetY;
-  cam.position.z = camCenter.z; // keep zoom level
-  cam.lookAt(0, 0, 0); // always look at center
+  cam.position.set(x, y, z);
+  cam.lookAt(0, 0, 0);
 }
 setTimeout(() => {
   smoothZoom(500, 4000, () => { 
@@ -261,9 +270,16 @@ controls.addEventListener('end', () => {
   camCenter.y = cam.position.y;
   camCenter.z = cam.position.z;
 });
+  let phi = Math.PI / 2;   // polar angle (0..pi)
+let theta = 0;           // azimuth angle
+const orbitRadius = 650; // farther = bigger orbit circle
+const angularSpeed = 1.2; // radians/sec (increase for faster)
+const verticalFactor = 0.35; // how much vertical motion
 (function animateLoop() {
   requestAnimationFrame(animateLoop);
   autoRotate();
+  
+const clock = new THREE.Clock();
   Graph.tickFrame(); // update physics
 })();
 </script>
