@@ -375,7 +375,7 @@ document.getElementById('refreshBtn').addEventListener('click', () => {
     }, 50);
 
     cam.position.set(0, 0, initialZ);   // reset camera zoom
-    pickTarget();                       // pick a new random target for drifting
+    pickNewTarget();                    // <<<<< correct function name
     controls.target.set(0, 0, 0);      // reset orbit controls target
     controls.update();                  // update controls state
 });
