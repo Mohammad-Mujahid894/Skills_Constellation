@@ -2,107 +2,40 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>3D Skills Constellation Globe</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+  <title>Mohammad Mujahid's 3-D Skills Constellation Chart</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    :root{
-      --bg:#04060b; --fg:#eaf2ff;
-    }
-    * { box-sizing: border-box }
-    html, body { height:100%; margin:0 }
-    body {
-      background: var(--bg);
-      color: var(--fg);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-      overflow-x: hidden;
-    }
-
-    /* Background nebula layer (behind WebGL) */
-    .layer { position: fixed; inset: 0; pointer-events: none }
-    #nebula {
-      z-index: -2;
-      filter: blur(40px) saturate(120%);
-      background:
-        radial-gradient(40% 40% at 15% 20%, rgba(122,162,255,.30), transparent 70%),
-        radial-gradient(35% 35% at 85% 15%, rgba(79,240,176,.25), transparent 70%),
-        radial-gradient(50% 50% at 60% 80%, rgba(138,122,255,.22), transparent 70%),
-        radial-gradient(30% 30% at 20% 85%, rgba(255,200,120,.18), transparent 70%);
-      background-repeat: no-repeat;
-      background-size: cover;
-      animation: drift 24s ease-in-out infinite alternate;
-    }
-    @keyframes drift { from{ transform:translate3d(0,0,0) } to{ transform:translate3d(0,-2%,0) } }
-
-    /* Graph container */
-    #3d-graph {
-      width: 100vw;
-      height: 100vh;
-      display: block;
-      position: relative;
-      z-index: 0;
-    }
-
-    /* Ensure WebGL canvas stays transparent (so nebula shows through) */
-    #3d-graph canvas { background: transparent !important; }
-
-    /* Optional title bar (remove if embedding elsewhere) */
-    .title {
-      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
-      padding: 8px 12px; border-radius: 12px;
-      backdrop-filter: saturate(160%) blur(6px);
-      background: rgba(0,0,0,.25);
-      font-weight: 700; font-size: 14px; letter-spacing: .3px;
-      z-index: 2; pointer-events: none;
-    }
-
-    /* Mobile edge cases */
-    @media (max-width: 768px) {
-      .title { font-size: 13px; top: 8px; }
-    }
+    html, body { height:100%; margin:0; background:#040414; }
+    #3d-graph { width:100vw; height:100vh; display:block; }
+    #starCanvas { display:none; width:256px; height:256px; }
   </style>
-
   <style>
-    @font-face {
-      font-family: "MyCustomFont";
-      src: url("FoundationTitlesHand.ttf") format("truetype");
-    }
-  </style>
+@font-face {
+    font-family: "MyCustomFont";
+    src: url("FoundationTitlesHand.ttf") format("truetype");
+}
+</style>
 </head>
 <body>
-  <!-- Background -->
-  <div id="nebula" class="layer"></div>
-
-  <!-- Optional title -->
-  <div class="title">3D Skills Constellation Globe</div>
-
-  <!-- Hidden canvas for star sprite core -->
-  <canvas id="starCanvas" width="256" height="256" style="display:none"></canvas>
-
-  <!-- Graph host -->
-  <div id="3d-graph"></div>
-
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
-  <script>
-  /*********************** CONFIG *************************/
-  const STAR_SIZE = 9;                // node star sprite size
-  const LABEL_FONT_SIZE = 64;         // label font size (px)
-  const REPULSION_STRENGTH = -22;     // more negative = more spread
-  const PARTICLE_WIDTH = 1.0;
-  const PARTICLE_SPEED = 0.001;
-  const PARTICLE_OPACITY = 0.3;
-
-  // Globe/camera motion
-  const GLOBE_RADIUS = 850;           // visible sphere radius
-  const ORBIT_RADIUS_MIN = GLOBE_RADIUS * 0.55;
-  const ORBIT_RADIUS_MAX = GLOBE_RADIUS * 0.95;
-  const AZIMUTH_SPEED = 0.5;          // radians/sec
-  const POLAR_SPEED = 0.15;           // radians/sec
-  const RESUME_IDLE_MS = 1200;        // delay to resume drift after user input
-
-  /*********************** SKILLS *************************/
-  // Paste the skills here. Keep ONLY comma-separated "..." strings, no comments.
+<canvas id="starCanvas" width="256" height="256"></canvas>
+<div id="3d-graph"></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
+<script>
+/*********************** CONFIG/TWEAKABLE SETTINGS *************************/
+// Node star size
+const STAR_SIZE = 9; // smaller = tiny, bigger = large
+// Label size
+const LABEL_FONT_SIZE = 69; // bigger = more readable
+// Graph spacing (repulsion)
+const REPULSION_STRENGTH = -18; // bigger negative = more spread out
+// Target zoom after graph settles
+const ZOOM_IN_AMOUNT = 400; // how much closer after standby
+// Zoom-in duration (ms)
+// Directional particle dimness
+const PARTICLE_WIDTH = 1.0; // thinner = less visible
+const PARTICLE_SPEED = 0.001; // slower particle
+const PARTICLE_OPACITY = 0.3; // dim
 const skills = [
   "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable",
   "ACH Processing", "Wire Payment Processing", "Check Processing", "NSF Handling",
@@ -224,200 +157,157 @@ const skills = [
   "Self-Improvement Tracking"
 ];
 
-  const N = skills.length;
-  const gData = {
-    nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
-    links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
-  };
-
-  /*********************** STAR SPRITE CORE *************************/
-  const starCanvas = document.getElementById('starCanvas');
-  const sctx = starCanvas.getContext('2d');
-  const cx = starCanvas.width / 2;
-  const cy = starCanvas.height / 2;
-
-  function drawGlowingStar() {
-    sctx.clearRect(0,0,starCanvas.width,starCanvas.height);
-    for (let i = 8; i > 0; i--) {
-      sctx.save();
-      const glowRadius = 50 + i*10 + Math.sin(Date.now()/900)*2;
-      sctx.globalAlpha = 0.03 + 0.06*(i/8);
-      sctx.beginPath();
-      sctx.arc(cx, cy, glowRadius, 0, Math.PI*2);
-      sctx.closePath();
-      sctx.fillStyle = i%2===0 ? 'rgba(62,189,255,0.7)' : 'rgba(255,236,128,0.3)';
-      sctx.shadowColor = i%2===0 ? '#60ecff' : '#fffadc';
-      sctx.shadowBlur = 30 + i*5;
-      sctx.fill();
-      sctx.restore();
+const N = skills.length; // node count
+const gData = {
+  nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
+  links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
+};
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
+function drawGlowingStar() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for (let i = 8; i>0; i--){
+        ctx.save();
+        const glowRadius = 50 + i*10 + Math.sin(Date.now()/900)*2;
+        ctx.globalAlpha = 0.03 + 0.06*(i/8);
+        ctx.beginPath();
+        ctx.arc(cx,cy,glowRadius,0,Math.PI*2);
+        ctx.closePath();
+        ctx.fillStyle = i%2===0 ? 'rgba(62,189,255,0.7)' : 'rgba(255,236,128,0.3)';
+        ctx.shadowColor = i%2===0 ? '#60ecff' : '#fffadc';
+        ctx.shadowBlur = 30 + i*5;
+        ctx.fill();
+        ctx.restore();
     }
-    sctx.save();
-    const grad = sctx.createRadialGradient(cx,cy,5,cx,cy,20);
+    ctx.save();
+    const grad = ctx.createRadialGradient(cx,cy,5,cx,cy,20);
     grad.addColorStop(0,'#fff');
     grad.addColorStop(0.3,'#fff6b5');
     grad.addColorStop(1,'#fffacd11');
-    sctx.beginPath();
-    sctx.arc(cx,cy,20,0,Math.PI*2);
-    sctx.closePath();
-    sctx.fillStyle = grad;
-    sctx.shadowColor='gold';
-    sctx.shadowBlur = 30;
-    sctx.fill();
-    sctx.restore();
+    ctx.beginPath();
+    ctx.arc(cx,cy,20,0,Math.PI*2);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.shadowColor='gold';
+    ctx.shadowBlur = 30;
+    ctx.fill();
+    ctx.restore();
     requestAnimationFrame(drawGlowingStar);
-  }
-  drawGlowingStar();
-
-  const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
-    .graphData(gData)
-    .nodeThreeObject(node => {
+}
+drawGlowingStar();
+const starTexture = new THREE.CanvasTexture(canvas);
+starTexture.minFilter = THREE.LinearFilter;
+starTexture.magFilter = THREE.LinearFilter;
+starTexture.needsUpdate = true;
+const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
+  .graphData(gData)
+  .nodeThreeObject(node=>{
       const group = new THREE.Group();
-
-      // star sprite
-      const starCanvas2 = document.createElement('canvas');
-      starCanvas2.width = starCanvas2.height = 64;
-      const c2 = starCanvas2.getContext('2d');
-      const g = c2.createRadialGradient(32,32,0,32,32,32);
-      g.addColorStop(0,'rgba(255,255,200,1)');
-      g.addColorStop(0.3,'rgba(255,220,120,0.8)');
-      g.addColorStop(0.6,'rgba(255,180,60,0.5)');
-      g.addColorStop(1,'rgba(255,180,60,0)');
-      c2.fillStyle = g;
-      c2.fillRect(0,0,64,64);
-      const starTex = new THREE.CanvasTexture(starCanvas2);
-      const starMat = new THREE.SpriteMaterial({ map: starTex, transparent: true });
-      const starSprite = new THREE.Sprite(starMat);
-      starSprite.scale.set(STAR_SIZE, STAR_SIZE, 1);
-      group.add(starSprite);
-
-      // label sprite
+      const starCanvas = document.createElement('canvas');
+      starCanvas.width = starCanvas.height = 64;
+      const ctx = starCanvas.getContext('2d');
+      const gradient = ctx.createRadialGradient(32,32,0,32,32,32);
+gradient.addColorStop(0,'rgba(255,255,200,1)');    // core (white)
+gradient.addColorStop(0.3,'rgba(255,220,120,0.8)');
+gradient.addColorStop(0.6,'rgba(255,180,60,0.5)');
+gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0,0,64,64);
+      const texture = new THREE.CanvasTexture(starCanvas);
+      const material = new THREE.SpriteMaterial({map: texture, transparent:true});
+      const sprite = new THREE.Sprite(material);
+      sprite.scale.set(STAR_SIZE, STAR_SIZE, 1);
+      group.add(sprite);
       const labelCanvas = document.createElement('canvas');
       const labelCtx = labelCanvas.getContext('2d');
-      const text = String(node.skill || "");
       labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
-      const textWidth = Math.max(1, labelCtx.measureText(text).width);
-      labelCanvas.width = Math.ceil(textWidth + 20);
-      labelCanvas.height = Math.ceil(LABEL_FONT_SIZE + 10);
+      const text = node.skill;
+      const textWidth = labelCtx.measureText(text).width;
+      labelCanvas.width = textWidth+20;
+      labelCanvas.height = LABEL_FONT_SIZE+10;
       labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
       labelCtx.fillStyle = '#cce6ff';
-      labelCtx.textBaseline = 'alphabetic';
-      labelCtx.fillText(text, 5, LABEL_FONT_SIZE);
-      const labelTex = new THREE.CanvasTexture(labelCanvas);
-      const labelMat = new THREE.SpriteMaterial({ map: labelTex, transparent: true });
-      const label = new THREE.Sprite(labelMat);
-      label.position.set(0, LABEL_FONT_SIZE * 0.2, 0);
-      label.scale.set(labelCanvas.width * 0.06, labelCanvas.height * 0.06, 1);
+      labelCtx.fillText(text,5,LABEL_FONT_SIZE);
+      const labelTexture = new THREE.CanvasTexture(labelCanvas);
+      const labelMaterial = new THREE.SpriteMaterial({map:labelTexture,transparent:true});
+      const label = new THREE.Sprite(labelMaterial);
+      label.position.set(0, LABEL_FONT_SIZE*0.2, 0);
+      label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
       group.add(label);
-
       return group;
-    })
-    .linkWidth(1.0)
-    .linkColor(() => 'rgba(160,200,220,0.08)')
-    .linkOpacity(1)
-    .linkDirectionalParticles(1)
-    .linkDirectionalParticleWidth(PARTICLE_WIDTH)
-    .linkDirectionalParticleSpeed(() => PARTICLE_SPEED)
-    .linkDirectionalParticleColor(() => `rgba(255,246,200,${PARTICLE_OPACITY})`);
+  })
+  .linkWidth(1.0)
+  .linkColor(()=> 'rgba(160,200,220,0.08)')
+  .linkOpacity(1)
+  .linkDirectionalParticles(1)
+  .linkDirectionalParticleWidth(PARTICLE_WIDTH)
+  .linkDirectionalParticleSpeed(()=> PARTICLE_SPEED)
+  .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
+  .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
+  ;
+const initialZ = 900;
+Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
+const controls = Graph.controls();
+controls.enableDamping = true;
+controls.dampingFactor = 0.005;
+controls.zoomSpeed = 0.5;
+controls.minDistance = 150;
+controls.maxDistance = 2000;
+controls.enableRotate = true;
+controls.enablePan = true;
+controls.screenSpacePanning = true;
 
-  // Transparent renderer so nebula shows through
-  try { Graph.renderer().setClearColor(0x000000, 0); } catch(e) {}
-  Graph.scene().background = null;
+let userInteracting = false;
 
-  // Add faint wireframe globe
-  const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 48, 32);
-  const globeMat = new THREE.MeshBasicMaterial({ color: 0x6fa8ff, wireframe: true, transparent: true, opacity: 0.08 });
-  const globe = new THREE.Mesh(globeGeo, globeMat);
-  Graph.scene().add(globe);
+controls.addEventListener('start', () => {
+  userInteracting = true;
+});
+controls.addEventListener('end', () => {
+  userInteracting = false;
+});
 
-  // Clamp nodes into globe
-  Graph.onEngineTick(() => {
-    Graph.graphData().nodes.forEach(n => {
-      const obj = Graph.nodeThreeObject(n);
-      if (!obj) return;
-      const p = obj.position;
-      const len = Math.hypot(p.x, p.y, p.z);
-      if (len > GLOBE_RADIUS * 0.98) {
-        const s = (GLOBE_RADIUS * 0.98) / (len || 1);
-        p.set(p.x * s, p.y * s, p.z * s);
-      }
-    });
-  });
+  // --- Drifting camera setup ---
+let camTarget = new THREE.Vector3(0, 0, 600); // initial target
+let driftSpeed = 0.004;  // smaller = slower drift
+const cam = Graph.camera();
 
-  // Camera/controls
-  const cam = Graph.camera();
-  Graph.cameraPosition({ x: 0, y: 0, z: ORBIT_RADIUS_MAX });
-  const controls = Graph.controls();
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.005;
-  controls.zoomSpeed = 0.6;
-  controls.minDistance = 150;
-  controls.maxDistance = 2000;
-  controls.enableRotate = true;
-  controls.enablePan = true;
-  controls.screenSpacePanning = true;
+function pickNewTarget() {
+  // pick a random point within a cube around origin
+  const range = 900; // how far camera can wander
+  camTarget.set(
+    (Math.random() - 0.5) * range,
+    (Math.random() - 0.5) * range,
+    (Math.random() - 0.5) * range
+  );
+}
 
-  // Endless spherical tour + smooth dolly
-  let theta = 0;
-  let phi = Math.PI / 2;
-  const EPS = 0.2;
-  const driftClock = new THREE.Clock();
-  let userInteracting = false;
-  let resumeTimer = null;
+// initial target
+pickNewTarget();
 
-  function pauseAuto() {
-    userInteracting = true;
-    if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
+function autoDrift() {
+  if (userInteracting) return;
+
+  // Smoothly move camera toward target
+  cam.position.lerp(camTarget, driftSpeed);
+
+  // Always look at graph center
+  cam.lookAt(0, 0, 0);
+
+  // If close enough, pick a new target
+  if (cam.position.distanceTo(camTarget) < 20) {
+    pickNewTarget();
   }
-  function scheduleResume() {
-    if (resumeTimer) { clearTimeout(resumeTimer); }
-    resumeTimer = setTimeout(() => { userInteracting = false; }, RESUME_IDLE_MS);
-  }
+}
 
-  controls.addEventListener('start', pauseAuto);
-  controls.addEventListener('end', scheduleResume);
 
-  const host = document.getElementById('3d-graph');
-  host.addEventListener('wheel', () => { pauseAuto(); scheduleResume(); }, { passive: true });
-  host.addEventListener('touchstart', pauseAuto, { passive: true });
-  host.addEventListener('touchend', scheduleResume, { passive: true });
-  host.addEventListener('pointerdown', pauseAuto);
-  host.addEventListener('pointerup', scheduleResume);
-
-  function autoDrift() {
-    const dt = driftClock.getDelta();
-    if (userInteracting) return;
-
-    // advance angles
-    theta += AZIMUTH_SPEED * dt;
-    phi   += POLAR_SPEED  * dt;
-
-    if (phi > Math.PI - EPS) phi = EPS;
-    if (phi < EPS)           phi = Math.PI - EPS;
-
-    // base orbit at unit radius
-    const x = Math.sin(phi) * Math.cos(theta);
-    const y = Math.cos(phi);
-    const z = Math.sin(phi) * Math.sin(theta);
-
-    // smooth dolly in/out
-    const t = performance.now() * 0.001;
-    const u = 0.5 - 0.5 * Math.cos((t % 18) / 18 * Math.PI * 2); // 0..1
-    const dist = ORBIT_RADIUS_MIN + (ORBIT_RADIUS_MAX - ORBIT_RADIUS_MIN) * u;
-
-    cam.position.set(x * dist, y * dist, z * dist);
-
-    // keep inside globe just in case
-    const len = cam.position.length();
-    if (len > GLOBE_RADIUS * 0.96) cam.position.multiplyScalar((GLOBE_RADIUS * 0.96) / len);
-
-    cam.lookAt(0, 0, 0);
-  }
-
-  (function animateLoop(){
-    requestAnimationFrame(animateLoop);
-    autoDrift();
-    Graph.tickFrame();
-  })();
-  </script>
+  
+(function animateLoop() {
+  requestAnimationFrame(animateLoop);
+  autoDrift();        // drifting instead of rotation
+  Graph.tickFrame();  // update physics
+})();
+</script>
 </body>
 </html>
