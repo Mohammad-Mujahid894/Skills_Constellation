@@ -238,6 +238,8 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
       group.add(label);
       return group;
   })
+  Graph.d3Force('link', d3.forceLink().distance(30));
+Graph.d3Force('charge', d3.forceManyBody().strength(REPULSION_STRENGTH));
   .linkWidth(1.0)
   .linkColor(()=> 'rgba(160,200,220,0.08)')
   .linkOpacity(1)
