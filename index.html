@@ -249,6 +249,7 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
   ;
 const initialZ = 900;
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
+// Get controls once at the start
 const controls = Graph.controls();
 controls.enableDamping = true;
 controls.dampingFactor = 0.005;
@@ -259,32 +260,7 @@ controls.enableRotate = true;
 controls.enablePan = true;
 controls.screenSpacePanning = true;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // --- Smooth spherical camera drift (user-friendly) ---
+// --- Smooth spherical camera drift (user-friendly) ---
 const cam = Graph.camera();
 const MAX_RADIUS = 900;
 let driftTheta = Math.random() * Math.PI * 2;
@@ -297,17 +273,6 @@ const driftClock = new THREE.Clock();
 let userInteracting = false;
 const RESUME_IDLE_MS = 1500;
 let resumeTimer = null;
-
-// Controls
-const controls = Graph.controls();
-controls.enableDamping = true;
-controls.dampingFactor = 0.005;
-controls.zoomSpeed = 0.5;
-controls.minDistance = 150;
-controls.maxDistance = 2000;
-controls.enableRotate = true;
-controls.enablePan = true;
-controls.screenSpacePanning = true;
 
 // Interaction events
 function pauseDrift() { 
@@ -353,6 +318,7 @@ function autoDrift() {
     autoDrift();
     Graph.tickFrame();
 })();
+
 
   
 
