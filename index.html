@@ -268,35 +268,85 @@ controls.addEventListener('end', () => {
   userInteracting = false;
 });
 
-// --- Smooth spherical camera drift ---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // --- Smooth spherical camera drift (user-friendly) ---
 const cam = Graph.camera();
-const MAX_RADIUS = 900;   // distance from center
+const MAX_RADIUS = 900;
 let driftTheta = Math.random() * Math.PI * 2;
 let driftPhi = Math.random() * Math.PI;
-const DRIFT_SPEED_THETA = 0.002; // slower = smoother
-const DRIFT_SPEED_PHI = 0.0015;
+const DRIFT_SPEED_THETA = 0.0025;
+const DRIFT_SPEED_PHI = 0.0018;
+const ZOOM_VARIATION = 50;
+const driftClock = new THREE.Clock();
 
-const ZOOM_VARIATION = 50; // small zoom in/out
-let driftClock = new THREE.Clock();
+let userInteracting = false;
+const RESUME_IDLE_MS = 1500;
+let resumeTimer = null;
 
+// Controls
+const controls = Graph.controls();
+controls.enableDamping = true;
+controls.dampingFactor = 0.005;
+controls.zoomSpeed = 0.5;
+controls.minDistance = 150;
+controls.maxDistance = 2000;
+controls.enableRotate = true;
+controls.enablePan = true;
+controls.screenSpacePanning = true;
+
+// Interaction events
+function pauseDrift() { 
+    userInteracting = true; 
+    if (resumeTimer) clearTimeout(resumeTimer);
+}
+function resumeDrift() { 
+    if (resumeTimer) clearTimeout(resumeTimer);
+    resumeTimer = setTimeout(() => { userInteracting = false; }, RESUME_IDLE_MS);
+}
+
+const host = document.getElementById('3d-graph');
+['wheel','pointerdown','touchstart'].forEach(ev => host.addEventListener(ev, pauseDrift, {passive:true}));
+['wheel','pointerup','touchend'].forEach(ev => host.addEventListener(ev, resumeDrift, {passive:true}));
+
+// --- Drift function ---
 function autoDrift() {
-    if (userInteracting) return; // pause if user interacts
+    if (userInteracting) return;
 
     const dt = driftClock.getDelta();
 
-    // slowly update spherical angles
-    driftTheta += DRIFT_SPEED_THETA * dt * 60; // multiplied by 60 for smoother speed
-    driftPhi   += DRIFT_SPEED_PHI * dt * 60;
-
-    // keep phi in sensible range
+    // update angles
+    driftTheta += DRIFT_SPEED_THETA * dt * 60;
+    driftPhi += DRIFT_SPEED_PHI * dt * 60;
     driftPhi = Math.max(0.1, Math.min(Math.PI - 0.1, driftPhi));
 
-    // convert spherical -> Cartesian
+    // spherical -> Cartesian
     const x = Math.sin(driftPhi) * Math.cos(driftTheta);
     const y = Math.cos(driftPhi);
     const z = Math.sin(driftPhi) * Math.sin(driftTheta);
 
-    // optional smooth zoom in/out (like floating effect)
+    // smooth zoom
     const t = performance.now() * 0.0005;
     const radius = MAX_RADIUS + Math.sin(t) * ZOOM_VARIATION;
 
@@ -304,12 +354,14 @@ function autoDrift() {
     cam.lookAt(0, 0, 0);
 }
 
-// Animation loop
+// --- Animation loop ---
 (function animateLoop() {
     requestAnimationFrame(animateLoop);
-    autoDrift();        // smooth camera drift
-    Graph.tickFrame();   // keep graph ticking
+    autoDrift();
+    Graph.tickFrame();
 })();
+
+  
 
 </script>
 </body>
