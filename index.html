@@ -196,14 +196,18 @@ const canvas = document.getElementById('starCanvas');
 const ctx = canvas.getContext('2d');
 const cx = canvas.width / 2;
 const cy = canvas.height / 2;
-let burstProgress = 0;
-const BURST_SPEED = 0.02; // smaller = slower, bigger = faster
+let burstProgress = 1;        // current burst
+let targetBurstProgress = 1;  // desired burst (for smooth transition)
+const BURST_SPEED = 0.02; 
+
 
 function drawGlowingStar() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
     
     // gradually increase burstProgress to 1
-    if (burstProgress < 1) burstProgress += BURST_SPEED;
+burstProgress += (targetBurstProgress - burstProgress) * 0.08; 
+// smooth transition instead of instant jump
+
     
     for (let i = 8; i>0; i--){
         ctx.save();
@@ -358,20 +362,18 @@ function autoDrift() {
 })();
 
 
-  document.getElementById('refreshBtn').addEventListener('click', () => {
-    // reset star burst
-    burstProgress = 0;
+ document.getElementById('refreshBtn').addEventListener('click', () => {
+    // soft reset star burst
+    targetBurstProgress = 0; // shrink the burst first
+    setTimeout(() => { targetBurstProgress = 1; }, 50); // then grow back smoothly
 
     // reset camera to initial position
     cam.position.set(0, 0, initialZ);
-
-    // pick a new drifting target
     pickNewTarget();
-
-    // reset orbit controls target
     controls.target.set(0, 0, 0);
     controls.update();
 });
+
 
 
 </script>
