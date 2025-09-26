@@ -192,125 +192,196 @@ const gData = {
   nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
   links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
 };
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+const cx = canvas.width / 2;
+const cy = canvas.height / 2;
+let burstProgress = 1;        // current burst
+let targetBurstProgress = 1;  // desired burst (for smooth transition)
+const BURST_SPEED = 0.02; 
 
-document.addEventListener('DOMContentLoaded', () => {
-  // --- Canvas for star texture ---
-  const canvas = document.getElementById('starCanvas');
-  const ctx = canvas.getContext('2d');
-  const cx = canvas.width / 2;
-  const cy = canvas.height / 2;
-  const starTexture = new THREE.CanvasTexture(canvas);
-  starTexture.minFilter = THREE.LinearFilter;
-  starTexture.magFilter = THREE.LinearFilter;
 
-  let burstProgress = 1;
-  let targetBurstProgress = 1;
-
-  function drawGlowingStar() {
+function drawGlowingStar() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    burstProgress += (targetBurstProgress - burstProgress) * 0.08;
+    
+    // gradually increase burstProgress to 1
+burstProgress += (targetBurstProgress - burstProgress) * 0.08; 
+// smooth transition instead of instant jump
 
-    for (let i = 8; i > 0; i--) {
-      ctx.save();
-      const radius = 50 + i*10;
-      const glow = radius * burstProgress + Math.sin(Date.now()/900)*2;
-      ctx.globalAlpha = (0.03 + 0.06*(i/8)) * burstProgress;
-      ctx.beginPath();
-      ctx.arc(cx, cy, glow, 0, Math.PI*2);
-      ctx.closePath();
-      ctx.fillStyle = i % 2 === 0 ? 'rgba(62,189,255,0.7)' : 'rgba(255,236,128,0.3)';
-      ctx.shadowColor = i % 2 === 0 ? '#60ecff' : '#fffadc';
-      ctx.shadowBlur = 30 + i*5;
-      ctx.fill();
-      ctx.restore();
+    
+    for (let i = 8; i>0; i--){
+        ctx.save();
+        const baseRadius = 50 + i*10;
+        const glowRadius = baseRadius * burstProgress + Math.sin(Date.now()/900)*2;
+        ctx.globalAlpha = (0.03 + 0.06*(i/8)) * burstProgress;
+        ctx.beginPath();
+        ctx.arc(cx,cy,glowRadius,0,Math.PI*2);
+        ctx.closePath();
+        ctx.fillStyle = i%2===0 ? 'rgba(62,189,255,0.7)' : 'rgba(255,236,128,0.3)';
+        ctx.shadowColor = i%2===0 ? '#60ecff' : '#fffadc';
+        ctx.shadowBlur = 30 + i*5;
+        ctx.fill();
+        ctx.restore();
     }
 
     // Center glow
     ctx.save();
-    const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, 20*burstProgress);
-    grad.addColorStop(0, '#fff');
-    grad.addColorStop(0.3, '#fff6b5');
-    grad.addColorStop(1, '#fffacd11');
-    ctx.fillStyle = grad;
-    ctx.shadowColor = 'gold';
-    ctx.shadowBlur = 30 * burstProgress;
+    const grad = ctx.createRadialGradient(cx,cy,5,cx,cy,20*burstProgress);
+    grad.addColorStop(0,'#fff');
+    grad.addColorStop(0.3,'#fff6b5');
+    grad.addColorStop(1,'#fffacd11');
     ctx.beginPath();
-    ctx.arc(cx, cy, 20*burstProgress, 0, Math.PI*2);
+    ctx.arc(cx,cy,20*burstProgress,0,Math.PI*2);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.shadowColor='gold';
+    ctx.shadowBlur = 30 * burstProgress;
     ctx.fill();
     ctx.restore();
+  
+  starTexture.needsUpdate = true;
+  
+    requestAnimationFrame(drawGlowingStar);
+}
+drawGlowingStar();
 
-    starTexture.needsUpdate = true;
-  }
-
-  // --- Three.js / 3d-force-graph setup ---
-  const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
-    .graphData(gData)
-    .nodeThreeObject(node => {
-      const spriteMaterial = new THREE.SpriteMaterial({ map: starTexture, transparent: true });
-      const sprite = new THREE.Sprite(spriteMaterial);
+const starTexture = new THREE.CanvasTexture(canvas);
+starTexture.minFilter = THREE.LinearFilter;
+starTexture.magFilter = THREE.LinearFilter;
+starTexture.needsUpdate = true;
+const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
+  .graphData(gData)
+  .nodeThreeObject(node=>{
+      const group = new THREE.Group();
+      const starCanvas = document.createElement('canvas');
+      starCanvas.width = starCanvas.height = 64;
+      const ctx = starCanvas.getContext('2d');
+      const gradient = ctx.createRadialGradient(32,32,0,32,32,32);
+gradient.addColorStop(0,'rgba(255,255,200,1)');    // core (white)
+gradient.addColorStop(0.3,'rgba(255,220,120,0.8)');
+gradient.addColorStop(0.6,'rgba(255,180,60,0.5)');
+gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0,0,64,64);
+      const texture = new THREE.CanvasTexture(starCanvas);
+      const material = new THREE.SpriteMaterial({map: texture, transparent:true});
+      const sprite = new THREE.Sprite(material);
       sprite.scale.set(STAR_SIZE, STAR_SIZE, 1);
-      return sprite;
-    })
-    .linkWidth(1)
-    .linkColor(()=>'rgba(160,200,220,0.08)')
-    .linkDirectionalParticles(1)
-    .linkDirectionalParticleWidth(()=>PARTICLE_WIDTH)
-    .linkDirectionalParticleSpeed(()=>PARTICLE_SPEED)
-    .linkDirectionalParticleColor(()=>`rgba(255,246,200,${PARTICLE_OPACITY})`)
-    .onNodeHover(node => document.body.style.cursor = node ? 'pointer' : null);
+      group.add(sprite);
+      const labelCanvas = document.createElement('canvas');
+      const labelCtx = labelCanvas.getContext('2d');
+      labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
+      const text = node.skill;
+      const textWidth = labelCtx.measureText(text).width;
+      labelCanvas.width = textWidth+20;
+      labelCanvas.height = LABEL_FONT_SIZE+10;
+      labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
+      labelCtx.fillStyle = '#cce6ff';
+      labelCtx.fillText(text,5,LABEL_FONT_SIZE);
+      const labelTexture = new THREE.CanvasTexture(labelCanvas);
+      const labelMaterial = new THREE.SpriteMaterial({map:labelTexture,transparent:true});
+      const label = new THREE.Sprite(labelMaterial);
+      label.position.set(0, LABEL_FONT_SIZE*0.2, 0);
+      label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
+      group.add(label);
+      return group;
+  })
+  .linkWidth(1.0)
+  .linkColor(()=> 'rgba(160,200,220,0.08)')
+  .linkOpacity(1)
+  .linkDirectionalParticles(1)
+  .linkDirectionalParticleWidth(PARTICLE_WIDTH)
+  .linkDirectionalParticleSpeed(()=> PARTICLE_SPEED)
+  .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
+  .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
+  ;
+  Graph
+  .d3Force('link')
+  .distance(20);  // adjust distance (default ~50)
+  Graph
+  .d3Force('charge')
+  .strength(-25);   // tweak until spacing feels right
+const initialZ = 900;
+Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
+const controls = Graph.controls();
+controls.enableDamping = true;
+controls.dampingFactor = 0.005;
+controls.zoomSpeed = 0.5;
+controls.minDistance = 150;
+controls.maxDistance = 2000;
+controls.enableRotate = true;
+controls.enablePan = true;
+controls.screenSpacePanning = true;
 
-  // Forces & camera
-  Graph.d3Force('link').distance(20);
-  Graph.d3Force('charge').strength(-25);
-  const initialZ = 900;
-  Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
-  const controls = Graph.controls();
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.005;
-  controls.zoomSpeed = 0.5;
-  controls.minDistance = 150;
-  controls.maxDistance = 2000;
+let userInteracting = false;
 
-  let userInteracting = false;
-  controls.addEventListener('start', ()=>userInteracting=true);
-  controls.addEventListener('end', ()=>userInteracting=false);
+controls.addEventListener('start', () => {
+  userInteracting = true;
+});
+controls.addEventListener('end', () => {
+  userInteracting = false;
+});
 
-  // --- Camera drifting ---
-  const cam = Graph.camera();
-  let camTarget = new THREE.Vector3(0,0,600);
-  function pickNewTarget() {
-    const range = 900;
-    camTarget.set(
-      (Math.random()-0.5)*range,
-      (Math.random()-0.5)*range,
-      (Math.random()-0.5)*range
-    );
-  }
-  pickNewTarget();
-  const driftSpeed = 0.004;
-  function autoDrift() {
-    if(!userInteracting){
-      cam.position.lerp(camTarget, driftSpeed);
-      cam.lookAt(0,0,0);
-      if(cam.position.distanceTo(camTarget)<20) pickNewTarget();
-    }
-  }
+  // --- Drifting camera setup ---
+let camTarget = new THREE.Vector3(0, 0, 600); // initial target
+let driftSpeed = 0.004;  // smaller = slower drift
+const cam = Graph.camera();
 
-  // --- Animate Loop ---
-  (function animate(){
-    requestAnimationFrame(animate);
-    drawGlowingStar(); // update star texture
-    autoDrift();
-    Graph.tickFrame();
-  })();
+function pickNewTarget() {
+  // pick a random point within a cube around origin
+  const range = 900; // how far camera can wander
+  camTarget.set(
+    (Math.random() - 0.5) * range,
+    (Math.random() - 0.5) * range,
+    (Math.random() - 0.5) * range
+  );
+}
 
-  // --- Refresh button ---
-  document.getElementById('refreshBtn').addEventListener('click', ()=>{
-    targetBurstProgress = 0;
-    setTimeout(()=>targetBurstProgress=1, 150);
-    Graph.cameraPosition({x:0,y:0,z:initialZ},{x:0,y:0,z:0},1500);
+// initial target
+pickNewTarget();
+
+function autoDrift() {
+  if (userInteracting) return;
+
+  // Smoothly move camera toward target
+  cam.position.lerp(camTarget, driftSpeed);
+
+  // Always look at graph center
+  cam.lookAt(0, 0, 0);
+
+  // If close enough, pick a new target
+  if (cam.position.distanceTo(camTarget) < 20) {
     pickNewTarget();
-  });
+  }
+}
+
+
+  
+(function animateLoop() {
+  requestAnimationFrame(animateLoop);
+  autoDrift();        // drifting instead of rotation
+  Graph.tickFrame();  // update physics
+})();
+
+
+ document.getElementById('refreshBtn').addEventListener('click', () => {
+    // shrink burst smoothly
+    targetBurstProgress = 0;
+
+    // gradually grow back
+    setTimeout(() => { 
+        targetBurstProgress = 1; 
+    }, 150); // slightly longer for visible effect
+
+    // reset camera position smoothly
+    Graph.cameraPosition(
+      { x: 0, y: 0, z: initialZ }, // new position
+      { x: 0, y: 0, z: 0 },        // lookAt
+      1500                         // duration in ms
+    );
+
+    // pick new camera target for drifting after reset
+    pickNewTarget();
 });
 
 
