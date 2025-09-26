@@ -236,7 +236,13 @@ labelCanvas.height = Math.ceil(LABEL_FONT_SIZE + 10);
       label.position.set(0, LABEL_FONT_SIZE*0.2, 0);
       label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
       group.add(label);
+     // ✅ wrap this return in try/catch
+    try {
       return group;
+    } catch(e) {
+      console.error("Node creation failed for:", node, e);
+      return new THREE.Object3D(); // fallback empty object
+    }
   })
   .linkWidth(1.0)
   .linkColor(()=> 'rgba(160,200,220,0.08)')
@@ -268,17 +274,18 @@ Graph.scene().add(globe);
 
 Graph.onEngineTick(() => {
   Graph.graphData().nodes.forEach(n => {
-    const obj = Graph.nodeThreeObject(n);
-    if (!obj) return;
+    const obj = Graph.getNodeThreeObject(n); // ✅ use getNodeThreeObject
+    if (!obj || !obj.position) return;       // ✅ safety check
     const p = obj.position;
     const len = Math.hypot(p.x, p.y, p.z);
     const maxR = GLOBE_RADIUS * 0.98;
     if (len > maxR) {
-      const s = (maxR) / (len || 1);
+      const s = maxR / (len || 1);
       p.set(p.x * s, p.y * s, p.z * s);
     }
   });
 });
+
 
 
 
