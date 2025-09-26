@@ -4,17 +4,58 @@
   <meta charset="utf-8" />
   <title>Star Nodes + 3D Force Graph</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+
   <style>
-    html, body { height:100%; margin:0; background:#040414; }
-    #3d-graph { width:100vw; height:100vh; display:block; }
+    :root{
+      --bg:#04060b; --fg:#eaf2ff; --muted:#9fb2d8; --glass:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.12);
+      --radius:18px; --shadow:0 30px 80px rgba(0,0,0,.6);
+    }
+    *{ box-sizing:border-box }
+    html, body { height:100%; margin:0 }
+    body {
+      color: var(--fg);
+      background: #04060b;         /* dark base */
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ===== BACKGROUND LAYERS ===== */
+    .layer { position:fixed; inset:0; pointer-events:none }
+    /* optional star canvases if desired later */
+    #stars1, #stars2, #stars3 { z-index:-3 }
+
+    #nebula {
+      z-index: -2;
+      filter: blur(40px) saturate(120%);
+      background:
+        radial-gradient(40% 40% at 15% 20%, rgba(122,162,255,.30), transparent 70%),
+        radial-gradient(35% 35% at 85% 15%, rgba(79,240,176,.25), transparent 70%),
+        radial-gradient(50% 50% at 60% 80%, rgba(138,122,255,.22), transparent 70%),
+        radial-gradient(30% 30% at 20% 85%, rgba(255,200,120,.18), transparent 70%);
+      background-repeat: no-repeat;
+      background-size: cover;
+      animation: drift 24s ease-in-out infinite alternate;
+    }
+    @keyframes drift { from{ transform:translate3d(0,0,0) } to{ transform:translate3d(0,-2%,0) } }
+
+    /* ===== GRAPH LAYER ===== */
+    #3d-graph { 
+      position: relative;      /* sits above background layers */
+      z-index: 0;
+      width: 100vw; 
+      height: 100vh; 
+      display: block; 
+    }
+
     #starCanvas { display:none; width:256px; height:256px; }
   </style>
+
   <style>
-@font-face {
-    font-family: "MyCustomFont";
-    src: url("FoundationTitlesHand.ttf") format("truetype");
-}
-</style>
+    @font-face {
+      font-family: "MyCustomFont";
+      src: url("FoundationTitlesHand.ttf") format("truetype");
+    }
+  </style>
 </head>
 <body>
 <canvas id="starCanvas" width="256" height="256"></canvas>
