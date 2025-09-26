@@ -203,6 +203,9 @@ starTexture.magFilter = THREE.LinearFilter;
 starTexture.needsUpdate = true;
 const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
   .graphData(gData)
+  Graph
+  .d3Force('link')
+  .distance(20);  // default ~50, smaller = closer nodes
   .nodeThreeObject(node=>{
       const group = new THREE.Group();
       const starCanvas = document.createElement('canvas');
