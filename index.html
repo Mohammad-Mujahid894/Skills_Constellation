@@ -268,46 +268,49 @@ controls.addEventListener('end', () => {
   userInteracting = false;
 });
 
-  // --- Drifting camera setup ---
-let camTarget = new THREE.Vector3(0, 0, 600); // initial target
-let driftSpeed = 0.004;  // smaller = slower drift
+// --- Smooth spherical camera drift ---
 const cam = Graph.camera();
+const MAX_RADIUS = 900;   // distance from center
+let driftTheta = Math.random() * Math.PI * 2;
+let driftPhi = Math.random() * Math.PI;
+const DRIFT_SPEED_THETA = 0.002; // slower = smoother
+const DRIFT_SPEED_PHI = 0.0015;
 
-function pickNewTarget() {
-  // pick a random point within a cube around origin
-  const range = 900; // how far camera can wander
-  camTarget.set(
-    (Math.random() - 0.5) * range,
-    (Math.random() - 0.5) * range,
-    (Math.random() - 0.5) * range
-  );
-}
-
-// initial target
-pickNewTarget();
+const ZOOM_VARIATION = 50; // small zoom in/out
+let driftClock = new THREE.Clock();
 
 function autoDrift() {
-  if (userInteracting) return;
+    if (userInteracting) return; // pause if user interacts
 
-  // Smoothly move camera toward target
-  cam.position.lerp(camTarget, driftSpeed);
+    const dt = driftClock.getDelta();
 
-  // Always look at graph center
-  cam.lookAt(0, 0, 0);
+    // slowly update spherical angles
+    driftTheta += DRIFT_SPEED_THETA * dt * 60; // multiplied by 60 for smoother speed
+    driftPhi   += DRIFT_SPEED_PHI * dt * 60;
 
-  // If close enough, pick a new target
-  if (cam.position.distanceTo(camTarget) < 20) {
-    pickNewTarget();
-  }
+    // keep phi in sensible range
+    driftPhi = Math.max(0.1, Math.min(Math.PI - 0.1, driftPhi));
+
+    // convert spherical -> Cartesian
+    const x = Math.sin(driftPhi) * Math.cos(driftTheta);
+    const y = Math.cos(driftPhi);
+    const z = Math.sin(driftPhi) * Math.sin(driftTheta);
+
+    // optional smooth zoom in/out (like floating effect)
+    const t = performance.now() * 0.0005;
+    const radius = MAX_RADIUS + Math.sin(t) * ZOOM_VARIATION;
+
+    cam.position.set(x * radius, y * radius, z * radius);
+    cam.lookAt(0, 0, 0);
 }
 
-
-  
+// Animation loop
 (function animateLoop() {
-  requestAnimationFrame(animateLoop);
-  autoDrift();        // drifting instead of rotation
-  Graph.tickFrame();  // update physics
+    requestAnimationFrame(animateLoop);
+    autoDrift();        // smooth camera drift
+    Graph.tickFrame();   // keep graph ticking
 })();
+
 </script>
 </body>
 </html>
