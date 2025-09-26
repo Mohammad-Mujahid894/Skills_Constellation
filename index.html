@@ -250,6 +250,9 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
   Graph
   .d3Force('link')
   .distance(20);  // adjust distance (default ~50)
+  Graph
+  .d3Force('charge')
+  .strength(-5);   // tweak until spacing feels right
 const initialZ = 900;
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
 const controls = Graph.controls();
