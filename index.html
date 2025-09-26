@@ -201,11 +201,9 @@ const starTexture = new THREE.CanvasTexture(canvas);
 starTexture.minFilter = THREE.LinearFilter;
 starTexture.magFilter = THREE.LinearFilter;
 starTexture.needsUpdate = true;
-
-  const nodeObjMap = new Map(); // store node -> THREE.Group
 const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
   .graphData(gData)
-  .nodeThreeObject(node => {
+  .nodeThreeObject(node=>{
       const group = new THREE.Group();
       const starCanvas = document.createElement('canvas');
       starCanvas.width = starCanvas.height = 64;
@@ -225,10 +223,10 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
       const labelCanvas = document.createElement('canvas');
       const labelCtx = labelCanvas.getContext('2d');
       labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
-const text = String(node.skill || "");
-const textWidth = Math.max(1, labelCtx.measureText(text).width);
-labelCanvas.width = Math.ceil(textWidth + 20);
-labelCanvas.height = Math.ceil(LABEL_FONT_SIZE + 10);
+      const text = node.skill;
+      const textWidth = labelCtx.measureText(text).width;
+      labelCanvas.width = textWidth+20;
+      labelCanvas.height = LABEL_FONT_SIZE+10;
       labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
       labelCtx.fillStyle = '#cce6ff';
       labelCtx.fillText(text,5,LABEL_FONT_SIZE);
@@ -238,15 +236,8 @@ labelCanvas.height = Math.ceil(LABEL_FONT_SIZE + 10);
       label.position.set(0, LABEL_FONT_SIZE*0.2, 0);
       label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
       group.add(label);
- nodeObjMap.set(node.id, group); // store it
-
-      try { return group; } 
-      catch(e) { 
-          console.error("Node creation failed for:", node, e); 
-          return new THREE.Object3D(); 
-      }
+      return group;
   })
-  
   .linkWidth(1.0)
   .linkColor(()=> 'rgba(160,200,220,0.08)')
   .linkOpacity(1)
@@ -256,107 +247,67 @@ labelCanvas.height = Math.ceil(LABEL_FONT_SIZE + 10);
   .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
   .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
   ;
+const initialZ = 900;
+Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
+const controls = Graph.controls();
+controls.enableDamping = true;
+controls.dampingFactor = 0.005;
+controls.zoomSpeed = 0.5;
+controls.minDistance = 150;
+controls.maxDistance = 2000;
+controls.enableRotate = true;
+controls.enablePan = true;
+controls.screenSpacePanning = true;
 
+let userInteracting = false;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-try { Graph.renderer().setClearColor(0x000000, 0); } catch(e) {}
-Graph.scene().background = null;
-
-const MAX_RADIUS = 850;
-const DRIFT_SPEED = 0.02;
-
-// Initialize nodes in spherical shape
-Graph.graphData().nodes.forEach(n => {
-    const obj = nodeObjMap.get(n.id);
-    if (!obj || !obj.position) return;
-
-    const theta = Math.random() * 2 * Math.PI;
-    const phi = Math.acos(2 * Math.random() - 1);
-    const r = Math.random() * MAX_RADIUS * 0.95;
-
-    obj.position.set(
-        r * Math.sin(phi) * Math.cos(theta),
-        r * Math.sin(phi) * Math.sin(theta),
-        r * Math.cos(phi)
-    );
-
-    obj.userData = { 
-        vx: (Math.random() - 0.5) * DRIFT_SPEED,
-        vy: (Math.random() - 0.5) * DRIFT_SPEED,
-        vz: (Math.random() - 0.5) * DRIFT_SPEED
-    };
+controls.addEventListener('start', () => {
+  userInteracting = true;
+});
+controls.addEventListener('end', () => {
+  userInteracting = false;
 });
 
-// Drift nodes in spherical boundary
-Graph.onEngineTick(() => {
-    Graph.graphData().nodes.forEach(n => {
-        const obj = nodeObjMap.get(n.id);
-        if (!obj || !obj.position) return;
-        const p = obj.position;
-        const v = obj.userData;
-
-        p.x += v.vx;
-        p.y += v.vy;
-        p.z += v.vz;
-
-        const len = p.length();
-        if (len > MAX_RADIUS) {
-            const scale = MAX_RADIUS / len;
-            p.multiplyScalar(scale);
-            v.vx *= -1;
-            v.vy *= -1;
-            v.vz *= -1;
-        }
-    });
-});
-
-// Camera setup
+  // --- Drifting camera setup ---
+let camTarget = new THREE.Vector3(0, 0, 600); // initial target
+let driftSpeed = 0.004;  // smaller = slower drift
 const cam = Graph.camera();
-let camTheta = 0;
-let camPhi = Math.PI / 4;  // slight angle
-const CAM_DRIFT_SPEED = 0.01;
 
-function driftCamera() {
-    camTheta += CAM_DRIFT_SPEED;
-    const r = MAX_RADIUS * 1.2;
-    cam.position.set(
-        r * Math.sin(camPhi) * Math.cos(camTheta),
-        r * Math.cos(camPhi),
-        r * Math.sin(camPhi) * Math.sin(camTheta)
-    );
-    cam.lookAt(0, 0, 0);
+function pickNewTarget() {
+  // pick a random point within a cube around origin
+  const range = 900; // how far camera can wander
+  camTarget.set(
+    (Math.random() - 0.5) * range,
+    (Math.random() - 0.5) * range,
+    (Math.random() - 0.5) * range
+  );
 }
 
-// Animate loop
-(function animateLoop() {
-    requestAnimationFrame(animateLoop);
-    driftCamera(); // optional slow camera drift
-})();
+// initial target
+pickNewTarget();
+
+function autoDrift() {
+  if (userInteracting) return;
+
+  // Smoothly move camera toward target
+  cam.position.lerp(camTarget, driftSpeed);
+
+  // Always look at graph center
+  cam.lookAt(0, 0, 0);
+
+  // If close enough, pick a new target
+  if (cam.position.distanceTo(camTarget) < 20) {
+    pickNewTarget();
+  }
+}
+
 
   
+(function animateLoop() {
+  requestAnimationFrame(animateLoop);
+  autoDrift();        // drifting instead of rotation
+  Graph.tickFrame();  // update physics
+})();
 </script>
 </body>
 </html>
