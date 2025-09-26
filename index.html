@@ -247,6 +247,42 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
   .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
   .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
   ;
+
+
+
+
+// === Globe boundary: add after Graph creation ===
+const GLOBE_RADIUS = 850;
+
+const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 48, 32);
+const globeMat = new THREE.MeshBasicMaterial({
+  color: 0x6fa8ff,
+  wireframe: true,
+  transparent: true,
+  opacity: 0.08
+});
+const globe = new THREE.Mesh(globeGeo, globeMat);
+Graph.scene().add(globe);
+// === Clamp node groups to remain inside the globe ===
+Graph.onEngineTick(() => {
+  Graph.graphData().nodes.forEach(n => {
+    const obj = Graph.nodeThreeObject(n);
+    if (!obj) return;
+    const p = obj.position;
+    const len = Math.hypot(p.x, p.y, p.z);
+    const maxR = GLOBE_RADIUS * 0.98;
+    if (len > maxR) {
+      const s = (maxR) / (len || 1);
+      p.set(p.x * s, p.y * s, p.z * s);
+    }
+  });
+});
+
+
+
+
+  
+  
 const initialZ = 900;
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
 const controls = Graph.controls();
@@ -268,39 +304,77 @@ controls.addEventListener('end', () => {
   userInteracting = false;
 });
 
-  // --- Drifting camera setup ---
-let camTarget = new THREE.Vector3(0, 0, 600); // initial target
-let driftSpeed = 0.004;  // smaller = slower drift
-const cam = Graph.camera();
 
-function pickNewTarget() {
-  // pick a random point within a cube around origin
-  const range = 900; // how far camera can wander
-  camTarget.set(
-    (Math.random() - 0.5) * range,
-    (Math.random() - 0.5) * range,
-    (Math.random() - 0.5) * range
-  );
-}
 
-// initial target
-pickNewTarget();
+
+
+// === Replace your drifting block with this spherical tour ===
+let userInteracting = false;
+const RESUME_IDLE_MS = 1200;
+
+controls.addEventListener('start', () => { userInteracting = true; });
+let resumeTimer = null;
+controls.addEventListener('end', () => {
+  if (resumeTimer) clearTimeout(resumeTimer);
+  resumeTimer = setTimeout(() => { userInteracting = false; }, RESUME_IDLE_MS);
+});
+
+// Also pause/resume on wheel/touch/pointer
+const host = document.getElementById('3d-graph');
+function pauseAuto(){ userInteracting = true; if (resumeTimer) clearTimeout(resumeTimer); }
+function scheduleResume(){ if (resumeTimer) clearTimeout(resumeTimer); resumeTimer = setTimeout(() => { userInteracting = false; }, RESUME_IDLE_MS); }
+host.addEventListener('wheel', () => { pauseAuto(); scheduleResume(); }, { passive: true });
+host.addEventListener('touchstart', pauseAuto, { passive: true });
+host.addEventListener('touchend', scheduleResume, { passive: true });
+host.addEventListener('pointerdown', pauseAuto);
+host.addEventListener('pointerup', scheduleResume);
+
+// Spherical tour params
+let theta = 0;                 // azimuth
+let phi = Math.PI / 2;         // polar
+const AZIMUTH_SPEED = 0.5;     // radians/sec
+const POLAR_SPEED = 0.15;      // radians/sec
+const EPS = 0.2;
+
+const ORBIT_RADIUS_MIN = GLOBE_RADIUS * 0.55;
+const ORBIT_RADIUS_MAX = GLOBE_RADIUS * 0.95;
+
+const driftClock = new THREE.Clock();
 
 function autoDrift() {
+  const dt = driftClock.getDelta();
   if (userInteracting) return;
 
-  // Smoothly move camera toward target
-  cam.position.lerp(camTarget, driftSpeed);
+  theta += AZIMUTH_SPEED * dt;
+  phi   += POLAR_SPEED  * dt;
 
-  // Always look at graph center
+  if (phi > Math.PI - EPS) phi = EPS;
+  if (phi < EPS)           phi = Math.PI - EPS;
+
+  // base orbit direction at unit radius
+  const x = Math.sin(phi) * Math.cos(theta);
+  const y = Math.cos(phi);
+  const z = Math.sin(phi) * Math.sin(theta);
+
+  // smooth dolly in/out (18s cycle)
+  const t = performance.now() * 0.001;
+  const u = 0.5 - 0.5 * Math.cos((t % 18) / 18 * Math.PI * 2);
+  const dist = ORBIT_RADIUS_MIN + (ORBIT_RADIUS_MAX - ORBIT_RADIUS_MIN) * u;
+
+  const cam = Graph.camera();
+  cam.position.set(x * dist, y * dist, z * dist);
+
+  // keep inside globe safety margin
+  const len = cam.position.length();
+  const maxCam = GLOBE_RADIUS * 0.96;
+  if (len > maxCam) cam.position.multiplyScalar(maxCam / len);
+
   cam.lookAt(0, 0, 0);
-
-  // If close enough, pick a new target
-  if (cam.position.distanceTo(camTarget) < 20) {
-    pickNewTarget();
-  }
 }
 
+  
+
+  
 
   
 (function animateLoop() {
