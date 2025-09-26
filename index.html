@@ -36,6 +36,18 @@
 
     #refreshBtn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5); }
     #refreshBtn:active { transform: scale(0.95); }
+    html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+#3d-graph {
+  width: 100%;
+  height: 100%;
+  touch-action: none;  /* essential for mobile gestures */
+}
+
   </style>
 </head>
 <body>
@@ -291,6 +303,7 @@ controls.maxDistance = 2000;
 controls.enableRotate = true;
 controls.enablePan = true;
 controls.screenSpacePanning = true;
+  controls.enableZoom = true;  // make sure zoom works
 
 let userInteracting = false;
 controls.addEventListener('start',()=>userInteracting=true);
