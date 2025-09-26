@@ -369,15 +369,22 @@ function autoDrift() {
 
 
 document.getElementById('refreshBtn').addEventListener('click', () => {
-    targetBurstProgress = 0; // shrink the glow
+    // Shrink & expand the glow
+    targetBurstProgress = 0; 
     setTimeout(() => {
-        targetBurstProgress = 1; // expand it back after short delay
+        targetBurstProgress = 1; 
     }, 50);
 
-    cam.position.set(0, 0, initialZ);   // reset camera zoom
-    pickNewTarget();                    // <<<<< correct function name
-    controls.target.set(0, 0, 0);      // reset orbit controls target
-    controls.update();                  // update controls state
+    // Reset camera
+    cam.position.set(0, 0, initialZ);   
+    cam.lookAt(0, 0, 0);
+
+    // Reset orbit controls
+    controls.target.set(0, 0, 0);
+    controls.update();
+
+    // Re-pick a new drift target
+    pickNewTarget();
 });
 
 
