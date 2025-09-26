@@ -223,10 +223,10 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
       const labelCanvas = document.createElement('canvas');
       const labelCtx = labelCanvas.getContext('2d');
       labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
-      const text = node.skill;
-      const textWidth = labelCtx.measureText(text).width;
-      labelCanvas.width = textWidth+20;
-      labelCanvas.height = LABEL_FONT_SIZE+10;
+const text = String(node.skill || "");
+const textWidth = Math.max(1, labelCtx.measureText(text).width);
+labelCanvas.width = Math.ceil(textWidth + 20);
+labelCanvas.height = Math.ceil(LABEL_FONT_SIZE + 10);
       labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
       labelCtx.fillStyle = '#cce6ff';
       labelCtx.fillText(text,5,LABEL_FONT_SIZE);
@@ -303,7 +303,7 @@ controls.screenSpacePanning = true;
 
 
 
-// === Replace your drifting block with this spherical tour ===
+/ === Auto-drift with pause/resume ===
 let userInteracting = false;
 const RESUME_IDLE_MS = 1200;
 
@@ -314,7 +314,6 @@ controls.addEventListener('end', () => {
   resumeTimer = setTimeout(() => { userInteracting = false; }, RESUME_IDLE_MS);
 });
 
-// Also pause/resume on wheel/touch/pointer
 const host = document.getElementById('3d-graph');
 function pauseAuto(){ userInteracting = true; if (resumeTimer) clearTimeout(resumeTimer); }
 function scheduleResume(){ if (resumeTimer) clearTimeout(resumeTimer); resumeTimer = setTimeout(() => { userInteracting = false; }, RESUME_IDLE_MS); }
