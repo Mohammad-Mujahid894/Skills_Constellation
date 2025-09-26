@@ -2,312 +2,352 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Mohammad Mujahid's 3-D Skills Constellation Chart</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>3D Skills Constellation Globe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <style>
-    html, body { height:100%; margin:0; background:#040414; }
-    #3d-graph { width:100vw; height:100vh; display:block; }
-    #starCanvas { display:none; width:256px; height:256px; }
+    :root{
+      --bg:#04060b; --fg:#eaf2ff;
+    }
+    * { box-sizing: border-box }
+    html, body { height:100%; margin:0 }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Background nebula layer (behind WebGL) */
+    .layer { position: fixed; inset: 0; pointer-events: none }
+    #nebula {
+      z-index: -2;
+      filter: blur(40px) saturate(120%);
+      background:
+        radial-gradient(40% 40% at 15% 20%, rgba(122,162,255,.30), transparent 70%),
+        radial-gradient(35% 35% at 85% 15%, rgba(79,240,176,.25), transparent 70%),
+        radial-gradient(50% 50% at 60% 80%, rgba(138,122,255,.22), transparent 70%),
+        radial-gradient(30% 30% at 20% 85%, rgba(255,200,120,.18), transparent 70%);
+      background-repeat: no-repeat;
+      background-size: cover;
+      animation: drift 24s ease-in-out infinite alternate;
+    }
+    @keyframes drift { from{ transform:translate3d(0,0,0) } to{ transform:translate3d(0,-2%,0) } }
+
+    /* Graph container */
+    #3d-graph {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      position: relative;
+      z-index: 0;
+    }
+
+    /* Ensure WebGL canvas stays transparent (so nebula shows through) */
+    #3d-graph canvas { background: transparent !important; }
+
+    /* Optional title bar (remove if embedding elsewhere) */
+    .title {
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      padding: 8px 12px; border-radius: 12px;
+      backdrop-filter: saturate(160%) blur(6px);
+      background: rgba(0,0,0,.25);
+      font-weight: 700; font-size: 14px; letter-spacing: .3px;
+      z-index: 2; pointer-events: none;
+    }
+
+    /* Mobile edge cases */
+    @media (max-width: 768px) {
+      .title { font-size: 13px; top: 8px; }
+    }
   </style>
+
   <style>
-@font-face {
-    font-family: "MyCustomFont";
-    src: url("FoundationTitlesHand.ttf") format("truetype");
-}
-</style>
+    @font-face {
+      font-family: "MyCustomFont";
+      src: url("FoundationTitlesHand.ttf") format("truetype");
+    }
+  </style>
 </head>
 <body>
-<canvas id="starCanvas" width="256" height="256"></canvas>
-<div id="3d-graph"></div>
-<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
-<script>
-/*********************** CONFIG/TWEAKABLE SETTINGS *************************/
-// Node star size
-const STAR_SIZE = 9; // smaller = tiny, bigger = large
-// Label size
-const LABEL_FONT_SIZE = 69; // bigger = more readable
-// Graph spacing (repulsion)
-const REPULSION_STRENGTH = -18; // bigger negative = more spread out
-// Target zoom after graph settles
-const ZOOM_IN_AMOUNT = 400; // how much closer after standby
-// Zoom-in duration (ms)
-// Directional particle dimness
-const PARTICLE_WIDTH = 1.0; // thinner = less visible
-const PARTICLE_SPEED = 0.001; // slower particle
-const PARTICLE_OPACITY = 0.3; // dim
-const skills = [
-  "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable",
-  "ACH Processing", "Wire Payment Processing", "Check Processing", "NSF Handling",
-  "Remittance Matching", "Customer Communication", "Payment Reconciliation",
-  "Credit Management", "Debit/Credit Notes", "Invoice Distribution", "Collections",
-  "Customer Queries Handling", "AR Aging Report", "Payment Dispute Resolution",
-  "Bank Statement Analysis", "Service Charge Management", "Write-Offs Management",
-  "Vendor Coordination", "Internal Reporting", "US Foods TANDEM System",
-  "Versapay Platform", "Micro Dynamics ERP", "C MOD Software", "ISR Tool",
-  "Open Scan Research Tool", "Quadient Impress", "AR SharePoint Management",
-  "Validation File Handling", "My Account Platform Management", "ACH Auto Deduct Coordination",
-  "Financial Accounting", "Cost Accounting", "Direct Taxation", "Indirect Taxation",
-  "GST Compliance", "TDS Compliance", "Income Tax Calculation", "Payroll Accounting",
-  "Balance Sheet Preparation", "Profit & Loss Statement", "Trial Balance",
-  "General Ledger Management", "Journal Entries", "Bank Reconciliation Statement",
-  "Financial Analysis", "Variance Analysis", "Budgeting", "Forecasting",
-  "Cost Allocation", "Material Ledger", "Stock Ledger", "Inventory Accounting",
-  "Fixed Assets Accounting", "Depreciation Accounting", "Payroll Processing",
-  "Accounting Principles", "Accounting Software Tally ERP", "SAP FICO Basics",
-  "Accounting Ratios", "KPI Reporting", "MIS Reporting", "Financial Modelling",
-  "Audit Compliance", "Internal Audit Support", "Regulatory Reporting", "SOX Compliance",
-  "Email Communication", "Professional Etiquette", "Report Writing", "Documentation Management",
-  "Data Entry Accuracy", "Attention to Detail", "Organizational Skills", "Time Management",
-  "Multitasking", "Prioritization", "Deadline Management", "Internal Coordination",
-  "Team Collaboration", "Stakeholder Communication", "Vendor Communication",
-  "Client Communication", "Meeting Coordination", "Workforce Management",
-  "Task Scheduling", "Performance Tracking", "Presentation Skills", "Decision Making",
-  "Problem Solving", "Analytical Thinking", "Critical Thinking", "Logical Reasoning",
-  "Process Improvement", "Workflow Optimization", "Process Mapping", "Operational Efficiency",
-  "Quality Management", "Audit Preparation", "Risk Assessment", "Compliance Checks",
-  "Adaptability", "Flexibility", "Continuous Learning", "Self-Motivation", "Goal Setting",
-  "Stress Management", "Conflict Resolution", "Negotiation", "Persuasion", "Influencing Skills",
-  "Leadership", "Team Management", "Delegation", "Mentoring", "Coaching",
-  "Employee Engagement", "Professional Ethics", "Interpersonal Skills", "Networking",
-  "Collaboration", "Time Optimization", "Active Listening", "Problem Identification",
-  "Solution Implementation", "Project Planning", "Project Execution", "Resource Allocation",
-  "Project Monitoring", "Performance Evaluation", "Decision Support", "Stakeholder Management",
-  "Customer Relationship Management", "Vendor Relations", "Service Excellence",
-  "Professionalism", "Positive Attitude", "Work-Life Balance", "Self-Discipline",
-  "Presentation Design", "Report Structuring", "Email Etiquette", "Documentation Standards",
-  "Excel Basics", "Advanced Excel", "Pivot Tables", "VLOOKUP", "HLOOKUP",
-  "Index Match", "Conditional Formatting", "Excel Macros", "Power Query", "Power Pivot",
-  "Charts & Graphs", "Data Analysis", "Data Visualization", "Tables & Formulas",
-  "Dashboard Creation", "Power BI Basics", "Power BI Reports", "Data Modeling",
-  "Excel Reporting", "Spreadsheet Automation", "Tally ERP Reports", "SAP Reports",
-  "Database Management", "SQL Queries Basics", "Report Consolidation", "Data Cleaning",
-  "Data Aggregation", "Data Transformation", "MIS Dashboard", "KPI Dashboard",
-  "Trend Analysis", "Variance Reporting",
-  "Bills of Exchange", "Consignment Accounting", "Joint Ventures Accounting",
-  "Sale of Goods Act", "Negotiable Instruments Act", "Acceptance & Dishonour of Instruments",
-  "Crossing & Endorsement", "Material Alteration", "Rights of Unpaid Seller",
-  "Auction Sales", "Direct Tax Computation", "Income Tax Filing",
-  "GST Returns", "TDS Returns", "Indirect Tax Reconciliation", "Costing Methods",
-  "Labour Cost Variance", "Material Cost Variance", "Overhead Variance",
-  "Job Costing", "Process Costing", "Contract Costing", "Budgetary Control",
-  "Standard Costing", "Financial Ratios", "Liquidity Ratios", "Profitability Ratios",
-  "TANDEM EAST", "TANDEM WEST", "Bank Websites", "Share Drives", "C MOD", "ISR",
-  "Open Scan 7", "Versapay", "Micro Dynamics Group", "AR SharePoint", "My Account Platform",
-  "Amerifresh Supplier Info", "Quadient Impress", "SSO Passport Access", "Validation File Management",
-  "Email Client Tools", "Document Retrieval", "Invoice Management", "Statement Management",
-  "Customer Portal Management", "ERP System Navigation", "Software Troubleshooting",
-  "Workflow Automation Tools", "Process Standardization", "Data Backup & Recovery",
-  "Report Distribution", "System Optimization",
-  "Continuous Improvement", "Self-Study", "Professional Development", "Time Blocking",
-  "Pomodoro Technique", "Focus Management", "Learning New Software", "Skill Upgradation",
-  "Knowledge Management", "Online Course Learning", "NPTEL Courses", "ICMAI Test Practice",
-  "Mock Exam Preparation", "Revision Planning", "Study Scheduling", "Night Shift Management",
-  "Energy Management", "Sleep Optimization", "Stress Relief Techniques", "Motivation Skills",
-  "Goal Tracking", "Progress Evaluation", "Learning Efficiency", "Note Making", "Voice Notes",
-  "Productivity Hacks", "Task Prioritization",
-  "Relator Networking", "Building Trust", "Deep Relationship Building", "Active Empathy", "Perspective Taking",
-  "Conflict Mediation", "Team Cohesion", "One-on-One Coaching", "Feedback Facilitation", "Mentorship Guidance",
-  "Deliberative Risk Assessment", "Cautious Decision Making", "Thoughtful Planning", "Scenario Analysis", "Trade-Off Analysis",
-  "Learner Mindset", "Continuous Knowledge Acquisition", "Self-Directed Learning", "Learning Agility", "Skill Retention",
-  "Intellection Reflection", "Deep Thinking", "Critical Analysis", "Conceptual Mapping", "Thought Synthesis",
-  "Input Curation", "Information Gathering", "Knowledge Repository Creation", "Research Skills", "Resource Compilation",
-  "Empathy Listening", "Understanding Others' Emotions", "Emotional Intelligence", "Active Listening", "Perspective Integration",
-  "Individualization Personalization", "Tailored Coaching", "Personalized Feedback", "Strength-Based Alignment", "Talent Spotting",
-  "Developer Coaching", "Talent Nurturing", "Capability Building", "Growth Planning", "Performance Support",
-  "Harmony Facilitation", "Consensus Building", "Conflict Resolution", "Team Alignment", "Collaboration Encouragement",
-  "Restorative Problem Solving", "Issue Diagnosis", "Solution Design", "Process Fixing", "Root Cause Analysis",
-  "Ideation Creativity", "Brainstorm Facilitation", "Innovation Management", "Creative Problem Solving", "Concept Development",
-  "Connectedness Awareness", "Systems Thinking", "Holistic Perspective", "Interconnected Analysis", "Big Picture Thinking",
-  "Competition Benchmarking", "Performance Tracking", "Goal Comparison", "Motivation Through Metrics", "Excellence Pursuit",
-  "Strategic Planning", "Vision Development", "Scenario Planning", "Strategic Optioning", "Long-Term Focus",
-  "Positivity Encouragement", "Morale Uplift", "Motivation Skills", "Optimistic Framing", "Celebration of Wins",
-  "Discipline Routine Creation", "Time Management", "Structured Planning", "Process Adherence", "Goal Achievement",
-  "Futuristic Visioning", "Trend Analysis", "Forecasting", "Scenario Modeling", "Innovation Anticipation",
-  "Significance Impact Making", "Influence Skills", "High-Impact Communication", "Thought Leadership", "Purpose Alignment",
-  "Maximizer Excellence Optimization", "Performance Enhancement", "Skill Refinement", "Process Optimization", "Quality Improvement",
-  "Achiever Goal Completion", "Task Execution", "Performance Tracking", "Milestone Management", "Productivity Boosting",
-  "Responsibility Ownership", "Accountability", "Follow-Through", "Dependability", "Trustworthiness",
-  "Analytical Data Evaluation", "Logical Reasoning", "Problem Structuring", "Critical Assessment", "Evidence-Based Decision Making",
-  "Focus Deep Attention", "Concentration Skills", "Priority Management", "Distraction Reduction", "Goal Focus",
-  "Self-Assurance Confidence", "Decision Confidence", "Independent Thinking", "Self-Reliance", "Assertiveness",
-  "Adaptability Flexibility", "Change Management", "Quick Adjustment", "Situational Awareness", "Resilience",
-  "Arranger Resource Coordination", "Team Orchestration", "Workflow Management", "Process Scheduling", "Multi-Tasking Optimization",
-  "Consistency Fairness", "Rule-Based Management", "Equality Enforcement", "Policy Adherence", "Standardization",
-  "Belief Values Alignment", "Ethical Decision Making", "Principle-Driven Action", "Mission Alignment", "Integrity Focus",
-  "Communication Storytelling", "Persuasive Writing", "Presentation Skills", "Effective Messaging", "Influential Communication",
-  "Context Historical Insight", "Lessons From History", "Trend Analysis", "Comparative Analysis", "Situational Awareness",
-  "Activator Initiative Taking", "Proactive Execution", "Action-Oriented Mindset", "Implementation Drive", "Quick Launching",
-  "Command Decision Leadership", "Directive Leadership", "Influence Authority", "Conflict Handling", "Crisis Management",
-  "Woo Relationship Initiating", "Social Influence", "Networking Skills", "Connection Building", "Relationship Initiation",
-  "Includer Inclusion Facilitation", "Diversity Awareness", "Inclusive Team Building", "Equity Practices", "Participation Encouragement",
-  "Strengths-Based Coaching", "Gallup Strengths Mapping", "Strengths Assessment Interpretation", "Talent Application", "Performance Enhancement",
-  "Advanced Financial Modelling", "Risk Mitigation Strategies", "Scenario Planning", "Tax Planning", "Budget Forecasting",
-  "Variance Analysis Automation", "Audit Trail Management", "Accounts Payable Management", "Treasury Management", "Fund Flow Analysis",
-  "Cash Flow Forecasting", "Invoice Automation", "Payment Gateway Management", "ERP Customization", "Financial Compliance",
-  "Internal Controls Design", "Key Account Management", "Customer Onboarding", "Dispute Resolution Management", "SLA Management",
-  "Process Documentation", "KPI Dashboard Creation", "Operational Metrics Tracking", "Data Visualization Design", "Scenario Modelling in Excel",
-  "Power BI Dashboard Optimization", "SQL Data Retrieval", "Database Query Optimization", "Data Governance", "Spreadsheet Error Prevention",
-  "Excel VBA Automation", "Pivot Chart Analysis", "Trend Analysis Reports", "Financial Statement Reconciliation", "Budgetary Planning",
-  "Cost Center Reporting", "Departmental Performance Analysis", "Invoice Discrepancy Investigation", "Supplier Reconciliation", "Customer Credit Analysis",
-  "Vendor Risk Assessment", "Journal Voucher Preparation", "Month-End Closing", "Year-End Closing", "Statutory Compliance Reporting",
-  "MIS Automation", "Workflow Streamlining", "Cross-Functional Coordination", "Change Management", "Continuous Process Improvement",
-  "Team Leadership", "Conflict Management", "Employee Motivation", "Stakeholder Engagement", "Business Case Development",
-  "Process Benchmarking", "Lean Process Implementation", "Six Sigma Basics", "Time Efficiency Analysis", "Strategic Decision Support",
-  "Self-Improvement Tracking"
-];
+  <!-- Background -->
+  <div id="nebula" class="layer"></div>
 
-const N = skills.length; // node count
-const gData = {
-  nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
-  links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
-};
-const canvas = document.getElementById('starCanvas');
-const ctx = canvas.getContext('2d');
-const cx = canvas.width / 2;
-const cy = canvas.height / 2;
-function drawGlowingStar() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    for (let i = 8; i>0; i--){
-        ctx.save();
-        const glowRadius = 50 + i*10 + Math.sin(Date.now()/900)*2;
-        ctx.globalAlpha = 0.03 + 0.06*(i/8);
-        ctx.beginPath();
-        ctx.arc(cx,cy,glowRadius,0,Math.PI*2);
-        ctx.closePath();
-        ctx.fillStyle = i%2===0 ? 'rgba(62,189,255,0.7)' : 'rgba(255,236,128,0.3)';
-        ctx.shadowColor = i%2===0 ? '#60ecff' : '#fffadc';
-        ctx.shadowBlur = 30 + i*5;
-        ctx.fill();
-        ctx.restore();
+  <!-- Optional title -->
+  <div class="title">3D Skills Constellation Globe</div>
+
+  <!-- Hidden canvas for star sprite core -->
+  <canvas id="starCanvas" width="256" height="256" style="display:none"></canvas>
+
+  <!-- Graph host -->
+  <div id="3d-graph"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
+  <script>
+  /*********************** CONFIG *************************/
+  const STAR_SIZE = 9;                // node star sprite size
+  const LABEL_FONT_SIZE = 64;         // label font size (px)
+  const REPULSION_STRENGTH = -22;     // more negative = more spread
+  const PARTICLE_WIDTH = 1.0;
+  const PARTICLE_SPEED = 0.001;
+  const PARTICLE_OPACITY = 0.3;
+
+  // Globe/camera motion
+  const GLOBE_RADIUS = 850;           // visible sphere radius
+  const ORBIT_RADIUS_MIN = GLOBE_RADIUS * 0.55;
+  const ORBIT_RADIUS_MAX = GLOBE_RADIUS * 0.95;
+  const AZIMUTH_SPEED = 0.5;          // radians/sec
+  const POLAR_SPEED = 0.15;           // radians/sec
+  const RESUME_IDLE_MS = 1200;        // delay to resume drift after user input
+
+  /*********************** SKILLS *************************/
+  // Paste the skills here. Keep ONLY comma-separated "..." strings, no comments.
+  const skills = [
+    "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable",
+    "ACH Processing", "Wire Payment Processing", "Check Processing", "NSF Handling",
+    "Remittance Matching", "Customer Communication", "Payment Reconciliation",
+    "Credit Management", "Debit/Credit Notes", "Invoice Distribution", "Collections",
+    "Customer Queries Handling", "AR Aging Report", "Payment Dispute Resolution",
+    "Bank Statement Analysis", "Service Charge Management", "Write-Offs Management",
+    "Vendor Coordination", "Internal Reporting", "US Foods TANDEM System",
+    "Versapay Platform", "Micro Dynamics ERP", "C MOD Software", "ISR Tool",
+    "Open Scan Research Tool", "Quadient Impress", "AR SharePoint Management",
+    "Validation File Handling", "My Account Platform Management", "ACH Auto Deduct Coordination",
+    "Financial Accounting", "Cost Accounting", "Direct Taxation", "Indirect Taxation",
+    "GST Compliance", "TDS Compliance", "Income Tax Calculation", "Payroll Accounting",
+    "Balance Sheet Preparation", "Profit & Loss Statement", "Trial Balance",
+    "General Ledger Management", "Journal Entries", "Bank Reconciliation Statement",
+    "Financial Analysis", "Variance Analysis", "Budgeting", "Forecasting",
+    "Cost Allocation", "Material Ledger", "Stock Ledger", "Inventory Accounting",
+    "Fixed Assets Accounting", "Depreciation Accounting", "Payroll Processing",
+    "Accounting Principles", "Accounting Software Tally ERP", "SAP FICO Basics",
+    "Accounting Ratios", "KPI Reporting", "MIS Reporting", "Financial Modelling",
+    "Audit Compliance", "Internal Audit Support", "Regulatory Reporting", "SOX Compliance",
+    "Email Communication", "Professional Etiquette", "Report Writing", "Documentation Management",
+    "Data Entry Accuracy", "Attention to Detail", "Organizational Skills", "Time Management",
+    "Multitasking", "Prioritization", "Deadline Management", "Internal Coordination",
+    "Team Collaboration", "Stakeholder Communication", "Vendor Communication",
+    "Client Communication", "Meeting Coordination", "Workforce Management",
+    "Task Scheduling", "Performance Tracking", "Presentation Skills", "Decision Making",
+    "Problem Solving", "Analytical Thinking", "Critical Thinking", "Logical Reasoning",
+    "Process Improvement", "Workflow Optimization", "Process Mapping", "Operational Efficiency",
+    "Quality Management", "Audit Preparation", "Risk Assessment", "Compliance Checks",
+    "Adaptability", "Flexibility", "Continuous Learning", "Self-Motivation", "Goal Setting",
+    "Stress Management", "Conflict Resolution", "Negotiation", "Persuasion", "Influencing Skills",
+    "Leadership", "Team Management", "Delegation", "Mentoring", "Coaching",
+    "Employee Engagement", "Professional Ethics", "Interpersonal Skills", "Networking",
+    "Collaboration", "Time Optimization", "Active Listening", "Problem Identification",
+    "Solution Implementation", "Project Planning", "Project Execution", "Resource Allocation",
+    "Project Monitoring", "Performance Evaluation", "Decision Support", "Stakeholder Management",
+    "Customer Relationship Management", "Vendor Relations", "Service Excellence",
+    "Professionalism", "Positive Attitude", "Work-Life Balance", "Self-Discipline",
+    "Presentation Design", "Report Structuring", "Email Etiquette", "Documentation Standards",
+    "Excel Basics", "Advanced Excel", "Pivot Tables", "VLOOKUP", "HLOOKUP",
+    "Index Match", "Conditional Formatting", "Excel Macros", "Power Query", "Power Pivot",
+    "Charts & Graphs", "Data Analysis", "Data Visualization", "Tables & Formulas",
+    "Dashboard Creation", "Power BI Basics", "Power BI Reports", "Data Modeling",
+    "Excel Reporting", "Spreadsheet Automation", "Tally ERP Reports", "SAP Reports",
+    "Database Management", "SQL Queries Basics", "Report Consolidation", "Data Cleaning",
+    "Data Aggregation", "Data Transformation", "MIS Dashboard", "KPI Dashboard",
+    "Trend Analysis", "Variance Reporting"
+    // Add more items here safely
+  ];
+
+  const N = skills.length;
+  const gData = {
+    nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
+    links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
+  };
+
+  /*********************** STAR SPRITE CORE *************************/
+  const starCanvas = document.getElementById('starCanvas');
+  const sctx = starCanvas.getContext('2d');
+  const cx = starCanvas.width / 2;
+  const cy = starCanvas.height / 2;
+
+  function drawGlowingStar() {
+    sctx.clearRect(0,0,starCanvas.width,starCanvas.height);
+    for (let i = 8; i > 0; i--) {
+      sctx.save();
+      const glowRadius = 50 + i*10 + Math.sin(Date.now()/900)*2;
+      sctx.globalAlpha = 0.03 + 0.06*(i/8);
+      sctx.beginPath();
+      sctx.arc(cx, cy, glowRadius, 0, Math.PI*2);
+      sctx.closePath();
+      sctx.fillStyle = i%2===0 ? 'rgba(62,189,255,0.7)' : 'rgba(255,236,128,0.3)';
+      sctx.shadowColor = i%2===0 ? '#60ecff' : '#fffadc';
+      sctx.shadowBlur = 30 + i*5;
+      sctx.fill();
+      sctx.restore();
     }
-    ctx.save();
-    const grad = ctx.createRadialGradient(cx,cy,5,cx,cy,20);
+    sctx.save();
+    const grad = sctx.createRadialGradient(cx,cy,5,cx,cy,20);
     grad.addColorStop(0,'#fff');
     grad.addColorStop(0.3,'#fff6b5');
     grad.addColorStop(1,'#fffacd11');
-    ctx.beginPath();
-    ctx.arc(cx,cy,20,0,Math.PI*2);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.shadowColor='gold';
-    ctx.shadowBlur = 30;
-    ctx.fill();
-    ctx.restore();
+    sctx.beginPath();
+    sctx.arc(cx,cy,20,0,Math.PI*2);
+    sctx.closePath();
+    sctx.fillStyle = grad;
+    sctx.shadowColor='gold';
+    sctx.shadowBlur = 30;
+    sctx.fill();
+    sctx.restore();
     requestAnimationFrame(drawGlowingStar);
-}
-drawGlowingStar();
-const starTexture = new THREE.CanvasTexture(canvas);
-starTexture.minFilter = THREE.LinearFilter;
-starTexture.magFilter = THREE.LinearFilter;
-starTexture.needsUpdate = true;
-const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
-  .graphData(gData)
-  .nodeThreeObject(node=>{
+  }
+  drawGlowingStar();
+
+  const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
+    .graphData(gData)
+    .nodeThreeObject(node => {
       const group = new THREE.Group();
-      const starCanvas = document.createElement('canvas');
-      starCanvas.width = starCanvas.height = 64;
-      const ctx = starCanvas.getContext('2d');
-      const gradient = ctx.createRadialGradient(32,32,0,32,32,32);
-gradient.addColorStop(0,'rgba(255,255,200,1)');    // core (white)
-gradient.addColorStop(0.3,'rgba(255,220,120,0.8)');
-gradient.addColorStop(0.6,'rgba(255,180,60,0.5)');
-gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0,0,64,64);
-      const texture = new THREE.CanvasTexture(starCanvas);
-      const material = new THREE.SpriteMaterial({map: texture, transparent:true});
-      const sprite = new THREE.Sprite(material);
-      sprite.scale.set(STAR_SIZE, STAR_SIZE, 1);
-      group.add(sprite);
+
+      // star sprite
+      const starCanvas2 = document.createElement('canvas');
+      starCanvas2.width = starCanvas2.height = 64;
+      const c2 = starCanvas2.getContext('2d');
+      const g = c2.createRadialGradient(32,32,0,32,32,32);
+      g.addColorStop(0,'rgba(255,255,200,1)');
+      g.addColorStop(0.3,'rgba(255,220,120,0.8)');
+      g.addColorStop(0.6,'rgba(255,180,60,0.5)');
+      g.addColorStop(1,'rgba(255,180,60,0)');
+      c2.fillStyle = g;
+      c2.fillRect(0,0,64,64);
+      const starTex = new THREE.CanvasTexture(starCanvas2);
+      const starMat = new THREE.SpriteMaterial({ map: starTex, transparent: true });
+      const starSprite = new THREE.Sprite(starMat);
+      starSprite.scale.set(STAR_SIZE, STAR_SIZE, 1);
+      group.add(starSprite);
+
+      // label sprite
       const labelCanvas = document.createElement('canvas');
       const labelCtx = labelCanvas.getContext('2d');
+      const text = String(node.skill || "");
       labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
-      const text = node.skill;
-      const textWidth = labelCtx.measureText(text).width;
-      labelCanvas.width = textWidth+20;
-      labelCanvas.height = LABEL_FONT_SIZE+10;
+      const textWidth = Math.max(1, labelCtx.measureText(text).width);
+      labelCanvas.width = Math.ceil(textWidth + 20);
+      labelCanvas.height = Math.ceil(LABEL_FONT_SIZE + 10);
       labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
       labelCtx.fillStyle = '#cce6ff';
-      labelCtx.fillText(text,5,LABEL_FONT_SIZE);
-      const labelTexture = new THREE.CanvasTexture(labelCanvas);
-      const labelMaterial = new THREE.SpriteMaterial({map:labelTexture,transparent:true});
-      const label = new THREE.Sprite(labelMaterial);
-      label.position.set(0, LABEL_FONT_SIZE*0.2, 0);
-      label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
+      labelCtx.textBaseline = 'alphabetic';
+      labelCtx.fillText(text, 5, LABEL_FONT_SIZE);
+      const labelTex = new THREE.CanvasTexture(labelCanvas);
+      const labelMat = new THREE.SpriteMaterial({ map: labelTex, transparent: true });
+      const label = new THREE.Sprite(labelMat);
+      label.position.set(0, LABEL_FONT_SIZE * 0.2, 0);
+      label.scale.set(labelCanvas.width * 0.06, labelCanvas.height * 0.06, 1);
       group.add(label);
+
       return group;
-  })
-  .linkWidth(1.0)
-  .linkColor(()=> 'rgba(160,200,220,0.08)')
-  .linkOpacity(1)
-  .linkDirectionalParticles(1)
-  .linkDirectionalParticleWidth(PARTICLE_WIDTH)
-  .linkDirectionalParticleSpeed(()=> PARTICLE_SPEED)
-  .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
-  .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
-  ;
-const initialZ = 900;
-Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
-const controls = Graph.controls();
-controls.enableDamping = true;
-controls.dampingFactor = 0.005;
-controls.zoomSpeed = 0.5;
-controls.minDistance = 150;
-controls.maxDistance = 2000;
-controls.enableRotate = true;
-controls.enablePan = true;
-controls.screenSpacePanning = true;
+    })
+    .linkWidth(1.0)
+    .linkColor(() => 'rgba(160,200,220,0.08)')
+    .linkOpacity(1)
+    .linkDirectionalParticles(1)
+    .linkDirectionalParticleWidth(PARTICLE_WIDTH)
+    .linkDirectionalParticleSpeed(() => PARTICLE_SPEED)
+    .linkDirectionalParticleColor(() => `rgba(255,246,200,${PARTICLE_OPACITY})`);
 
-let userInteracting = false;
+  // Transparent renderer so nebula shows through
+  try { Graph.renderer().setClearColor(0x000000, 0); } catch(e) {}
+  Graph.scene().background = null;
 
-controls.addEventListener('start', () => {
-  userInteracting = true;
-});
-controls.addEventListener('end', () => {
-  userInteracting = false;
-});
+  // Add faint wireframe globe
+  const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 48, 32);
+  const globeMat = new THREE.MeshBasicMaterial({ color: 0x6fa8ff, wireframe: true, transparent: true, opacity: 0.08 });
+  const globe = new THREE.Mesh(globeGeo, globeMat);
+  Graph.scene().add(globe);
 
-  // --- Drifting camera setup ---
-let camTarget = new THREE.Vector3(0, 0, 600); // initial target
-let driftSpeed = 0.004;  // smaller = slower drift
-const cam = Graph.camera();
+  // Clamp nodes into globe
+  Graph.onEngineTick(() => {
+    Graph.graphData().nodes.forEach(n => {
+      const obj = Graph.nodeThreeObject(n);
+      if (!obj) return;
+      const p = obj.position;
+      const len = Math.hypot(p.x, p.y, p.z);
+      if (len > GLOBE_RADIUS * 0.98) {
+        const s = (GLOBE_RADIUS * 0.98) / (len || 1);
+        p.set(p.x * s, p.y * s, p.z * s);
+      }
+    });
+  });
 
-function pickNewTarget() {
-  // pick a random point within a cube around origin
-  const range = 900; // how far camera can wander
-  camTarget.set(
-    (Math.random() - 0.5) * range,
-    (Math.random() - 0.5) * range,
-    (Math.random() - 0.5) * range
-  );
-}
+  // Camera/controls
+  const cam = Graph.camera();
+  Graph.cameraPosition({ x: 0, y: 0, z: ORBIT_RADIUS_MAX });
+  const controls = Graph.controls();
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.005;
+  controls.zoomSpeed = 0.6;
+  controls.minDistance = 150;
+  controls.maxDistance = 2000;
+  controls.enableRotate = true;
+  controls.enablePan = true;
+  controls.screenSpacePanning = true;
 
-// initial target
-pickNewTarget();
+  // Endless spherical tour + smooth dolly
+  let theta = 0;
+  let phi = Math.PI / 2;
+  const EPS = 0.2;
+  const driftClock = new THREE.Clock();
+  let userInteracting = false;
+  let resumeTimer = null;
 
-function autoDrift() {
-  if (userInteracting) return;
-
-  // Smoothly move camera toward target
-  cam.position.lerp(camTarget, driftSpeed);
-
-  // Always look at graph center
-  cam.lookAt(0, 0, 0);
-
-  // If close enough, pick a new target
-  if (cam.position.distanceTo(camTarget) < 20) {
-    pickNewTarget();
+  function pauseAuto() {
+    userInteracting = true;
+    if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = null; }
   }
-}
+  function scheduleResume() {
+    if (resumeTimer) { clearTimeout(resumeTimer); }
+    resumeTimer = setTimeout(() => { userInteracting = false; }, RESUME_IDLE_MS);
+  }
 
+  controls.addEventListener('start', pauseAuto);
+  controls.addEventListener('end', scheduleResume);
 
-  
-(function animateLoop() {
-  requestAnimationFrame(animateLoop);
-  autoDrift();        // drifting instead of rotation
-  Graph.tickFrame();  // update physics
-})();
-</script>
+  const host = document.getElementById('3d-graph');
+  host.addEventListener('wheel', () => { pauseAuto(); scheduleResume(); }, { passive: true });
+  host.addEventListener('touchstart', pauseAuto, { passive: true });
+  host.addEventListener('touchend', scheduleResume, { passive: true });
+  host.addEventListener('pointerdown', pauseAuto);
+  host.addEventListener('pointerup', scheduleResume);
+
+  function autoDrift() {
+    const dt = driftClock.getDelta();
+    if (userInteracting) return;
+
+    // advance angles
+    theta += AZIMUTH_SPEED * dt;
+    phi   += POLAR_SPEED  * dt;
+
+    if (phi > Math.PI - EPS) phi = EPS;
+    if (phi < EPS)           phi = Math.PI - EPS;
+
+    // base orbit at unit radius
+    const x = Math.sin(phi) * Math.cos(theta);
+    const y = Math.cos(phi);
+    const z = Math.sin(phi) * Math.sin(theta);
+
+    // smooth dolly in/out
+    const t = performance.now() * 0.001;
+    const u = 0.5 - 0.5 * Math.cos((t % 18) / 18 * Math.PI * 2); // 0..1
+    const dist = ORBIT_RADIUS_MIN + (ORBIT_RADIUS_MAX - ORBIT_RADIUS_MIN) * u;
+
+    cam.position.set(x * dist, y * dist, z * dist);
+
+    // keep inside globe just in case
+    const len = cam.position.length();
+    if (len > GLOBE_RADIUS * 0.96) cam.position.multiplyScalar((GLOBE_RADIUS * 0.96) / len);
+
+    cam.lookAt(0, 0, 0);
+  }
+
+  (function animateLoop(){
+    requestAnimationFrame(animateLoop);
+    autoDrift();
+    Graph.tickFrame();
+  })();
+  </script>
 </body>
 </html>
