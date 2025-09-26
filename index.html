@@ -285,27 +285,22 @@ labelCanvas.height = Math.ceil(LABEL_FONT_SIZE + 10);
 try { Graph.renderer().setClearColor(0x000000, 0); } catch(e) {}
 Graph.scene().background = null;
 
-// Max radius for nodes and camera (used to replace globe size)
+// Max radius of the "virtual globe" (nodes stay inside this)
 const MAX_RADIUS = 850;
 
-// Keep nodes inside visible bounds
+// Keep nodes inside spherical boundary
 Graph.onEngineTick(() => {
   Graph.graphData().nodes.forEach(n => {
     const obj = nodeObjMap.get(n.id);
     if (!obj || !obj.position) return;
     const p = obj.position;
     const len = Math.hypot(p.x, p.y, p.z);
-    const maxR = MAX_RADIUS * 0.98;
-    if (len > maxR) {
-      const s = maxR / (len || 1);
-      p.set(p.x * s, p.y * s, p.z * s);
+    if (len > MAX_RADIUS) {
+      const scale = MAX_RADIUS / (len || 1);
+      p.set(p.x * scale, p.y * scale, p.z * scale);
     }
   });
 });
-
-// Initial camera position
-const initialZ = 900;
-Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
 
 // Controls
 const controls = Graph.controls();
@@ -313,16 +308,15 @@ controls.enableDamping = true;
 controls.dampingFactor = 0.005;
 controls.zoomSpeed = 0.5;
 controls.minDistance = 150;
-controls.maxDistance = 2000;
+controls.maxDistance = MAX_RADIUS * 1.5;
 controls.enableRotate = true;
 controls.enablePan = true;
 controls.screenSpacePanning = true;
 
-// User interaction flags
+// User interaction
 let userInteracting = false;
 const RESUME_IDLE_MS = 1200;
 let resumeTimer = null;
-
 controls.addEventListener('start', () => { userInteracting = true; });
 controls.addEventListener('end', () => {
   if (resumeTimer) clearTimeout(resumeTimer);
@@ -332,49 +326,47 @@ controls.addEventListener('end', () => {
 const host = document.getElementById('3d-graph');
 function pauseAuto() { userInteracting = true; if (resumeTimer) clearTimeout(resumeTimer); }
 function scheduleResume() { if (resumeTimer) clearTimeout(resumeTimer); resumeTimer = setTimeout(() => { userInteracting = false; }, RESUME_IDLE_MS); }
-
 host.addEventListener('wheel', pauseAuto); host.addEventListener('wheel', scheduleResume, { passive: true });
 host.addEventListener('touchstart', pauseAuto, { passive: true });
 host.addEventListener('touchend', scheduleResume, { passive: true });
 host.addEventListener('pointerdown', pauseAuto);
 host.addEventListener('pointerup', scheduleResume);
 
-// Free continuous drift settings
-let driftTheta = Math.random() * Math.PI * 2;
-let driftPhi = Math.random() * Math.PI;
-const DRIFT_SPEED = 0.03;   // smaller = slower, smoother
-const ZOOM_SPEED_FACTOR = 0.5;
+// Camera drift
+let theta = Math.random() * Math.PI * 2;
+let phi = Math.random() * Math.PI;
+const DRIFT_SPEED = 0.01; // smooth drift
+const ZOOM_SPEED = 0.02;  // zoom in speed
 
-function autoDriftContinuous() {
-    const dt = driftClock.getDelta();
-    if (userInteracting) return;
+let initialCamDist = MAX_RADIUS * 1.2;
+let targetCamDist = MAX_RADIUS * 0.8; // zoom into graph
+let currentCamDist = initialCamDist;
 
-    // Slowly update angles
-    driftTheta += DRIFT_SPEED * dt;
-    driftPhi += DRIFT_SPEED * dt * 0.5; // slower polar drift
+function driftCamera() {
+    if (!userInteracting) {
+        // Smooth zoom
+        currentCamDist += (targetCamDist - currentCamDist) * ZOOM_SPEED;
 
-    // keep angles within limits
-    driftPhi = Math.max(0.1, Math.min(Math.PI - 0.1, driftPhi));
+        // Update angles slowly
+        theta += DRIFT_SPEED * 0.7;
+        phi += DRIFT_SPEED * 0.3;
+        phi = Math.max(0.1, Math.min(Math.PI - 0.1, phi));
 
-    // Convert to 3D Cartesian
-    const x = Math.sin(driftPhi) * Math.cos(driftTheta);
-    const y = Math.cos(driftPhi);
-    const z = Math.sin(driftPhi) * Math.sin(driftTheta);
+        // Convert to Cartesian
+        const x = Math.sin(phi) * Math.cos(theta);
+        const y = Math.cos(phi);
+        const z = Math.sin(phi) * Math.sin(theta);
 
-    // Smooth zoom in/out
-    const t = performance.now() * 0.001 * ZOOM_SPEED_FACTOR;
-    const zoomFactor = ORBIT_RADIUS_MIN + (ORBIT_RADIUS_MAX - ORBIT_RADIUS_MIN) * (0.5 - 0.5 * Math.cos(t * Math.PI * 2));
-
-    const cam = Graph.camera();
-    cam.position.set(x * zoomFactor, y * zoomFactor, z * zoomFactor);
-
-    cam.lookAt(0, 0, 0);
+        const cam = Graph.camera();
+        cam.position.set(x * currentCamDist, y * currentCamDist, z * currentCamDist);
+        cam.lookAt(0, 0, 0);
+    }
 }
 
 // Animation loop
 (function animateLoop() {
     requestAnimationFrame(animateLoop);
-    autoDriftContinuous();
+    driftCamera();
 })();
 
   
