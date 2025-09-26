@@ -318,68 +318,11 @@ function autoDrift() {
   Graph.tickFrame();
 })();
 
-// ========== REFRESH BUTTON ==========
-// ========== SMOOTH REFRESH BUTTON ==========
+<script>
 document.getElementById('refreshBtn').addEventListener('click', () => {
-    if(userInteracting) return; // avoid multiple clicks
-    userInteracting = true;
-
-    // Animate shrink
-    let shrinkProgress = 0;
-    const shrinkDuration = 300; // ms
-    const growDuration = 400;   // ms
-    const startTime = Date.now();
-
-    const initialScales = Graph.graphData().nodes.map(node => node.__threeObj ? node.__threeObj.children[0].scale.clone() : null);
-
-    function animateShrink() {
-        const t = (Date.now() - startTime) / shrinkDuration;
-        if (t < 1) {
-            // shrink glow
-            targetBurstProgress = 1 - t;
-            // shrink stars
-            Graph.graphData().nodes.forEach((node, i) => {
-                if(node.__threeObj && initialScales[i]){
-                    const s = STAR_SIZE * (1 - t);
-                    node.__threeObj.children[0].scale.set(s, s, 1);
-                }
-            });
-            requestAnimationFrame(animateShrink);
-        } else {
-            // fully shrunk, reset camera
-            targetBurstProgress = 0;
-            cam.position.set(0,0,initialZ);
-            cam.lookAt(0,0,0);
-            controls.target.set(0,0,0);
-            controls.update();
-
-            // pick new drift target
-            pickNewTarget();
-
-            // now grow stars and glow
-            const growStart = Date.now();
-            function animateGrow() {
-                const gt = (Date.now() - growStart) / growDuration;
-                const ease = Math.min(gt, 1); // simple linear easing
-                targetBurstProgress = ease;
-                Graph.graphData().nodes.forEach((node, i) => {
-                    if(node.__threeObj && initialScales[i]){
-                        const s = STAR_SIZE * ease;
-                        node.__threeObj.children[0].scale.set(s, s, 1);
-                    }
-                });
-                if(ease < 1){
-                    requestAnimationFrame(animateGrow);
-                } else {
-                    userInteracting = false; // done
-                }
-            }
-            animateGrow();
-        }
-    }
-
-    animateShrink();
+    location.reload(); // this will reload the entire page
 });
+</script>
 
 </script>
 </body>
