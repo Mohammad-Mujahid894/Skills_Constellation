@@ -196,12 +196,20 @@ const canvas = document.getElementById('starCanvas');
 const ctx = canvas.getContext('2d');
 const cx = canvas.width / 2;
 const cy = canvas.height / 2;
+let burstProgress = 0;
+const BURST_SPEED = 0.02; // smaller = slower, bigger = faster
+
 function drawGlowingStar() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
+    
+    // gradually increase burstProgress to 1
+    if (burstProgress < 1) burstProgress += BURST_SPEED;
+    
     for (let i = 8; i>0; i--){
         ctx.save();
-        const glowRadius = 50 + i*10 + Math.sin(Date.now()/900)*2;
-        ctx.globalAlpha = 0.03 + 0.06*(i/8);
+        const baseRadius = 50 + i*10;
+        const glowRadius = baseRadius * burstProgress + Math.sin(Date.now()/900)*2;
+        ctx.globalAlpha = (0.03 + 0.06*(i/8)) * burstProgress;
         ctx.beginPath();
         ctx.arc(cx,cy,glowRadius,0,Math.PI*2);
         ctx.closePath();
@@ -211,22 +219,26 @@ function drawGlowingStar() {
         ctx.fill();
         ctx.restore();
     }
+
+    // Center glow
     ctx.save();
-    const grad = ctx.createRadialGradient(cx,cy,5,cx,cy,20);
+    const grad = ctx.createRadialGradient(cx,cy,5,cx,cy,20*burstProgress);
     grad.addColorStop(0,'#fff');
     grad.addColorStop(0.3,'#fff6b5');
     grad.addColorStop(1,'#fffacd11');
     ctx.beginPath();
-    ctx.arc(cx,cy,20,0,Math.PI*2);
+    ctx.arc(cx,cy,20*burstProgress,0,Math.PI*2);
     ctx.closePath();
     ctx.fillStyle = grad;
     ctx.shadowColor='gold';
-    ctx.shadowBlur = 30;
+    ctx.shadowBlur = 30 * burstProgress;
     ctx.fill();
     ctx.restore();
+
     requestAnimationFrame(drawGlowingStar);
 }
 drawGlowingStar();
+
 const starTexture = new THREE.CanvasTexture(canvas);
 starTexture.minFilter = THREE.LinearFilter;
 starTexture.magFilter = THREE.LinearFilter;
