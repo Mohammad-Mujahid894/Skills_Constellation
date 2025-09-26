@@ -247,6 +247,8 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
   .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
   .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
   ;
+try { Graph.renderer().setClearColor(0x000000, 0); } catch(e) {}
+Graph.scene().background = null;
 
 
 
@@ -295,14 +297,7 @@ controls.enableRotate = true;
 controls.enablePan = true;
 controls.screenSpacePanning = true;
 
-let userInteracting = false;
 
-controls.addEventListener('start', () => {
-  userInteracting = true;
-});
-controls.addEventListener('end', () => {
-  userInteracting = false;
-});
 
 
 
