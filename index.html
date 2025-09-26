@@ -249,7 +249,6 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
   ;
 const initialZ = 900;
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
-// Get controls once at the start
 const controls = Graph.controls();
 controls.enableDamping = true;
 controls.dampingFactor = 0.005;
@@ -260,69 +259,55 @@ controls.enableRotate = true;
 controls.enablePan = true;
 controls.screenSpacePanning = true;
 
-// --- Smooth spherical camera drift (user-friendly) ---
-const cam = Graph.camera();
-const MAX_RADIUS = 900;          // radius of spherical drift
-const ZOOM_SPEED = 0.01;         // how fast camera zooms to center
-let currentRadius = MAX_RADIUS*1.5; // start farther out
-let driftTheta = Math.random() * Math.PI*2;
-let driftPhi = Math.random() * Math.PI;
-const DRIFT_SPEED_THETA = 0.0025;
-const DRIFT_SPEED_PHI = 0.0018;
 let userInteracting = false;
-let resumeTimer = null;
-const RESUME_IDLE_MS = 1500;
-const driftClock = new THREE.Clock();
 
-// --- Interaction events ---
-function pauseDrift() { 
-    userInteracting = true; 
-    if (resumeTimer) clearTimeout(resumeTimer);
-}
-function resumeDrift() { 
-    if (resumeTimer) clearTimeout(resumeTimer);
-    resumeTimer = setTimeout(()=>{ userInteracting=false; }, RESUME_IDLE_MS);
-}
-const host = document.getElementById('3d-graph');
-['wheel','pointerdown','touchstart'].forEach(ev => host.addEventListener(ev, pauseDrift, {passive:true}));
-['wheel','pointerup','touchend'].forEach(ev => host.addEventListener(ev, resumeDrift, {passive:true}));
+controls.addEventListener('start', () => {
+  userInteracting = true;
+});
+controls.addEventListener('end', () => {
+  userInteracting = false;
+});
 
-// --- Drift function ---
+  // --- Drifting camera setup ---
+let camTarget = new THREE.Vector3(0, 0, 600); // initial target
+let driftSpeed = 0.004;  // smaller = slower drift
+const cam = Graph.camera();
+
+function pickNewTarget() {
+  // pick a random point within a cube around origin
+  const range = 900; // how far camera can wander
+  camTarget.set(
+    (Math.random() - 0.5) * range,
+    (Math.random() - 0.5) * range,
+    (Math.random() - 0.5) * range
+  );
+}
+
+// initial target
+pickNewTarget();
+
 function autoDrift() {
-    const dt = driftClock.getDelta();
+  if (userInteracting) return;
 
-    // Smooth zoom to middle
-    if(currentRadius > MAX_RADIUS) {
-        currentRadius -= (currentRadius - MAX_RADIUS) * ZOOM_SPEED;
-    }
+  // Smoothly move camera toward target
+  cam.position.lerp(camTarget, driftSpeed);
 
-    if(!userInteracting){
-        // update drift angles
-        driftTheta += DRIFT_SPEED_THETA * dt * 60;
-        driftPhi += DRIFT_SPEED_PHI * dt * 60;
-        driftPhi = Math.max(0.1, Math.min(Math.PI-0.1, driftPhi));
-    }
+  // Always look at graph center
+  cam.lookAt(0, 0, 0);
 
-    // Spherical -> Cartesian
-    const x = Math.sin(driftPhi) * Math.cos(driftTheta);
-    const y = Math.cos(driftPhi);
-    const z = Math.sin(driftPhi) * Math.sin(driftTheta);
-
-    cam.position.set(x * currentRadius, y * currentRadius, z * currentRadius);
-    cam.lookAt(0,0,0);
+  // If close enough, pick a new target
+  if (cam.position.distanceTo(camTarget) < 20) {
+    pickNewTarget();
+  }
 }
-
-// --- Animation loop ---
-(function animateLoop(){
-    requestAnimationFrame(animateLoop);
-    autoDrift();
-    Graph.tickFrame();
-})();
-
 
 
   
-
+(function animateLoop() {
+  requestAnimationFrame(animateLoop);
+  autoDrift();        // drifting instead of rotation
+  Graph.tickFrame();  // update physics
+})();
 </script>
 </body>
 </html>
