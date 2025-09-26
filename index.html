@@ -238,7 +238,9 @@ burstProgress += (targetBurstProgress - burstProgress) * 0.08;
     ctx.shadowBlur = 30 * burstProgress;
     ctx.fill();
     ctx.restore();
+  
   starTexture.needsUpdate = true;
+  
     requestAnimationFrame(drawGlowingStar);
 }
 drawGlowingStar();
