@@ -339,52 +339,44 @@ host.addEventListener('touchend', scheduleResume, { passive: true });
 host.addEventListener('pointerdown', pauseAuto);
 host.addEventListener('pointerup', scheduleResume);
 
-// Free-drift parameters
-let theta = 0;             
-let phi = Math.PI / 2;     
-const AZIMUTH_SPEED = 0.1; // slower drift
-const POLAR_SPEED = 0.05;
-const EPS = 0.2;
-const ORBIT_RADIUS_MIN = MAX_RADIUS * 0.55;
-const ORBIT_RADIUS_MAX = MAX_RADIUS * 0.95;
-const driftClock = new THREE.Clock();
+// Free continuous drift settings
+let driftTheta = Math.random() * Math.PI * 2;
+let driftPhi = Math.random() * Math.PI;
+const DRIFT_SPEED = 0.03;   // smaller = slower, smoother
+const ZOOM_SPEED_FACTOR = 0.5;
 
-function autoDrift() {
-  const dt = driftClock.getDelta();
-  if (userInteracting) return;
+function autoDriftContinuous() {
+    const dt = driftClock.getDelta();
+    if (userInteracting) return;
 
-  theta += AZIMUTH_SPEED * dt;
-  phi   += POLAR_SPEED * dt;
+    // Slowly update angles
+    driftTheta += DRIFT_SPEED * dt;
+    driftPhi += DRIFT_SPEED * dt * 0.5; // slower polar drift
 
-  if (phi > Math.PI - EPS) phi = EPS;
-  if (phi < EPS)           phi = Math.PI - EPS;
+    // keep angles within limits
+    driftPhi = Math.max(0.1, Math.min(Math.PI - 0.1, driftPhi));
 
-  // Base direction
-  const x = Math.sin(phi) * Math.cos(theta);
-  const y = Math.cos(phi);
-  const z = Math.sin(phi) * Math.sin(theta);
+    // Convert to 3D Cartesian
+    const x = Math.sin(driftPhi) * Math.cos(driftTheta);
+    const y = Math.cos(driftPhi);
+    const z = Math.sin(driftPhi) * Math.sin(driftTheta);
 
-  // Smooth zoom in/out
-  const t = performance.now() * 0.001;
-  const u = 0.5 - 0.5 * Math.cos((t % 18) / 18 * Math.PI * 2);
-  const dist = ORBIT_RADIUS_MIN + (ORBIT_RADIUS_MAX - ORBIT_RADIUS_MIN) * u;
+    // Smooth zoom in/out
+    const t = performance.now() * 0.001 * ZOOM_SPEED_FACTOR;
+    const zoomFactor = ORBIT_RADIUS_MIN + (ORBIT_RADIUS_MAX - ORBIT_RADIUS_MIN) * (0.5 - 0.5 * Math.cos(t * Math.PI * 2));
 
-  const cam = Graph.camera();
-  cam.position.set(x * dist, y * dist, z * dist);
+    const cam = Graph.camera();
+    cam.position.set(x * zoomFactor, y * zoomFactor, z * zoomFactor);
 
-  // Keep inside safe radius
-  const len = cam.position.length();
-  const maxCam = MAX_RADIUS * 0.96;
-  if (len > maxCam) cam.position.multiplyScalar(maxCam / len);
-
-  cam.lookAt(0, 0, 0);
+    cam.lookAt(0, 0, 0);
 }
 
 // Animation loop
 (function animateLoop() {
-  requestAnimationFrame(animateLoop);
-  autoDrift();
+    requestAnimationFrame(animateLoop);
+    autoDriftContinuous();
 })();
+
   
 </script>
 </body>
