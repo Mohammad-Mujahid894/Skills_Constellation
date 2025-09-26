@@ -201,9 +201,11 @@ const starTexture = new THREE.CanvasTexture(canvas);
 starTexture.minFilter = THREE.LinearFilter;
 starTexture.magFilter = THREE.LinearFilter;
 starTexture.needsUpdate = true;
+
+  const nodeObjMap = new Map(); // store node -> THREE.Group
 const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
   .graphData(gData)
-  .nodeThreeObject(node=>{
+  .nodeThreeObject(node => {
       const group = new THREE.Group();
       const starCanvas = document.createElement('canvas');
       starCanvas.width = starCanvas.height = 64;
@@ -236,14 +238,15 @@ labelCanvas.height = Math.ceil(LABEL_FONT_SIZE + 10);
       label.position.set(0, LABEL_FONT_SIZE*0.2, 0);
       label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
       group.add(label);
-     // ✅ wrap this return in try/catch
-    try {
-      return group;
-    } catch(e) {
-      console.error("Node creation failed for:", node, e);
-      return new THREE.Object3D(); // fallback empty object
-    }
+ nodeObjMap.set(node.id, group); // store it
+
+      try { return group; } 
+      catch(e) { 
+          console.error("Node creation failed for:", node, e); 
+          return new THREE.Object3D(); 
+      }
   })
+  
   .linkWidth(1.0)
   .linkColor(()=> 'rgba(160,200,220,0.08)')
   .linkOpacity(1)
@@ -274,8 +277,8 @@ Graph.scene().add(globe);
 
 Graph.onEngineTick(() => {
   Graph.graphData().nodes.forEach(n => {
-    const obj = Graph.getNodeThreeObject(n); // ✅ use getNodeThreeObject
-    if (!obj || !obj.position) return;       // ✅ safety check
+    const obj = nodeObjMap.get(n.id); // ✅ get the stored object
+    if (!obj || !obj.position) return;
     const p = obj.position;
     const len = Math.hypot(p.x, p.y, p.z);
     const maxR = GLOBE_RADIUS * 0.98;
@@ -285,6 +288,7 @@ Graph.onEngineTick(() => {
     }
   });
 });
+
 
 
 
