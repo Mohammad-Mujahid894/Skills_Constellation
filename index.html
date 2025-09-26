@@ -216,8 +216,9 @@ burstProgress += (targetBurstProgress - burstProgress) * 0.08;
         ctx.save();
         const baseRadius = 50 + i*10;
  const glowRadius = baseRadius * burstProgress + Math.sin(Date.now()/900)*2;
-ctx.globalAlpha = 0.06 * someFactor * burstProgress;
-ctx.shadowBlur = someValue * burstProgress;
+ctx.globalAlpha = 0.06 * (i / 8) * burstProgress;
+ctx.shadowBlur = (30 + i * 5) * burstProgress;
+
         ctx.beginPath();
         ctx.arc(cx,cy,glowRadius,0,Math.PI*2);
         ctx.closePath();
