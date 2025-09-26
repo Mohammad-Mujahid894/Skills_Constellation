@@ -58,8 +58,19 @@
   </style>
 </head>
 <body>
-<canvas id="starCanvas" width="256" height="256"></canvas>
-<div id="3d-graph"></div>
+ <!-- Background layer: must exist in DOM -->
+  <div id="nebula" class="layer"></div>
+
+  <!-- Optional: star layers if you later add JS to draw them
+  <canvas id="stars1" class="layer"></canvas>
+  <canvas id="stars2" class="layer"></canvas>
+  <canvas id="stars3" class="layer"></canvas>
+  -->
+
+  <!-- Graph and assets -->
+  <canvas id="starCanvas" width="256" height="256"></canvas>
+  <div id="3d-graph"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
 <script>
