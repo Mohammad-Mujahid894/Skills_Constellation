@@ -253,7 +253,7 @@ Graph.scene().background = null;
 
 
 
-// === Globe boundary: add after Graph creation ===
+
 const GLOBE_RADIUS = 850;
 
 const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 48, 32);
@@ -265,7 +265,7 @@ const globeMat = new THREE.MeshBasicMaterial({
 });
 const globe = new THREE.Mesh(globeGeo, globeMat);
 Graph.scene().add(globe);
-// === Clamp node groups to remain inside the globe ===
+
 Graph.onEngineTick(() => {
   Graph.graphData().nodes.forEach(n => {
     const obj = Graph.nodeThreeObject(n);
@@ -303,7 +303,7 @@ controls.screenSpacePanning = true;
 
 
 
-/ === Auto-drift with pause/resume ===
+
 let userInteracting = false;
 const RESUME_IDLE_MS = 1200;
 
