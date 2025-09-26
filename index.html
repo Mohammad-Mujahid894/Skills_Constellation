@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Mohammad Mujahid's 3-D Skills Constellation Chart</title>
+  <title>Star Nodes + 3D Force Graph</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
     html, body { height:100%; margin:0; background:#040414; }
@@ -114,27 +114,8 @@ const skills = [
   "Energy Management", "Sleep Optimization", "Stress Relief Techniques", "Motivation Skills",
   "Goal Tracking", "Progress Evaluation", "Learning Efficiency", "Note Making", "Voice Notes", 
   "Productivity Hacks", "Task Prioritization"
-  // --- CliftonStrengths & Professional Development Skills ---
-"Relationship Building", "Trust Building", "Stakeholder Mapping", "Active Empathy", "Perspective Taking", "Conflict Mediation", "Bridging Differences", "Team Cohesion", "One-on-One Coaching", "Feedback Facilitation",
-"Thought Partnering", "Socratic Questioning", "Deep Work Focus", "Reflective Writing", "Concept Synthesis", "Pattern Recognition", "Systems Thinking", "Mental Models", "Hypothesis Framing", "Insight Generation",
-"Strategic Optioning", "Scenario Planning", "Prioritization Frameworks", "Risk Assessment", "Second-Order Thinking", "Trade-off Analysis", "Decision Journaling", "Root Cause Analysis", "Retrospective Facilitation", "Process Standardization",
-"Knowledge Curation", "Note Taxonomy Design", "Personal Knowledge Base (PKM)", "Learning Sprints", "Teach-Back Method", "Peer Mentoring", "Skill Matrix Mapping", "Capability Building", "Onboarding Playbooks", "Continuous Feedback Loops",
-"Positive Framing", "Morale Uplift", "Recognition Rituals", "Strengths Spotting", "Talent Matching", "Role Crafting", "Expectations Setting", "Accountability Routines", "Execution Rhythm", "Outcome Orientation",
-"Relator Networking", "Deliberative Risk Analysis", "Learner Mindset", "Intellection Reflection", "Input Collection", "Empathy Listening", "Individualization Personalization", "Developer Coaching", "Harmony Facilitation", "Restorative Problem-Solving",
-"Ideation Creativity", "Connectedness Systems Awareness", "Competition Benchmarking", "Strategic Planning", "Positivity Encouragement", "Discipline Routine Building", "Futuristic Visioning", "Significance Impact Making", "Maximizer Excellence Optimization", "Achiever Goal Completion",
-"Responsibility Ownership", "Analytical Data Evaluation", "Focus Deep Attention", "Self-Assurance Confidence", "Adaptability Flexibility", "Arranger Resource Coordination", "Consistency Fairness", "Belief Values Alignment", "Communication Storytelling", "Context Historical Insight",
-"Activator Initiative Taking", "Command Decision Leadership", "Woo Relationship Initiating", "Includer Inclusion Facilitation", "Influence Negotiation", "Collaboration Teamwork", "Empowerment Delegation", "Mentorship Guidance", "Innovation Problem Solving", "Decision-Making Clarity",
-"Learning Agility", "Skill Acquisition", "Knowledge Application", "Process Mapping", "Operational Excellence", "Change Management", "Conflict Resolution", "Coaching Skills", "Feedback Reception", "Self-Reflection Practice",
-"Personal Branding", "Professional Networking", "Emotional Intelligence", "Mindset Shifting", "Critical Thinking", "Creative Thinking", "Analytical Thinking", "Problem Structuring", "Decision Analytics", "Scenario Analysis",
-"Project Prioritization", "Task Execution", "Time Management", "Resource Planning", "Workload Balancing", "Goal Alignment", "Performance Tracking", "Continuous Learning", "Professional Development Planning", "ICMAI Exam Strategy",
-"Data Interpretation", "Report Analysis", "Accounting Software Familiarity", "Excel Modeling", "Power BI Dashboards", "Financial Analysis", "Cost Accounting Practices", "Business Law Application", "Taxation Computation", "Documentation Accuracy",
-"Presentation Skills", "Stakeholder Communication", "Customer Engagement", "Service Excellence", "Remittance Management", "O2C Operations Expertise", "Invoice Reconciliation", "Payment Exception Handling", "ACH Processing Knowledge", "Check Payment Validation",
-"Demand Letter Drafting", "Credit Management", "Collections Follow-up", "Aging Report Analysis", "System Automation Understanding", "Platform Navigation", "Vendor Coordination", "Invoice Dispute Resolution", "Team Mentoring", "Continuous Feedback Integration",
-"CliftonStrengths Assessment Understanding", "Gallup Strengths Exploration", "Strengths-Based Development", "Talent Application", "Individual Strength Alignment", "Team Strength Utilization", "Performance Enhancement Through Strengths", "Strengths Coaching", "Strengths Mapping", "Strength-Based Leadership"
-
-  ];
-const N = 500;
-
+];
+const N = 400; // node count
 const gData = {
   nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
   links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
@@ -247,7 +228,7 @@ controls.addEventListener('end', () => {
 
   // --- Drifting camera setup ---
 let camTarget = new THREE.Vector3(0, 0, 600); // initial target
-let driftSpeed = 0.0035;  // smaller = slower drift
+let driftSpeed = 0.004;  // smaller = slower drift
 const cam = Graph.camera();
 
 function pickNewTarget() {
