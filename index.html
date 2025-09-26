@@ -288,12 +288,11 @@ Graph.scene().background = null;
 const MAX_RADIUS = 850;
 const DRIFT_SPEED = 0.02;
 
-// Initialize nodes in a spherical shape if not already
+// Initialize nodes in spherical shape
 Graph.graphData().nodes.forEach(n => {
     const obj = nodeObjMap.get(n.id);
     if (!obj || !obj.position) return;
 
-    // random spherical coordinates
     const theta = Math.random() * 2 * Math.PI;
     const phi = Math.acos(2 * Math.random() - 1);
     const r = Math.random() * MAX_RADIUS * 0.95;
@@ -304,7 +303,6 @@ Graph.graphData().nodes.forEach(n => {
         r * Math.cos(phi)
     );
 
-    // store velocity for drifting
     obj.userData = { 
         vx: (Math.random() - 0.5) * DRIFT_SPEED,
         vy: (Math.random() - 0.5) * DRIFT_SPEED,
@@ -320,17 +318,14 @@ Graph.onEngineTick(() => {
         const p = obj.position;
         const v = obj.userData;
 
-        // update position
         p.x += v.vx;
         p.y += v.vy;
         p.z += v.vz;
 
-        // keep inside sphere
         const len = p.length();
         if (len > MAX_RADIUS) {
             const scale = MAX_RADIUS / len;
             p.multiplyScalar(scale);
-            // bounce back velocity
             v.vx *= -1;
             v.vy *= -1;
             v.vz *= -1;
@@ -338,15 +333,29 @@ Graph.onEngineTick(() => {
     });
 });
 
-// Camera (optional slow zoom/drift)
+// Camera setup
 const cam = Graph.camera();
-cam.position.set(0, 0, MAX_RADIUS * 1.2);
-cam.lookAt(0, 0, 0);
+let camTheta = 0;
+let camPhi = Math.PI / 4;  // slight angle
+const CAM_DRIFT_SPEED = 0.01;
 
+function driftCamera() {
+    camTheta += CAM_DRIFT_SPEED;
+    const r = MAX_RADIUS * 1.2;
+    cam.position.set(
+        r * Math.sin(camPhi) * Math.cos(camTheta),
+        r * Math.cos(camPhi),
+        r * Math.sin(camPhi) * Math.sin(camTheta)
+    );
+    cam.lookAt(0, 0, 0);
+}
+
+// Animate loop
 (function animateLoop() {
     requestAnimationFrame(animateLoop);
-    driftCamera();
+    driftCamera(); // optional slow camera drift
 })();
+
   
 </script>
 </body>
