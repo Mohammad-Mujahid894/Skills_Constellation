@@ -14,11 +14,41 @@
     font-family: "MyCustomFont";
     src: url("FoundationTitlesHand.ttf") format("truetype");
 }
+    #refreshBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1); /* transparent/glossy effect */
+  backdrop-filter: blur(5px); /* glassy effect */
+  color: #ffffff;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#refreshBtn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
+}
+
+#refreshBtn:active {
+  transform: scale(0.95);
+}
 </style>
 </head>
 <body>
 <canvas id="starCanvas" width="256" height="256"></canvas>
 <div id="3d-graph"></div>
+  <button id="refreshBtn" title="Refresh">&#x21bb;</button>
+
 <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
 <script>
@@ -314,6 +344,12 @@ function autoDrift() {
   autoDrift();        // drifting instead of rotation
   Graph.tickFrame();  // update physics
 })();
+
+
+  document.getElementById('refreshBtn').addEventListener('click', () => {
+    location.reload(); // reloads the page completely
+});
+
 </script>
 </body>
 </html>
