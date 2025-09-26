@@ -238,7 +238,7 @@ burstProgress += (targetBurstProgress - burstProgress) * 0.08;
     ctx.shadowBlur = 30 * burstProgress;
     ctx.fill();
     ctx.restore();
-
+  starTexture.needsUpdate = true;
     requestAnimationFrame(drawGlowingStar);
 }
 drawGlowingStar();
@@ -363,15 +363,23 @@ function autoDrift() {
 
 
  document.getElementById('refreshBtn').addEventListener('click', () => {
-    // soft reset star burst
-    targetBurstProgress = 0; // shrink the burst first
-    setTimeout(() => { targetBurstProgress = 1; }, 50); // then grow back smoothly
+    // shrink burst smoothly
+    targetBurstProgress = 0;
 
-    // reset camera to initial position
-    cam.position.set(0, 0, initialZ);
+    // gradually grow back
+    setTimeout(() => { 
+        targetBurstProgress = 1; 
+    }, 150); // slightly longer for visible effect
+
+    // reset camera position smoothly
+    Graph.cameraPosition(
+      { x: 0, y: 0, z: initialZ }, // new position
+      { x: 0, y: 0, z: 0 },        // lookAt
+      1500                         // duration in ms
+    );
+
+    // pick new camera target for drifting after reset
     pickNewTarget();
-    controls.target.set(0, 0, 0);
-    controls.update();
 });
 
 
