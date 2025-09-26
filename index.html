@@ -114,8 +114,45 @@ const skills = [
   "Energy Management", "Sleep Optimization", "Stress Relief Techniques", "Motivation Skills",
   "Goal Tracking", "Progress Evaluation", "Learning Efficiency", "Note Making", "Voice Notes", 
   "Productivity Hacks", "Task Prioritization"
+  // --- CliftonStrengths / Gallup Strengths & Related Skills ---
+"Relator Networking", "Building Trust", "Deep Relationship Building", "Active Empathy", "Perspective Taking", 
+"Conflict Mediation", "Team Cohesion", "One-on-One Coaching", "Feedback Facilitation", "Mentorship Guidance",
+"Deliberative Risk Assessment", "Cautious Decision Making", "Thoughtful Planning", "Scenario Analysis", "Trade-Off Analysis",
+"Learner Mindset", "Continuous Knowledge Acquisition", "Self-Directed Learning", "Learning Agility", "Skill Retention",
+"Intellection Reflection", "Deep Thinking", "Critical Analysis", "Conceptual Mapping", "Thought Synthesis",
+"Input Curation", "Information Gathering", "Knowledge Repository Creation", "Research Skills", "Resource Compilation",
+"Empathy Listening", "Understanding Others' Emotions", "Emotional Intelligence", "Active Listening", "Perspective Integration",
+"Individualization Personalization", "Tailored Coaching", "Personalized Feedback", "Strength-Based Alignment", "Talent Spotting",
+"Developer Coaching", "Talent Nurturing", "Capability Building", "Growth Planning", "Performance Support",
+"Harmony Facilitation", "Consensus Building", "Conflict Resolution", "Team Alignment", "Collaboration Encouragement",
+"Restorative Problem Solving", "Issue Diagnosis", "Solution Design", "Process Fixing", "Root Cause Analysis",
+"Ideation Creativity", "Brainstorm Facilitation", "Innovation Management", "Creative Problem Solving", "Concept Development",
+"Connectedness Awareness", "Systems Thinking", "Holistic Perspective", "Interconnected Analysis", "Big Picture Thinking",
+"Competition Benchmarking", "Performance Tracking", "Goal Comparison", "Motivation Through Metrics", "Excellence Pursuit",
+"Strategic Planning", "Vision Development", "Scenario Planning", "Strategic Optioning", "Long-Term Focus",
+"Positivity Encouragement", "Morale Uplift", "Motivation Skills", "Optimistic Framing", "Celebration of Wins",
+"Discipline Routine Creation", "Time Management", "Structured Planning", "Process Adherence", "Goal Achievement",
+"Futuristic Visioning", "Trend Analysis", "Forecasting", "Scenario Modeling", "Innovation Anticipation",
+"Significance Impact Making", "Influence Skills", "High-Impact Communication", "Thought Leadership", "Purpose Alignment",
+"Maximizer Excellence Optimization", "Performance Enhancement", "Skill Refinement", "Process Optimization", "Quality Improvement",
+"Achiever Goal Completion", "Task Execution", "Performance Tracking", "Milestone Management", "Productivity Boosting",
+"Responsibility Ownership", "Accountability", "Follow-Through", "Dependability", "Trustworthiness",
+"Analytical Data Evaluation", "Logical Reasoning", "Problem Structuring", "Critical Assessment", "Evidence-Based Decision Making",
+"Focus Deep Attention", "Concentration Skills", "Priority Management", "Distraction Reduction", "Goal Focus",
+"Self-Assurance Confidence", "Decision Confidence", "Independent Thinking", "Self-Reliance", "Assertiveness",
+"Adaptability Flexibility", "Change Management", "Quick Adjustment", "Situational Awareness", "Resilience",
+"Arranger Resource Coordination", "Team Orchestration", "Workflow Management", "Process Scheduling", "Multi-Tasking Optimization",
+"Consistency Fairness", "Rule-Based Management", "Equality Enforcement", "Policy Adherence", "Standardization",
+"Belief Values Alignment", "Ethical Decision Making", "Principle-Driven Action", "Mission Alignment", "Integrity Focus",
+"Communication Storytelling", "Persuasive Writing", "Presentation Skills", "Effective Messaging", "Influential Communication",
+"Context Historical Insight", "Lessons From History", "Trend Analysis", "Comparative Analysis", "Situational Awareness",
+"Activator Initiative Taking", "Proactive Execution", "Action-Oriented Mindset", "Implementation Drive", "Quick Launching",
+"Command Decision Leadership", "Directive Leadership", "Influence Authority", "Conflict Handling", "Crisis Management",
+"Woo Relationship Initiating", "Social Influence", "Networking Skills", "Connection Building", "Relationship Initiation",
+"Includer Inclusion Facilitation", "Diversity Awareness", "Inclusive Team Building", "Equity Practices", "Participation Encouragement",
+"Strengths-Based Coaching", "Gallup Strengths Mapping", "Strengths Assessment Interpretation", "Talent Application", "Performance Enhancement"
 ];
-const N = 400; // node count
+const N = 500; // node count
 const gData = {
   nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
   links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
