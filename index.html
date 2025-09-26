@@ -28,7 +28,7 @@ const STAR_SIZE = 9; // smaller = tiny, bigger = large
 // Label size
 const LABEL_FONT_SIZE = 69; // bigger = more readable
 // Graph spacing (repulsion)
-const REPULSION_STRENGTH = -9; // bigger negative = more spread out
+const REPULSION_STRENGTH = -18; // bigger negative = more spread out
 // Target zoom after graph settles
 const ZOOM_IN_AMOUNT = 400; // how much closer after standby
 // Zoom-in duration (ms)
@@ -203,9 +203,6 @@ starTexture.magFilter = THREE.LinearFilter;
 starTexture.needsUpdate = true;
 const Graph = ForceGraph3D({ controlType: 'orbit' })(document.getElementById('3d-graph'))
   .graphData(gData)
-  Graph
-  .d3Force('link')
-  .distance(20);  // default ~50, smaller = closer nodes
   .nodeThreeObject(node=>{
       const group = new THREE.Group();
       const starCanvas = document.createElement('canvas');
@@ -250,6 +247,9 @@ gradient.addColorStop(1,'rgba(255,180,60,0)');      // fade out
   .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
   .onNodeHover(node=>document.body.style.cursor=node?'pointer':null)
   ;
+  Graph
+  .d3Force('link')
+  .distance(30);  // adjust distance (default ~50)
 const initialZ = 900;
 Graph.cameraPosition({ x: 0, y: 0, z: initialZ });
 const controls = Graph.controls();
