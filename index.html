@@ -152,7 +152,7 @@ const skills = [
 "Includer Inclusion Facilitation", "Diversity Awareness", "Inclusive Team Building", "Equity Practices", "Participation Encouragement",
 "Strengths-Based Coaching", "Gallup Strengths Mapping", "Strengths Assessment Interpretation", "Talent Application", "Performance Enhancement"
 ];
-const N = 500; // node count
+const N = skills.length; // node count
 const gData = {
   nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
   links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
