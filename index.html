@@ -261,7 +261,17 @@ Graph.scene().background = null;
 
 
 
+const GLOBE_RADIUS = 850;
 
+const globeGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 48, 32);
+const globeMat = new THREE.MeshBasicMaterial({
+  color: 0x6fa8ff,
+  wireframe: true,
+  transparent: true,
+  opacity: 0.08
+});
+const globe = new THREE.Mesh(globeGeo, globeMat);
+Graph.scene().add(globe);
 
 
 
