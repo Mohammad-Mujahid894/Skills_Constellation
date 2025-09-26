@@ -359,8 +359,20 @@ function autoDrift() {
 
 
   document.getElementById('refreshBtn').addEventListener('click', () => {
-    location.reload(); // reloads the page completely
+    // reset star burst
+    burstProgress = 0;
+
+    // reset camera to initial position
+    cam.position.set(0, 0, initialZ);
+
+    // pick a new drifting target
+    pickNewTarget();
+
+    // reset orbit controls target
+    controls.target.set(0, 0, 0);
+    controls.update();
 });
+
 
 </script>
 </body>
