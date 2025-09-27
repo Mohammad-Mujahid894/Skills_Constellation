@@ -327,9 +327,9 @@ function autoDrift() {
 
 (function animateLoop(){
   requestAnimationFrame(animateLoop);
-  autoDrift();
-  Graph.tickFrame();
+  autoDrift();   // only handle your drifting camera
 })();
+
 </script>
 <script>
 document.getElementById('refreshBtn').addEventListener('click', () => {
