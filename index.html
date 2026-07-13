@@ -60,7 +60,7 @@
 <script>
 // ========== CONFIG ==========
 const STAR_SIZE = 9;
-const LABEL_FONT_SIZE = 69;
+const LABEL_FONT_SIZE = 38;
 const PARTICLE_WIDTH = 1.0;
 const PARTICLE_SPEED = 0.001;
 const PARTICLE_OPACITY = 0.3;
@@ -203,10 +203,48 @@ function drawGlowingStar() {
     requestAnimationFrame(drawGlowingStar);
 }
 drawGlowingStar();
-const starTexture = new THREE.CanvasTexture(canvas);
-
 // ========== 3D GRAPH ==========
 const Graph = ForceGraph3D({ controlType:'orbit' })(document.getElementById('3d-graph'))
+  // ======================================
+// DEEP SPACE STARFIELD
+// ======================================
+
+const scene = Graph.scene();
+
+const starsGeometry = new THREE.BufferGeometry();
+const starVertices = [];
+
+for (let i = 0; i < 2000; i++) {
+
+  starVertices.push(
+    (Math.random() - 0.5) * 7000,
+    (Math.random() - 0.5) * 7000,
+    (Math.random() - 0.5) * 7000
+  );
+
+}
+
+starsGeometry.setAttribute(
+  'position',
+  new THREE.Float32BufferAttribute(
+    starVertices,
+    3
+  )
+);
+
+const starsMaterial = new THREE.PointsMaterial({
+  color: 0xffffff,
+  size: 1.4,
+  transparent: true,
+  opacity: 0.8
+});
+
+const starField = new THREE.Points(
+  starsGeometry,
+  starsMaterial
+);
+
+scene.add(starField);
   .graphData(gData)
   .nodeThreeObject(node=>{
     const group = new THREE.Group();
@@ -242,66 +280,197 @@ const Graph = ForceGraph3D({ controlType:'orbit' })(document.getElementById('3d-
     const label = new THREE.Sprite(labelMaterial);
     label.position.set(0,LABEL_FONT_SIZE*0.2,0);
     label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
-    group.add(label);
+label.visible = false;
+
+group.add(label);
+
+node.__label = label;
 
     node.__threeObj = group; // save reference for refresh
     return group;
   })
   .linkWidth(1)
-  .linkColor(()=> 'rgba(160,200,220,0.08)')
+  .linkColor(() => 'rgba(120,170,255,0.12)')
   .linkOpacity(1)
-  .linkDirectionalParticles(1)
+  .linkDirectionalParticles(2)
   .linkDirectionalParticleWidth(PARTICLE_WIDTH)
   .linkDirectionalParticleSpeed(()=> PARTICLE_SPEED)
   .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
-  .onNodeHover(node=>document.body.style.cursor=node?'pointer':null);
+  .onNodeHover(node => {
+
+  document.body.style.cursor =
+    node ? 'pointer' : null;
+
+  Graph.graphData().nodes.forEach(n => {
+
+    if(n.__label)
+      n.__label.visible = false;
+
+  });
+
+  if(node && node.__label)
+    node.__label.visible = true;
+
+});
 
 Graph.d3Force('link').distance(45);
 Graph.d3Force('charge').strength(-25);
 
+// ======================================
+// CAMERA & CONTROLS
+// ======================================
+
+// ======================================
+// CAMERA & CONTROLS
+// ======================================
+
 const initialZ = 900;
-Graph.cameraPosition({ x:0, y:0, z:initialZ });
+
+Graph.cameraPosition({
+  x: 0,
+  y: 0,
+  z: initialZ
+});
+
+Graph.renderer().setPixelRatio(
+  Math.min(window.devicePixelRatio, 2)
+);
 
 const controls = Graph.controls();
+
 controls.enableDamping = true;
-controls.dampingFactor = 0.005;
-controls.zoomSpeed = 0.5;
-controls.minDistance = 150;
-controls.maxDistance = 2000;
+controls.dampingFactor = 0.1;
+
 controls.enableRotate = true;
+controls.enableZoom = true;
 controls.enablePan = true;
+
+controls.rotateSpeed = 0.6;
+controls.zoomSpeed = 0.9;
+controls.panSpeed = 0.7;
+
+controls.minDistance = 80;
+controls.maxDistance = 3000;
+
 controls.screenSpacePanning = true;
-  controls.enableZoom = true;  // make sure zoom works
 
-let userInteracting = false;
-controls.addEventListener('start',()=>userInteracting=true);
-controls.addEventListener('end',()=>userInteracting=false);
-
-// --- drifting camera ---
-let camTarget = new THREE.Vector3(0,0,600);
-let driftSpeed = 0.004;
 const cam = Graph.camera();
-function pickNewTarget() {
-  const range = 900;
-  camTarget.set((Math.random()-0.5)*range,(Math.random()-0.5)*range,(Math.random()-0.5)*range);
+
+let lastInteractionTime = Date.now();
+let autoOrbitEnabled = true;
+
+function userInteraction() {
+
+  lastInteractionTime = Date.now();
+  autoOrbitEnabled = false;
+
 }
-pickNewTarget();
-function autoDrift() {
-  if(userInteracting) return;
-  cam.position.lerp(camTarget, driftSpeed);
+
+controls.addEventListener('start', userInteraction);
+controls.addEventListener('change', userInteraction);
+
+// ======================================
+// CINEMATIC GALAXY ORBIT
+// ======================================
+
+let orbitAngle = 0;
+
+function autoOrbit() {
+
+  if (Date.now() - lastInteractionTime > 15000) {
+    autoOrbitEnabled = true;
+  }
+
+  if (!autoOrbitEnabled) return;
+
+  orbitAngle += 0.00008;
+
+  const radius = 900;
+
+  cam.position.x = Math.cos(orbitAngle) * radius;
+  cam.position.z = Math.sin(orbitAngle) * radius;
+
   cam.lookAt(0,0,0);
-  if(cam.position.distanceTo(camTarget)<20) pickNewTarget();
+
 }
 
-(function animateLoop(){
-  requestAnimationFrame(animateLoop);
-  autoDrift();   // only handle your drifting camera
-})();
+// ======================================
+// LIVING STARS
+// ======================================
 
+function animateStars() {
+
+  const time = Date.now() * 0.001;
+
+  Graph.graphData().nodes.forEach(node => {
+
+    if (!node.__threeObj) return;
+
+    const scale =
+      1 + Math.sin(time + node.id) * 0.04;
+
+    node.__threeObj.scale.set(
+      scale,
+      scale,
+      scale
+    );
+
+  });
+
+}
+
+// ======================================
+// FLY TO SKILL
+// ======================================
+
+Graph.onNodeClick(node => {
+
+  const distance = 120;
+
+  const distRatio =
+    1 + distance /
+    Math.hypot(
+      node.x || 1,
+      node.y || 1,
+      node.z || 1
+    );
+
+  Graph.cameraPosition(
+    {
+      x: node.x * distRatio,
+      y: node.y * distRatio,
+      z: node.z * distRatio
+    },
+    node,
+    2500
+  );
+
+  userInteraction();
+
+});
+
+// ======================================
+// MAIN LOOP
+// ======================================
+
+function animateLoop() {
+
+  requestAnimationFrame(animateLoop);
+
+  autoOrbit();
+
+  animateStars();
+
+}
+
+animateLoop();
 </script>
 <script>
-document.getElementById('refreshBtn').addEventListener('click', () => {
-    location.reload(); // this will reload the entire page
+document.getElementById('refreshBtn')
+.addEventListener('click', () => {
+
+  Graph.zoomToFit(1500);
+
 });
 </script>
 
