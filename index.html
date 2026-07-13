@@ -4,129 +4,69 @@
   <meta charset="utf-8" />
   <title>Mohammad Mujahid's 3-D Skills Constellation Chart</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-
   <style>
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      background: radial-gradient(circle at center, #090922 0%, #040414 45%, #01010a 100%);
-    }
-
-    #3d-graph {
-      width: 100vw;
-      height: 100vh;
-      display: block;
-      touch-action: none;
-      cursor: grab;
-    }
-
-    #3d-graph:active {
-      cursor: grabbing;
-    }
+    html, body { height:100%; margin:0; background:#040414; }
+    #3d-graph { width:100vw; height:100vh; display:block; }
+    #starCanvas { display:none; width:256px; height:256px; }
 
     @font-face {
       font-family: "MyCustomFont";
       src: url("FoundationTitlesHand.ttf") format("truetype");
-      font-display: swap;
     }
 
     #refreshBtn {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 52px;
-      height: 52px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       border: none;
-      background: rgba(255,255,255,0.10);
-      backdrop-filter: blur(7px);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
       color: #ffffff;
       font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 4px 18px rgba(140,180,255,0.35);
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-      z-index: 20;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    #refreshBtn:hover {
-      transform: scale(1.1);
-      background: rgba(255,255,255,0.16);
-      box-shadow: 0 6px 24px rgba(180,210,255,0.55);
-    }
+    #refreshBtn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5); }
+    #refreshBtn:active { transform: scale(0.95); }
+    html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+#3d-graph {
+  width: 100%;
+  height: 100%;
+  touch-action: none;  /* essential for mobile gestures */
+}
 
-    #refreshBtn:active {
-      transform: scale(0.95);
-    }
-
-    #hint {
-      position: fixed;
-      left: 18px;
-      bottom: 18px;
-      z-index: 20;
-      color: rgba(220,235,255,0.65);
-      font-family: Arial, sans-serif;
-      font-size: 12px;
-      letter-spacing: 0.3px;
-      user-select: none;
-      pointer-events: none;
-      text-shadow: 0 0 10px rgba(120,170,255,0.4);
-    }
-
-    @media (max-width: 768px) {
-      #hint {
-        font-size: 11px;
-        left: 12px;
-        bottom: 12px;
-      }
-
-      #refreshBtn {
-        width: 48px;
-        height: 48px;
-        bottom: 16px;
-        right: 16px;
-      }
-    }
   </style>
 </head>
-
 <body>
-  <div id="3d-graph"></div>
-  <button id="refreshBtn" title="Reset View">&#x21bb;</button>
-  <div id="hint">Drag to explore • Scroll/pinch to fly • Tap a star to focus</div>
+<canvas id="starCanvas" width="256" height="256"></canvas>
+<div id="3d-graph"></div>
+<button id="refreshBtn" title="Refresh">&#x21bb;</button>
 
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
+<script>
+// ========== CONFIG ==========
+const STAR_SIZE = 9;
+const LABEL_FONT_SIZE = 69;
+const PARTICLE_WIDTH = 1.0;
+const PARTICLE_SPEED = 0.001;
+const PARTICLE_OPACITY = 0.3;
 
-  <script>
-    // =====================================================
-    // CONFIG
-    // =====================================================
-
-    const isMobile = window.innerWidth <= 768;
-
-    const STAR_SIZE = isMobile ? 7.5 : 9;
-    const LABEL_FONT_SIZE = isMobile ? 38 : 60;
-
-    const PARTICLE_WIDTH = isMobile ? 0.8 : 1.0;
-    const PARTICLE_SPEED = 0.001;
-    const PARTICLE_OPACITY = 0.32;
-
-    const AUTO_ORBIT_IDLE_DELAY = 9000;
-    const AUTO_ORBIT_SPEED = 0.00007;
-
-    const SHOW_LABELS = true;
-
-    // =====================================================
-    // PASTE YOUR FULL SKILLS ARRAY HERE
-    // =====================================================
-
-    const skills = [
-      "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable",
+const skills = [
+  "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable",
   "ACH Processing", "Wire Payment Processing", "Check Processing", "NSF Handling",
   "Remittance Matching", "Customer Communication",
   "Credit Management", "Invoice Distribution", "Collections",
@@ -212,505 +152,158 @@
   "Strengths-Based Coaching", "Gallup Strengths Mapping", 
   "Dispute Resolution Management", "SLA Management", "Invoice Discrepancy Investigation", "Supplier Reconciliation", "Customer Credit Analysis",
   "Vendor Risk Assessment", "Power Automate", "Google App Script", "Power Apps", "Month-End Closing", "Statutory Compliance Reporting"
-    ];
+];
+const N = skills.length;
+const gData = {
+  nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
+  links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
+};
 
-    // =====================================================
-    // GRAPH DATA
-    // =====================================================
+// ========== GLOW STAR ==========
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+const cx = canvas.width/2, cy = canvas.height/2;
+let burstProgress = 1;
+let targetBurstProgress = 1;
 
-    const N = skills.length;
+function drawGlowingStar() {
+    burstProgress += (targetBurstProgress - burstProgress) * 0.08;
 
-    const gData = {
-      nodes: [...Array(N).keys()].map(i => ({
-        id: i,
-        skill: skills[i]
-      })),
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-      links: [...Array(N).keys()]
-        .filter(i => i)
-        .map(i => ({
-          source: i,
-          target: Math.round(Math.random() * (i - 1))
-        }))
-    };
-
-    let Graph;
-    let cam;
-    let controls;
-    let galaxyStars;
-    let farNebulaStars;
-
-    // =====================================================
-    // START AFTER FONT LOAD
-    // =====================================================
-
-    if (document.fonts) {
-      document.fonts.ready.then(initGalaxy);
-    } else {
-      initGalaxy();
+    for(let i=8;i>0;i--){
+        ctx.save();
+        const baseRadius = 50 + i*10;
+        const glowRadius = baseRadius * burstProgress + Math.sin(Date.now()/900)*2;
+        ctx.globalAlpha = 0.06*(i/8)*burstProgress;
+        ctx.shadowBlur = (30+i*5)*burstProgress;
+        ctx.beginPath();
+        ctx.arc(cx,cy,glowRadius,0,Math.PI*2);
+        ctx.closePath();
+        ctx.fillStyle = i%2===0?'rgba(62,189,255,0.7)':'rgba(255,236,128,0.3)';
+        ctx.shadowColor = i%2===0?'#60ecff':'#fffadc';
+        ctx.fill();
+        ctx.restore();
     }
 
-    function initGalaxy() {
-      // =====================================================
-      // CREATE GRAPH
-      // =====================================================
+    ctx.save();
+    const grad = ctx.createRadialGradient(cx,cy,5,cx,cy,20*burstProgress);
+    grad.addColorStop(0,'#fff');
+    grad.addColorStop(0.3,'#fff6b5');
+    grad.addColorStop(1,'#fffacd11');
+    ctx.beginPath();
+    ctx.arc(cx,cy,20*burstProgress,0,Math.PI*2);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.shadowColor='gold';
+    ctx.shadowBlur = 30*burstProgress;
+    ctx.fill();
+    ctx.restore();
+
+    requestAnimationFrame(drawGlowingStar);
+}
+drawGlowingStar();
+const starTexture = new THREE.CanvasTexture(canvas);
+
+// ========== 3D GRAPH ==========
+const Graph = ForceGraph3D({ controlType:'orbit' })(document.getElementById('3d-graph'))
+  .graphData(gData)
+  .nodeThreeObject(node=>{
+    const group = new THREE.Group();
+
+    const starCanvas = document.createElement('canvas');
+    starCanvas.width = starCanvas.height = 64;
+    const ctx = starCanvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(32,32,0,32,32,32);
+    gradient.addColorStop(0,'rgba(255,255,200,1)');
+    gradient.addColorStop(0.3,'rgba(255,220,120,0.8)');
+    gradient.addColorStop(0.6,'rgba(255,180,60,0.5)');
+    gradient.addColorStop(1,'rgba(255,180,60,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0,0,64,64);
+    const texture = new THREE.CanvasTexture(starCanvas);
+    const material = new THREE.SpriteMaterial({map:texture,transparent:true});
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(STAR_SIZE, STAR_SIZE, 1);
+    group.add(sprite);
+
+    const labelCanvas = document.createElement('canvas');
+    const labelCtx = labelCanvas.getContext('2d');
+    labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
+    const text = node.skill;
+    const textWidth = labelCtx.measureText(text).width;
+    labelCanvas.width = textWidth+20;
+    labelCanvas.height = LABEL_FONT_SIZE+10;
+    labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
+    labelCtx.fillStyle = '#cce6ff';
+    labelCtx.fillText(text,5,LABEL_FONT_SIZE);
+    const labelTexture = new THREE.CanvasTexture(labelCanvas);
+    const labelMaterial = new THREE.SpriteMaterial({map:labelTexture,transparent:true});
+    const label = new THREE.Sprite(labelMaterial);
+    label.position.set(0,LABEL_FONT_SIZE*0.2,0);
+    label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
+    group.add(label);
+
+    node.__threeObj = group; // save reference for refresh
+    return group;
+  })
+  .linkWidth(1)
+  .linkColor(()=> 'rgba(160,200,220,0.08)')
+  .linkOpacity(1)
+  .linkDirectionalParticles(1)
+  .linkDirectionalParticleWidth(PARTICLE_WIDTH)
+  .linkDirectionalParticleSpeed(()=> PARTICLE_SPEED)
+  .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
+  .onNodeHover(node=>document.body.style.cursor=node?'pointer':null);
+
+Graph.d3Force('link').distance(45);
+Graph.d3Force('charge').strength(-25);
+
+const initialZ = 900;
+Graph.cameraPosition({ x:0, y:0, z:initialZ });
+
+const controls = Graph.controls();
+controls.enableDamping = true;
+controls.dampingFactor = 0.005;
+controls.zoomSpeed = 0.5;
+controls.minDistance = 150;
+controls.maxDistance = 2000;
+controls.enableRotate = true;
+controls.enablePan = true;
+controls.screenSpacePanning = true;
+  controls.enableZoom = true;  // make sure zoom works
+
+let userInteracting = false;
+controls.addEventListener('start',()=>userInteracting=true);
+controls.addEventListener('end',()=>userInteracting=false);
+
+// --- drifting camera ---
+let camTarget = new THREE.Vector3(0,0,600);
+let driftSpeed = 0.004;
+const cam = Graph.camera();
+function pickNewTarget() {
+  const range = 900;
+  camTarget.set((Math.random()-0.5)*range,(Math.random()-0.5)*range,(Math.random()-0.5)*range);
+}
+pickNewTarget();
+function autoDrift() {
+  if(userInteracting) return;
+  cam.position.lerp(camTarget, driftSpeed);
+  cam.lookAt(0,0,0);
+  if(cam.position.distanceTo(camTarget)<20) pickNewTarget();
+}
+
+(function animateLoop(){
+  requestAnimationFrame(animateLoop);
+  autoDrift();   // only handle your drifting camera
+})();
+
+</script>
+<script>
+document.getElementById('refreshBtn').addEventListener('click', () => {
+    location.reload(); // this will reload the entire page
+});
+</script>
 
-      Graph = ForceGraph3D({ controlType: "orbit" })(
-        document.getElementById("3d-graph")
-      );
-
-      Graph
-        .graphData(gData)
-        .backgroundColor("rgba(0,0,0,0)")
-        .cooldownTicks(180)
-        .d3AlphaDecay(0.018)
-        .d3VelocityDecay(0.28);
-
-      Graph.renderer().setPixelRatio(
-        Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2)
-      );
-
-      // =====================================================
-      // DEEP SPACE BACKGROUND
-      // =====================================================
-
-      const scene = Graph.scene();
-
-      scene.fog = new THREE.FogExp2(0x040414, 0.00042);
-
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-      scene.add(ambientLight);
-
-      createGalaxyStarfield(scene);
-
-      // =====================================================
-      // NODE OBJECTS - ORIGINAL GLOWING STAR STYLE PRESERVED
-      // =====================================================
-
-      const starTextureCache = new Map();
-
-      const starPalettes = [
-        {
-          core: "rgba(255,255,220,1)",
-          mid: "rgba(255,225,125,0.88)",
-          outer: "rgba(255,180,60,0)"
-        },
-        {
-          core: "rgba(230,250,255,1)",
-          mid: "rgba(120,220,255,0.78)",
-          outer: "rgba(80,170,255,0)"
-        },
-        {
-          core: "rgba(255,245,255,1)",
-          mid: "rgba(210,170,255,0.75)",
-          outer: "rgba(160,110,255,0)"
-        },
-        {
-          core: "rgba(255,255,230,1)",
-          mid: "rgba(190,255,210,0.70)",
-          outer: "rgba(80,255,180,0)"
-        }
-      ];
-
-      function createStarTexture(paletteIndex) {
-        if (starTextureCache.has(paletteIndex)) {
-          return starTextureCache.get(paletteIndex);
-        }
-
-        const palette = starPalettes[paletteIndex];
-
-        const starCanvas = document.createElement("canvas");
-        starCanvas.width = 96;
-        starCanvas.height = 96;
-
-        const ctx = starCanvas.getContext("2d");
-
-        const gradient = ctx.createRadialGradient(48, 48, 0, 48, 48, 48);
-        gradient.addColorStop(0, palette.core);
-        gradient.addColorStop(0.20, palette.core);
-        gradient.addColorStop(0.45, palette.mid);
-        gradient.addColorStop(0.72, "rgba(255,200,90,0.28)");
-        gradient.addColorStop(1, palette.outer);
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, 96, 96);
-
-        const texture = new THREE.CanvasTexture(starCanvas);
-        texture.needsUpdate = true;
-
-        starTextureCache.set(paletteIndex, texture);
-
-        return texture;
-      }
-
-      function createLabelTexture(text) {
-        const labelCanvas = document.createElement("canvas");
-        const labelCtx = labelCanvas.getContext("2d");
-
-        labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont, Arial, sans-serif`;
-
-        const textWidth = Math.ceil(labelCtx.measureText(text).width);
-
-        labelCanvas.width = textWidth + 36;
-        labelCanvas.height = LABEL_FONT_SIZE + 26;
-
-        labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont, Arial, sans-serif`;
-        labelCtx.textBaseline = "middle";
-
-        labelCtx.shadowColor = "rgba(120,190,255,0.85)";
-        labelCtx.shadowBlur = 14;
-
-        labelCtx.fillStyle = "rgba(218,238,255,0.96)";
-        labelCtx.fillText(text, 18, labelCanvas.height / 2);
-
-        const texture = new THREE.CanvasTexture(labelCanvas);
-        texture.needsUpdate = true;
-
-        return {
-          texture,
-          width: labelCanvas.width,
-          height: labelCanvas.height
-        };
-      }
-
-      Graph.nodeThreeObject(node => {
-        const group = new THREE.Group();
-
-        const paletteIndex = node.id % starPalettes.length;
-        const starTexture = createStarTexture(paletteIndex);
-
-        const starMaterial = new THREE.SpriteMaterial({
-          map: starTexture,
-          transparent: true,
-          opacity: 0.95,
-          depthWrite: false
-        });
-
-        const sprite = new THREE.Sprite(starMaterial);
-
-        const majorStar = node.id % 17 === 0;
-        const mediumStar = node.id % 7 === 0;
-
-        const nodeScale = majorStar ? 1.85 : mediumStar ? 1.35 : 1;
-
-        sprite.scale.set(
-          STAR_SIZE * nodeScale,
-          STAR_SIZE * nodeScale,
-          1
-        );
-
-        group.add(sprite);
-
-        if (SHOW_LABELS) {
-          const labelData = createLabelTexture(node.skill);
-
-          const labelMaterial = new THREE.SpriteMaterial({
-            map: labelData.texture,
-            transparent: true,
-            opacity: isMobile ? 0.82 : 0.9,
-            depthWrite: false
-          });
-
-          const label = new THREE.Sprite(labelMaterial);
-
-          label.position.set(0, LABEL_FONT_SIZE * 0.22, 0);
-
-          label.scale.set(
-            labelData.width * 0.055,
-            labelData.height * 0.055,
-            1
-          );
-
-          group.add(label);
-
-          node.__label = label;
-          node.__labelMaterial = labelMaterial;
-        }
-
-        node.__threeObj = group;
-        node.__sprite = sprite;
-        node.__baseScale = nodeScale;
-
-        return group;
-      });
-
-      // =====================================================
-      // CONSTELLATION LINKS
-      // =====================================================
-
-      Graph
-        .linkWidth(1)
-        .linkColor(() => "rgba(135,175,255,0.13)")
-        .linkOpacity(1)
-        .linkDirectionalParticles(isMobile ? 1 : 2)
-        .linkDirectionalParticleWidth(PARTICLE_WIDTH)
-        .linkDirectionalParticleSpeed(() => PARTICLE_SPEED)
-        .linkDirectionalParticleColor(
-          () => `rgba(255,246,205,${PARTICLE_OPACITY})`
-        );
-
-      Graph.d3Force("link").distance(isMobile ? 42 : 48);
-      Graph.d3Force("charge").strength(isMobile ? -18 : -26);
-
-      // =====================================================
-      // CAMERA AND CONTROLS
-      // =====================================================
-
-      Graph.cameraPosition({ x: 0, y: 0, z: isMobile ? 1100 : 950 });
-
-      cam = Graph.camera();
-      controls = Graph.controls();
-
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.075;
-
-      controls.enableRotate = true;
-      controls.enableZoom = true;
-      controls.enablePan = true;
-
-      controls.rotateSpeed = 0.62;
-      controls.zoomSpeed = 1.05;
-      controls.panSpeed = 0.75;
-
-      controls.minDistance = 80;
-      controls.maxDistance = 3200;
-      controls.screenSpacePanning = true;
-
-      // =====================================================
-      // INTERACTION STATE
-      // =====================================================
-
-      let lastInteractionTime = Date.now();
-      let userInteracting = false;
-      let autoOrbitEnabled = true;
-      let orbitAngle = 0;
-
-      function userInteraction() {
-        lastInteractionTime = Date.now();
-        userInteracting = true;
-        autoOrbitEnabled = false;
-      }
-
-      function endInteraction() {
-        userInteracting = false;
-        lastInteractionTime = Date.now();
-      }
-
-      controls.addEventListener("start", userInteraction);
-      controls.addEventListener("change", userInteraction);
-      controls.addEventListener("end", endInteraction);
-
-      // =====================================================
-      // HOVER EFFECT
-      // =====================================================
-
-      Graph.onNodeHover(node => {
-        document.body.style.cursor = node ? "pointer" : "grab";
-
-        Graph.graphData().nodes.forEach(n => {
-          if (n.__labelMaterial) {
-            n.__labelMaterial.opacity = isMobile ? 0.78 : 0.88;
-          }
-        });
-
-        if (node && node.__labelMaterial) {
-          node.__labelMaterial.opacity = 1;
-        }
-      });
-
-      // =====================================================
-      // CLICK TO FLY INTO A SKILL
-      // =====================================================
-
-      Graph.onNodeClick(node => {
-        if (!node) return;
-
-        const distance = isMobile ? 160 : 130;
-
-        const length = Math.hypot(
-          node.x || 1,
-          node.y || 1,
-          node.z || 1
-        );
-
-        const distRatio = 1 + distance / length;
-
-        Graph.cameraPosition(
-          {
-            x: (node.x || 1) * distRatio,
-            y: (node.y || 1) * distRatio,
-            z: (node.z || 1) * distRatio
-          },
-          node,
-          2200
-        );
-
-        userInteraction();
-      });
-
-      // =====================================================
-      // REFRESH BUTTON - RESET VIEW, NO PAGE RELOAD
-      // =====================================================
-
-      document.getElementById("refreshBtn").addEventListener("click", () => {
-        Graph.zoomToFit(1600, 120);
-      });
-
-      // =====================================================
-      // ANIMATION LOOP
-      // =====================================================
-
-      function cinematicOrbit() {
-        const idleTime = Date.now() - lastInteractionTime;
-
-        if (idleTime > AUTO_ORBIT_IDLE_DELAY) {
-          autoOrbitEnabled = true;
-        }
-
-        if (!autoOrbitEnabled || userInteracting) return;
-
-        orbitAngle += AUTO_ORBIT_SPEED;
-
-        const radius = isMobile ? 1050 : 950;
-
-        cam.position.x = Math.cos(orbitAngle) * radius;
-        cam.position.z = Math.sin(orbitAngle) * radius;
-        cam.position.y = Math.sin(orbitAngle * 0.45) * 120;
-
-        cam.lookAt(0, 0, 0);
-      }
-
-      function animateNodes() {
-        const time = Date.now() * 0.001;
-
-        Graph.graphData().nodes.forEach(node => {
-          if (!node.__threeObj) return;
-
-          const breathe =
-            1 + Math.sin(time * 1.15 + node.id * 0.7) * 0.035;
-
-          node.__threeObj.scale.set(breathe, breathe, breathe);
-        });
-      }
-
-      function animateBackground() {
-        if (galaxyStars) {
-          galaxyStars.rotation.y += 0.000025;
-          galaxyStars.rotation.x += 0.000006;
-        }
-
-        if (farNebulaStars) {
-          farNebulaStars.rotation.y -= 0.000012;
-          farNebulaStars.rotation.z += 0.000004;
-        }
-      }
-
-      function animateLoop() {
-        requestAnimationFrame(animateLoop);
-
-        cinematicOrbit();
-        animateNodes();
-        animateBackground();
-      }
-
-      animateLoop();
-
-      // Initial smooth fit after layout starts
-      setTimeout(() => {
-        Graph.zoomToFit(1800, 140);
-      }, 1200);
-    }
-
-    // =====================================================
-    // GALAXY STARFIELD
-    // =====================================================
-
-    function createGalaxyStarfield(scene) {
-      const nearGeometry = new THREE.BufferGeometry();
-      const nearPositions = [];
-      const nearColors = [];
-
-      const colorA = new THREE.Color("#ffffff");
-      const colorB = new THREE.Color("#9edbff");
-      const colorC = new THREE.Color("#fff2a6");
-
-      const nearCount = isMobile ? 1800 : 3600;
-
-      for (let i = 0; i < nearCount; i++) {
-        nearPositions.push(
-          (Math.random() - 0.5) * 7600,
-          (Math.random() - 0.5) * 7600,
-          (Math.random() - 0.5) * 7600
-        );
-
-        const color = i % 3 === 0 ? colorA : i % 3 === 1 ? colorB : colorC;
-
-        nearColors.push(color.r, color.g, color.b);
-      }
-
-      nearGeometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(nearPositions, 3)
-      );
-
-      nearGeometry.setAttribute(
-        "color",
-        new THREE.Float32BufferAttribute(nearColors, 3)
-      );
-
-      const nearMaterial = new THREE.PointsMaterial({
-        size: isMobile ? 1.2 : 1.45,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.82,
-        depthWrite: false
-      });
-
-      galaxyStars = new THREE.Points(nearGeometry, nearMaterial);
-      scene.add(galaxyStars);
-
-      const farGeometry = new THREE.BufferGeometry();
-      const farPositions = [];
-
-      const farCount = isMobile ? 900 : 1800;
-
-      for (let i = 0; i < farCount; i++) {
-        farPositions.push(
-          (Math.random() - 0.5) * 14000,
-          (Math.random() - 0.5) * 14000,
-          (Math.random() - 0.5) * 14000
-        );
-      }
-
-      farGeometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(farPositions, 3)
-      );
-
-      const farMaterial = new THREE.PointsMaterial({
-        size: isMobile ? 0.75 : 0.95,
-        color: "#7fa8ff",
-        transparent: true,
-        opacity: 0.45,
-        depthWrite: false
-      });
-
-      farNebulaStars = new THREE.Points(farGeometry, farMaterial);
-      scene.add(farNebulaStars);
-    }
-
-    // =====================================================
-    // RESPONSIVE RESIZE
-    // =====================================================
-
-    window.addEventListener("resize", () => {
-      if (!Graph) return;
-
-      Graph.width(window.innerWidth);
-      Graph.height(window.innerHeight);
-    });
-  </script>
 </body>
-</html>
-
- 
+</html> 
