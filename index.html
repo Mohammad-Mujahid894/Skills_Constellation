@@ -37,7 +37,7 @@
       font-family: "FoundationTitlesHand", Arial, sans-serif;
     }
 
-    /* Reduced centre glow with a deeper, darker space background */
+    /* Deep-space background with reduced central blue brightness */
     body::before {
       content: "";
       position: fixed;
@@ -48,20 +48,20 @@
       background:
         radial-gradient(
           circle at 18% 24%,
-          rgba(74, 52, 158, 0.14) 0%,
-          rgba(42, 30, 108, 0.05) 24%,
-          transparent 46%
+          rgba(72, 48, 150, 0.12) 0%,
+          rgba(42, 28, 100, 0.04) 25%,
+          transparent 47%
         ),
         radial-gradient(
           circle at 80% 68%,
-          rgba(22, 82, 155, 0.09) 0%,
-          rgba(14, 46, 105, 0.035) 25%,
-          transparent 48%
+          rgba(20, 72, 135, 0.07) 0%,
+          rgba(12, 40, 90, 0.025) 26%,
+          transparent 49%
         ),
         radial-gradient(
           circle at 50% 46%,
-          rgba(19, 18, 65, 0.19) 0%,
-          rgba(6, 6, 29, 0.72) 43%,
+          rgba(17, 16, 54, 0.14) 0%,
+          rgba(5, 5, 25, 0.75) 44%,
           #010108 100%
         );
     }
@@ -72,31 +72,31 @@
       inset: -15%;
       z-index: 0;
       pointer-events: none;
-      opacity: 0.25;
+      opacity: 0.19;
 
       background:
         radial-gradient(
           ellipse at 32% 58%,
-          rgba(92, 66, 188, 0.08),
-          transparent 40%
+          rgba(88, 62, 175, 0.07),
+          transparent 42%
         ),
         radial-gradient(
           ellipse at 68% 39%,
-          rgba(43, 116, 188, 0.055),
-          transparent 42%
+          rgba(38, 95, 160, 0.045),
+          transparent 44%
         );
 
-      filter: blur(40px);
-      animation: nebulaDrift 30s ease-in-out infinite alternate;
+      filter: blur(42px);
+      animation: nebulaDrift 32s ease-in-out infinite alternate;
     }
 
     @keyframes nebulaDrift {
       from {
-        transform: translate3d(-1.5%, -1%, 0) scale(1);
+        transform: translate3d(-1.2%, -0.8%, 0) scale(1);
       }
 
       to {
-        transform: translate3d(1.5%, 1%, 0) scale(1.05);
+        transform: translate3d(1.2%, 0.8%, 0) scale(1.04);
       }
     }
 
@@ -138,10 +138,11 @@
 
       padding: 0;
 
-      border: 1px solid rgba(190, 220, 255, 0.12);
+      border: 1px solid rgba(205, 225, 255, 0.12);
       border-radius: 50%;
 
       background: rgba(255, 255, 255, 0.075);
+
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
 
@@ -153,7 +154,7 @@
       cursor: pointer;
 
       box-shadow:
-        0 4px 18px rgba(90, 145, 235, 0.22),
+        0 4px 18px rgba(90, 145, 235, 0.2),
         inset 0 0 12px rgba(255, 255, 255, 0.035);
 
       transition:
@@ -167,7 +168,7 @@
       background: rgba(255, 255, 255, 0.13);
 
       box-shadow:
-        0 6px 22px rgba(135, 185, 255, 0.38),
+        0 6px 22px rgba(135, 185, 255, 0.35),
         inset 0 0 14px rgba(255, 255, 255, 0.05);
     }
 
@@ -181,7 +182,7 @@
       bottom: 18px;
       z-index: 20;
 
-      color: rgba(220, 235, 255, 0.62);
+      color: rgba(220, 235, 255, 0.6);
       font-family: Arial, sans-serif;
       font-size: 12px;
       letter-spacing: 0.3px;
@@ -189,7 +190,7 @@
       user-select: none;
       pointer-events: none;
 
-      text-shadow: 0 0 9px rgba(90, 145, 230, 0.4);
+      text-shadow: 0 0 9px rgba(90, 145, 230, 0.38);
     }
 
     #loading {
@@ -208,7 +209,7 @@
           rgba(1, 1, 8, 1)
         );
 
-      color: rgba(220, 238, 255, 0.92);
+      color: rgba(225, 240, 255, 0.92);
 
       font-family:
         "FoundationTitlesHand",
@@ -284,7 +285,8 @@
     "use strict";
 
     // =====================================================
-    // DEVICE AND PERFORMANCE SETTINGS
+    // MAIN CUSTOMIZATION SETTINGS
+    // Change these values whenever required.
     // =====================================================
 
     const isMobile = window.matchMedia(
@@ -295,29 +297,82 @@
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
-    const STAR_SIZE = isMobile ? 4.6 : 5.5;
+    /*
+      FONT SIZE:
+      Increase 66 to make desktop labels larger.
+      Increase 46 to make mobile labels larger.
+    */
+    const LABEL_FONT_SIZE = isMobile ? 46 : 66;
 
-    const LABEL_FONT_SIZE = isMobile ? 44 : 64;
+    /*
+      DISPLAYED LABEL SIZE:
+      This modifies the final visible label size.
+      Increase carefully, for example:
+      Mobile: 0.046
+      Desktop: 0.051
+    */
+    const LABEL_DISPLAY_SCALE = isMobile ? 0.043 : 0.047;
+
+    /*
+      STAR SIZE:
+      Increase or decrease these values to resize stars.
+    */
+    const STAR_SIZE = isMobile ? 4.8 : 5.7;
+
+    /*
+      ORANGE STAR PERCENTAGE:
+      0.85 means approximately 85% orange stars.
+      Use 0.90 for 90% or 1.00 for all orange.
+    */
+    const ORANGE_STAR_PERCENTAGE = 0.85;
+
+    /*
+      MAXIMUM SIMULTANEOUS LABELS:
+      Increasing this displays more labels but may create
+      clutter and consume more processing power.
+    */
+    const MAX_VISIBLE_LABELS = isMobile ? 24 : 48;
+
+    /*
+      GALAXY SPACING:
+      Increase these values if the network should become
+      more spacious. Reduce the values for a tighter galaxy.
+    */
+    const GALAXY_RADIUS = isMobile ? 540 : 760;
+
+    /*
+      CAMERA CLOSENESS:
+      Smaller values bring the automatic camera closer.
+      Larger values keep the camera farther away.
+    */
+    const CAMERA_BASE_DISTANCE = isMobile ? 610 : 700;
+
+    /*
+      CAMERA ZOOM RANGE:
+      Controls the automatic inward and outward movement.
+    */
+    const CAMERA_ZOOM_DISTANCE = isMobile ? 185 : 255;
+
+    /*
+      Amount of time before automatic travel resumes
+      after the user stops interacting.
+    */
+    const AUTO_TRAVEL_IDLE_DELAY = 6500;
+
+    /*
+      Automatic camera speed.
+    */
+    const AUTO_TRAVEL_SPEED = isMobile
+      ? 0.00004
+      : 0.000046;
+
+    const LABEL_UPDATE_INTERVAL = isMobile ? 12 : 8;
 
     const SHOW_LABELS = true;
 
-    const AUTO_TRAVEL_IDLE_DELAY = 7000;
-
-    const AUTO_TRAVEL_SPEED = isMobile
-      ? 0.000038
-      : 0.000043;
-
-    const LABEL_UPDATE_INTERVAL = isMobile
-      ? 12
-      : 8;
-
-    const MAX_VISIBLE_LABELS = isMobile
-      ? 24
-      : 48;
-
     // =====================================================
     // SKILLS
-    // Paste the complete skills list inside this array.
+    // Paste the complete skills array below.
     // =====================================================
 
     const skills = [
@@ -416,6 +471,7 @@
     const nodes = skills.map((skill, index) => ({
       id: index,
       skill: skill,
+
       importance:
         index % 19 === 0
           ? 3
@@ -426,10 +482,10 @@
 
     const links = [];
 
-    for (let i = 1; i < nodes.length; i++) {
+    for (let index = 1; index < nodes.length; index++) {
       links.push({
-        source: i,
-        target: Math.floor(Math.random() * i)
+        source: index,
+        target: Math.floor(Math.random() * index)
       });
     }
 
@@ -468,7 +524,7 @@
     let frameCounter = 0;
 
     // =====================================================
-    // START AFTER FONT LOAD
+    // FONT LOADING
     // =====================================================
 
     async function startApplication() {
@@ -487,7 +543,7 @@
         );
       }
 
-      initGalaxy();
+      initializeGalaxy();
     }
 
     startApplication();
@@ -496,12 +552,13 @@
     // INITIALIZE GALAXY
     // =====================================================
 
-    function initGalaxy() {
+    function initializeGalaxy() {
       const graphElement =
         document.getElementById("graph");
 
       Graph = ForceGraph3D({
         controlType: "orbit",
+
         rendererConfig: {
           alpha: true,
           antialias: false,
@@ -524,7 +581,7 @@
       renderer.setPixelRatio(
         Math.min(
           window.devicePixelRatio || 1,
-          isMobile ? 1.05 : 1.35
+          isMobile ? 1.05 : 1.3
         )
       );
 
@@ -534,7 +591,7 @@
 
       scene.fog = new THREE.FogExp2(
         0x02020d,
-        0.00009
+        0.000085
       );
 
       const ambientLight =
@@ -561,28 +618,55 @@
     function configureNodes() {
       const starTextureCache = new Map();
 
+      /*
+        The first palette is the main orange/gold palette.
+        Most stars will use this palette.
+      */
       const palettes = [
         {
-          core: "rgba(255,255,235,1)",
-          middle: "rgba(255,221,120,0.88)",
-          outer: "rgba(255,175,55,0)"
+          core: "rgba(255,255,225,1)",
+          middle: "rgba(255,195,72,0.96)",
+          innerGlow: "rgba(255,145,28,0.52)",
+          outer: "rgba(255,112,15,0)"
         },
         {
           core: "rgba(235,252,255,1)",
-          middle: "rgba(120,220,255,0.80)",
-          outer: "rgba(70,150,255,0)"
+          middle: "rgba(120,220,255,0.8)",
+          innerGlow: "rgba(65,155,255,0.35)",
+          outer: "rgba(60,135,255,0)"
         },
         {
           core: "rgba(255,245,255,1)",
           middle: "rgba(210,165,255,0.78)",
-          outer: "rgba(145,90,255,0)"
+          innerGlow: "rgba(165,100,255,0.32)",
+          outer: "rgba(140,80,255,0)"
         },
         {
           core: "rgba(245,255,240,1)",
           middle: "rgba(155,255,205,0.74)",
-          outer: "rgba(70,245,175,0)"
+          innerGlow: "rgba(85,225,155,0.3)",
+          outer: "rgba(60,210,150,0)"
         }
       ];
+
+      function getPaletteIndex(nodeId) {
+        /*
+          Deterministic distribution:
+          Approximately 85% orange without using
+          constantly changing random colours.
+        */
+        const distributionValue =
+          ((nodeId * 37) % 100) / 100;
+
+        if (
+          distributionValue <
+          ORANGE_STAR_PERCENTAGE
+        ) {
+          return 0;
+        }
+
+        return 1 + (nodeId % 3);
+      }
 
       function createStarTexture(paletteIndex) {
         if (starTextureCache.has(paletteIndex)) {
@@ -610,20 +694,39 @@
             32
           );
 
-        gradient.addColorStop(0, palette.core);
-        gradient.addColorStop(0.14, palette.core);
         gradient.addColorStop(
-          0.37,
+          0,
+          palette.core
+        );
+
+        gradient.addColorStop(
+          0.13,
+          palette.core
+        );
+
+        gradient.addColorStop(
+          0.34,
           palette.middle
         );
+
         gradient.addColorStop(
-          0.7,
-          "rgba(255,210,120,0.16)"
+          0.62,
+          palette.innerGlow
         );
-        gradient.addColorStop(1, palette.outer);
+
+        gradient.addColorStop(
+          1,
+          palette.outer
+        );
 
         context.fillStyle = gradient;
-        context.fillRect(0, 0, 64, 64);
+
+        context.fillRect(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
 
         const texture =
           new THREE.CanvasTexture(canvas);
@@ -660,7 +763,10 @@
 
         canvas.width = Math.min(
           1024,
-          Math.max(100, measuredWidth + 42)
+          Math.max(
+            100,
+            measuredWidth + 42
+          )
         );
 
         canvas.height =
@@ -678,14 +784,12 @@
         context.textBaseline = "middle";
 
         context.shadowColor =
-          "rgba(75,155,235,0.66)";
+          "rgba(75,145,220,0.52)";
 
-        context.shadowBlur = isMobile
-          ? 6
-          : 9;
+        context.shadowBlur = isMobile ? 5 : 8;
 
         context.fillStyle =
-          "rgba(224,240,255,0.96)";
+          "rgba(225,240,255,0.96)";
 
         context.fillText(
           text,
@@ -712,18 +816,15 @@
         const group = new THREE.Group();
 
         const paletteIndex =
-          node.id % palettes.length;
+          getPaletteIndex(node.id);
 
         const starMaterial =
           new THREE.SpriteMaterial({
-            map: createStarTexture(
-              paletteIndex
-            ),
+            map: createStarTexture(paletteIndex),
             transparent: true,
-            opacity: 0.94,
+            opacity: 0.96,
             depthWrite: false,
-            blending:
-              THREE.AdditiveBlending
+            blending: THREE.AdditiveBlending
           });
 
         const star =
@@ -762,10 +863,6 @@
           const label =
             new THREE.Sprite(labelMaterial);
 
-          const labelScale = isMobile
-            ? 0.043
-            : 0.047;
-
           label.position.set(
             0,
             isMobile ? 8 : 9.5,
@@ -773,8 +870,12 @@
           );
 
           label.scale.set(
-            labelData.width * labelScale,
-            labelData.height * labelScale,
+            labelData.width *
+              LABEL_DISPLAY_SCALE,
+
+            labelData.height *
+              LABEL_DISPLAY_SCALE,
+
             1
           );
 
@@ -789,8 +890,7 @@
 
         node.__group = group;
         node.__star = star;
-        node.__starMaterial =
-          starMaterial;
+        node.__starMaterial = starMaterial;
 
         node.__baseStarSize =
           baseStarSize;
@@ -803,27 +903,23 @@
     }
 
     // =====================================================
-    // LINKS
+    // CONSTELLATION LINKS
+    // All flowing particles are disabled here.
     // =====================================================
 
     function configureLinks() {
       Graph
-        .linkWidth(0.55)
+        .linkWidth(0.52)
         .linkColor(
-          () => "rgba(120,160,240,0.115)"
+          () => "rgba(115,150,225,0.105)"
         )
         .linkOpacity(1)
-        .linkDirectionalParticles(
-          isMobile ? 0 : 1
-        )
-        .linkDirectionalParticleWidth(0.55)
-        .linkDirectionalParticleSpeed(
-          () => 0.00085
-        )
-        .linkDirectionalParticleColor(
-          () =>
-            "rgba(255,240,190,0.25)"
-        );
+
+        /*
+          Zero particles removes the glittering dots
+          that previously travelled along the lines.
+        */
+        .linkDirectionalParticles(0);
     }
 
     // =====================================================
@@ -851,37 +947,48 @@
           );
       }
 
-      Graph.d3Force("spaciousGalaxy", (alpha) => {
-        const currentNodes =
-          Graph.graphData().nodes;
+      Graph.d3Force(
+        "spaciousGalaxy",
+        (alpha) => {
+          const currentNodes =
+            Graph.graphData().nodes;
 
-        const total = Math.max(
-          currentNodes.length,
-          1
-        );
+          const total = Math.max(
+            currentNodes.length,
+            1
+          );
 
-        currentNodes.forEach(
-          (node, index) => {
+          for (
+            let index = 0;
+            index < currentNodes.length;
+            index++
+          ) {
+            const node =
+              currentNodes[index];
+
             if (
               !Number.isFinite(node.x) ||
               !Number.isFinite(node.y) ||
               !Number.isFinite(node.z)
             ) {
-              return;
+              continue;
             }
 
             const progress =
               (index + 1) / total;
 
-            const arm = index % 5;
+            const arm =
+              index % 5;
 
             const radius =
               75 +
               Math.sqrt(progress) *
-                (isMobile ? 540 : 760);
+                GALAXY_RADIUS;
 
             const angle =
-              progress * Math.PI * 11 +
+              progress *
+                Math.PI *
+                11 +
               arm *
                 ((Math.PI * 2) / 5);
 
@@ -891,9 +998,15 @@
             const targetZ =
               Math.sin(angle) * radius;
 
+            /*
+              Larger depth variation creates a genuinely
+              three-dimensional galaxy rather than a flat disc.
+            */
             const targetY =
               Math.sin(angle * 1.45) *
-              (isMobile ? 75 : 110);
+                (isMobile ? 95 : 145) +
+              Math.cos(angle * 0.57) *
+                (isMobile ? 45 : 70);
 
             const strength =
               0.0038 * alpha;
@@ -910,8 +1023,8 @@
               (targetZ - node.z) *
               strength;
           }
-        );
-      });
+        }
+      );
     }
 
     // =====================================================
@@ -937,7 +1050,7 @@
       controls.zoomSpeed = 0.95;
       controls.panSpeed = 0.68;
 
-      controls.minDistance = 55;
+      controls.minDistance = 48;
       controls.maxDistance = 4000;
 
       controls.screenSpacePanning = true;
@@ -945,12 +1058,12 @@
       Graph.cameraPosition({
         x: isMobile ? 250 : 330,
         y: isMobile ? 130 : 180,
-        z: isMobile ? 1300 : 1550
+        z: isMobile ? 1180 : 1380
       });
     }
 
     // =====================================================
-    // INTERACTIONS
+    // USER INTERACTIONS
     // =====================================================
 
     function configureInteractions() {
@@ -1043,6 +1156,7 @@
 
         focusedNode = node;
         hoveredNode = node;
+
         autoTravelEnabled = false;
 
         lastInteractionTime =
@@ -1053,9 +1167,11 @@
             Number.isFinite(node.x)
               ? node.x
               : 0,
+
             Number.isFinite(node.y)
               ? node.y
               : 0,
+
             Number.isFinite(node.z)
               ? node.z
               : 0
@@ -1071,9 +1187,8 @@
           direction.set(0, 0, 1);
         }
 
-        const focusDistance = isMobile
-          ? 125
-          : 105;
+        const focusDistance =
+          isMobile ? 112 : 92;
 
         const destination =
           nodePosition
@@ -1110,7 +1225,7 @@
     }
 
     // =====================================================
-    // INTRO
+    // INTRO SEQUENCE
     // =====================================================
 
     function startIntro() {
@@ -1123,22 +1238,20 @@
 
       setTimeout(() => {
         Graph.zoomToFit(
-          1500,
-          isMobile ? 170 : 220
+          1400,
+          isMobile ? 155 : 195
         );
       }, 550);
 
       /*
-        The camera then travels closer into the
-        spacious galaxy without entering the
-        crowded central point.
+        The camera enters somewhat closer than before.
       */
       setTimeout(() => {
         Graph.cameraPosition(
           {
-            x: isMobile ? 380 : 500,
-            y: isMobile ? 110 : 150,
-            z: isMobile ? 810 : 950
+            x: isMobile ? 315 : 410,
+            y: isMobile ? 90 : 125,
+            z: isMobile ? 650 : 740
           },
           {
             x: 0,
@@ -1180,9 +1293,9 @@
 
       Graph.cameraPosition(
         {
-          x: isMobile ? 390 : 510,
-          y: isMobile ? 120 : 160,
-          z: isMobile ? 820 : 960
+          x: isMobile ? 330 : 425,
+          y: isMobile ? 100 : 135,
+          z: isMobile ? 670 : 760
         },
         {
           x: 0,
@@ -1198,7 +1311,7 @@
     }
 
     // =====================================================
-    // AUTOMATIC GALAXY TRAVEL AND ZOOM
+    // FULL GALAXY CAMERA TRAVEL
     // =====================================================
 
     function updateCinematicTravel(deltaTime) {
@@ -1230,50 +1343,63 @@
         deltaTime * AUTO_TRAVEL_SPEED;
 
       /*
-        A slow primary zoom wave moves the camera
-        inward and outward. A smaller secondary
-        wave prevents repetitive motion.
+        Inward and outward zoom.
       */
       const primaryZoom =
-        Math.sin(travelTime * 0.78) *
-        (isMobile ? 190 : 270);
+        Math.sin(travelTime * 0.82) *
+        CAMERA_ZOOM_DISTANCE;
 
       const secondaryZoom =
-        Math.sin(travelTime * 0.29) *
-        (isMobile ? 70 : 105);
-
-      const baseRadius = isMobile
-        ? 760
-        : 900;
+        Math.sin(travelTime * 0.31) *
+        (CAMERA_ZOOM_DISTANCE * 0.38);
 
       const radius =
-        baseRadius +
+        CAMERA_BASE_DISTANCE +
         primaryZoom +
         secondaryZoom;
 
-      const orbitAngle = travelTime;
+      /*
+        The camera does not simply orbit the centre.
 
+        The camera target moves through different galaxy
+        regions, creating travel across the full network.
+      */
       const targetX =
-        Math.sin(travelTime * 0.24) *
-        (isMobile ? 115 : 170);
+        Math.sin(travelTime * 0.23) *
+          (isMobile ? 250 : 370) +
+        Math.sin(travelTime * 0.61) *
+          (isMobile ? 65 : 95);
 
       const targetY =
-        Math.cos(travelTime * 0.36) *
-        (isMobile ? 55 : 80);
+        Math.cos(travelTime * 0.34) *
+          (isMobile ? 100 : 155) +
+        Math.sin(travelTime * 0.71) *
+          (isMobile ? 45 : 70);
 
       const targetZ =
         Math.sin(travelTime * 0.19) *
-        (isMobile ? 100 : 145);
+          (isMobile ? 230 : 340) +
+        Math.cos(travelTime * 0.53) *
+          (isMobile ? 55 : 85);
 
+      /*
+        The camera position also follows an irregular
+        three-dimensional path around and through the galaxy.
+      */
       camera.position.x =
-        Math.cos(orbitAngle) * radius;
+        targetX +
+        Math.cos(travelTime) * radius;
 
       camera.position.z =
-        Math.sin(orbitAngle) * radius;
+        targetZ +
+        Math.sin(travelTime * 0.91) * radius;
 
       camera.position.y =
-        Math.sin(travelTime * 0.48) *
-        (isMobile ? 145 : 210);
+        targetY +
+        Math.sin(travelTime * 0.47) *
+          (isMobile ? 190 : 285) +
+        Math.cos(travelTime * 0.17) *
+          (isMobile ? 70 : 110);
 
       camera.lookAt(
         targetX,
@@ -1283,7 +1409,7 @@
     }
 
     // =====================================================
-    // SMOOTH GALAXY SWIRL
+    // GALAXY SWIRL
     // =====================================================
 
     function updateGalaxySwirl(
@@ -1301,13 +1427,16 @@
         Graph.graphData().nodes;
 
       const frameFactor =
-        Math.min(deltaTime / 16.667, 1.5);
+        Math.min(
+          deltaTime / 16.667,
+          1.5
+        );
 
       const swirlStrength =
-        0.000016 * frameFactor;
+        0.000015 * frameFactor;
 
       const verticalStrength =
-        0.00042 * frameFactor;
+        0.0004 * frameFactor;
 
       for (
         let index = 0;
@@ -1336,7 +1465,7 @@
         node.vy =
           (node.vy || 0) +
           Math.sin(
-            elapsedTime * 0.00032 +
+            elapsedTime * 0.00031 +
             node.__phase
           ) *
           verticalStrength;
@@ -1387,23 +1516,20 @@
           continue;
         }
 
-        const dx =
+        const differenceX =
           node.x - camera.position.x;
 
-        const dy =
+        const differenceY =
           node.y - camera.position.y;
 
-        const dz =
+        const differenceZ =
           node.z - camera.position.z;
 
         const distanceSquared =
-          dx * dx + dy * dy + dz * dz;
+          differenceX * differenceX +
+          differenceY * differenceY +
+          differenceZ * differenceZ;
 
-        /*
-          Important stars receive a lower score,
-          allowing the labels to stay visible
-          from a slightly greater distance.
-        */
         const importanceBoost =
           node.importance === 3
             ? 0.47
@@ -1420,18 +1546,22 @@
       }
 
       candidates.sort(
-        (a, b) => a.score - b.score
+        (first, second) =>
+          first.score - second.score
       );
 
-      const visibleNodes = new Set();
+      const visibleNodes =
+        new Set();
 
-      for (
-        let index = 0;
-        index <
+      const visibleCount =
         Math.min(
           MAX_VISIBLE_LABELS,
           candidates.length
         );
+
+      for (
+        let index = 0;
+        index < visibleCount;
         index++
       ) {
         visibleNodes.add(
@@ -1470,8 +1600,7 @@
                 ? 0.94
                 : 0.82;
         } else {
-          node.__labelMaterial.opacity =
-            0;
+          node.__labelMaterial.opacity = 0;
         }
       }
     }
@@ -1480,17 +1609,14 @@
     // LIGHTWEIGHT STAR ANIMATION
     // =====================================================
 
-    function updateNodeAnimation(
-      elapsedTime
-    ) {
+    function updateNodeAnimation(elapsedTime) {
       if (!Graph) {
         return;
       }
 
       /*
-        Update breathing every second frame.
-        This retains visible movement while
-        reducing unnecessary work.
+        Updating every second frame helps maintain
+        smooth performance with hundreds of stars.
       */
       if (frameCounter % 2 !== 0) {
         return;
@@ -1551,17 +1677,17 @@
 
       if (nearStars) {
         nearStars.rotation.y +=
-          0.000012 * frameFactor;
+          0.00001 * frameFactor;
       }
 
       if (farStars) {
         farStars.rotation.y -=
-          0.000005 * frameFactor;
+          0.000004 * frameFactor;
       }
 
       if (galaxyDust) {
         galaxyDust.rotation.z +=
-          0.000003 * frameFactor;
+          0.0000025 * frameFactor;
       }
     }
 
@@ -1581,11 +1707,12 @@
           return;
         }
 
-        const deltaTime = Math.min(
-          currentTime -
-            previousFrameTime,
-          32
-        );
+        const deltaTime =
+          Math.min(
+            currentTime -
+              previousFrameTime,
+            32
+          );
 
         previousFrameTime =
           currentTime;
@@ -1630,9 +1757,8 @@
       const geometry =
         new THREE.BufferGeometry();
 
-      const count = isMobile
-        ? 850
-        : 1700;
+      const count =
+        isMobile ? 800 : 1600;
 
       const positions =
         new Float32Array(count * 3);
@@ -1640,10 +1766,14 @@
       const colors =
         new Float32Array(count * 3);
 
+      /*
+        The background remains varied and subtle.
+        These are separate from the orange skill stars.
+      */
       const starColors = [
         new THREE.Color("#ffffff"),
         new THREE.Color("#a7d9ff"),
-        new THREE.Color("#fff0b0"),
+        new THREE.Color("#ffe1a1"),
         new THREE.Color("#c8b9ff")
       ];
 
@@ -1652,7 +1782,8 @@
         index < count;
         index++
       ) {
-        const offset = index * 3;
+        const offset =
+          index * 3;
 
         positions[offset] =
           (Math.random() - 0.5) *
@@ -1701,14 +1832,15 @@
           sizeAttenuation: true,
           vertexColors: true,
           transparent: true,
-          opacity: 0.72,
+          opacity: 0.68,
           depthWrite: false
         });
 
-      nearStars = new THREE.Points(
-        geometry,
-        material
-      );
+      nearStars =
+        new THREE.Points(
+          geometry,
+          material
+        );
 
       scene.add(nearStars);
     }
@@ -1717,9 +1849,8 @@
       const geometry =
         new THREE.BufferGeometry();
 
-      const count = isMobile
-        ? 500
-        : 1000;
+      const count =
+        isMobile ? 450 : 900;
 
       const positions =
         new Float32Array(count * 3);
@@ -1729,7 +1860,8 @@
         index < count;
         index++
       ) {
-        const offset = index * 3;
+        const offset =
+          index * 3;
 
         positions[offset] =
           (Math.random() - 0.5) *
@@ -1754,20 +1886,19 @@
 
       const material =
         new THREE.PointsMaterial({
-          size: isMobile
-            ? 0.65
-            : 0.82,
+          size: isMobile ? 0.65 : 0.82,
           sizeAttenuation: true,
           color: "#769ce4",
           transparent: true,
-          opacity: 0.38,
+          opacity: 0.34,
           depthWrite: false
         });
 
-      farStars = new THREE.Points(
-        geometry,
-        material
-      );
+      farStars =
+        new THREE.Points(
+          geometry,
+          material
+        );
 
       scene.add(farStars);
     }
@@ -1776,9 +1907,8 @@
       const geometry =
         new THREE.BufferGeometry();
 
-      const count = isMobile
-        ? 280
-        : 600;
+      const count =
+        isMobile ? 250 : 520;
 
       const positions =
         new Float32Array(count * 3);
@@ -1787,17 +1917,18 @@
         new Float32Array(count * 3);
 
       const purple =
-        new THREE.Color("#6757b4");
+        new THREE.Color("#6655aa");
 
       const blue =
-        new THREE.Color("#386f9d");
+        new THREE.Color("#34658e");
 
       for (
         let index = 0;
         index < count;
         index++
       ) {
-        const offset = index * 3;
+        const offset =
+          index * 3;
 
         const angle =
           Math.random() *
@@ -1813,14 +1944,16 @@
             3800;
 
         positions[offset] =
-          Math.cos(angle) * radius;
+          Math.cos(angle) *
+          radius;
 
         positions[offset + 1] =
           (Math.random() - 0.5) *
           700;
 
         positions[offset + 2] =
-          Math.sin(angle) * radius;
+          Math.sin(angle) *
+          radius;
 
         const color =
           index % 2 === 0
@@ -1854,7 +1987,7 @@
           sizeAttenuation: true,
           vertexColors: true,
           transparent: true,
-          opacity: 0.1,
+          opacity: 0.08,
           depthWrite: false
         });
 
@@ -1936,4 +2069,3 @@
   </script>
 </body>
 </html>
-``
