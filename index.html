@@ -1,72 +1,79 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Mohammad Mujahid's 3-D Skills Constellation Chart</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    html, body { height:100%; margin:0; background:#040414; }
-    #3d-graph { width:100vw; height:100vh; display:block; }
-    #starCanvas { display:none; width:256px; height:256px; }
+<meta charset="utf-8">
+<title>Mohammad Mujahid's Skill Galaxy</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-    @font-face {
-      font-family: "MyCustomFont";
-      src: url("FoundationTitlesHand.ttf") format("truetype");
-    }
-
-    #refreshBtn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      border: none;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(5px);
-      color: #ffffff;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    #refreshBtn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5); }
-    #refreshBtn:active { transform: scale(0.95); }
-    html, body {
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-}
-#3d-graph {
-  width: 100%;
-  height: 100%;
-  touch-action: none;  /* essential for mobile gestures */
+<style>
+html, body{
+    width:100%;
+    height:100%;
+    margin:0;
+    overflow:hidden;
+    background:#040414;
 }
 
-  </style>
+#3d-graph{
+    width:100vw;
+    height:100vh;
+    touch-action:none;
+}
+
+#refreshBtn{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    width:50px;
+    height:50px;
+    border:none;
+    border-radius:50%;
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    font-size:22px;
+    cursor:pointer;
+    backdrop-filter:blur(6px);
+    box-shadow:0 4px 15px rgba(255,255,255,.2);
+    z-index:999;
+}
+
+#refreshBtn:hover{
+    transform:scale(1.1);
+}
+
+@font-face{
+    font-family:"MyCustomFont";
+    src:url("FoundationTitlesHand.ttf")
+    format("truetype");
+}
+</style>
+
 </head>
 <body>
-<canvas id="starCanvas" width="256" height="256"></canvas>
-<div id="3d-graph"></div>
-<button id="refreshBtn" title="Refresh">&#x21bb;</button>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+<div id="3d-graph"></div>
+
+<button id="refreshBtn">↻</button>
+
+/three@0.150.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
+
 <script>
-// ========== CONFIG ==========
+
+// ==============================================
+// CONFIG
+// ==============================================
+
 const STAR_SIZE = 9;
 const LABEL_FONT_SIZE = 38;
-const PARTICLE_WIDTH = 1.0;
-const PARTICLE_SPEED = 0.001;
-const PARTICLE_OPACITY = 0.3;
+
+// ==============================================
+// PASTE YOUR ENTIRE SKILLS ARRAY HERE
+// ==============================================
 
 const skills = [
-  "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable",
+
+"Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable",
   "ACH Processing", "Wire Payment Processing", "Check Processing", "NSF Handling",
   "Remittance Matching", "Customer Communication",
   "Credit Management", "Invoice Distribution", "Collections",
@@ -152,191 +159,331 @@ const skills = [
   "Strengths-Based Coaching", "Gallup Strengths Mapping", 
   "Dispute Resolution Management", "SLA Management", "Invoice Discrepancy Investigation", "Supplier Reconciliation", "Customer Credit Analysis",
   "Vendor Risk Assessment", "Power Automate", "Google App Script", "Power Apps", "Month-End Closing", "Statutory Compliance Reporting"
+
 ];
+
+// ==============================================
+
 const N = skills.length;
+
 const gData = {
-  nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
-  links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
+
+    nodes: [...Array(N).keys()].map(i => ({
+        id: i,
+        skill: skills[i]
+    })),
+
+    links: [...Array(N).keys()]
+    .filter(i => i)
+    .map(i => ({
+        source: i,
+        target: Math.round(Math.random()*(i-1))
+    }))
 };
 
-// ========== GLOW STAR ==========
-const canvas = document.getElementById('starCanvas');
-const ctx = canvas.getContext('2d');
-const cx = canvas.width/2, cy = canvas.height/2;
-let burstProgress = 1;
-let targetBurstProgress = 1;
+// ==============================================
+// CREATE GRAPH
+// ==============================================
 
-function drawGlowingStar() {
-    burstProgress += (targetBurstProgress - burstProgress) * 0.08;
+const Graph = ForceGraph3D({
+    controlType:'orbit'
+})(document.getElementById('3d-graph'));
 
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+Graph.graphData(gData);
 
-    for(let i=8;i>0;i--){
-        ctx.save();
-        const baseRadius = 50 + i*10;
-        const glowRadius = baseRadius * burstProgress + Math.sin(Date.now()/900)*2;
-        ctx.globalAlpha = 0.06*(i/8)*burstProgress;
-        ctx.shadowBlur = (30+i*5)*burstProgress;
-        ctx.beginPath();
-        ctx.arc(cx,cy,glowRadius,0,Math.PI*2);
-        ctx.closePath();
-        ctx.fillStyle = i%2===0?'rgba(62,189,255,0.7)':'rgba(255,236,128,0.3)';
-        ctx.shadowColor = i%2===0?'#60ecff':'#fffadc';
-        ctx.fill();
-        ctx.restore();
-    }
+Graph.renderer().setPixelRatio(
+    Math.min(window.devicePixelRatio,2)
+);
 
-    ctx.save();
-    const grad = ctx.createRadialGradient(cx,cy,5,cx,cy,20*burstProgress);
-    grad.addColorStop(0,'#fff');
-    grad.addColorStop(0.3,'#fff6b5');
-    grad.addColorStop(1,'#fffacd11');
-    ctx.beginPath();
-    ctx.arc(cx,cy,20*burstProgress,0,Math.PI*2);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.shadowColor='gold';
-    ctx.shadowBlur = 30*burstProgress;
-    ctx.fill();
-    ctx.restore();
-
-    requestAnimationFrame(drawGlowingStar);
-}
-drawGlowingStar();
-// ========== 3D GRAPH ==========
-const Graph = ForceGraph3D({ controlType:'orbit' })(document.getElementById('3d-graph'))
-  // ======================================
+// ==============================================
 // DEEP SPACE STARFIELD
-// ======================================
+// ==============================================
 
 const scene = Graph.scene();
 
-const starsGeometry = new THREE.BufferGeometry();
+const starsGeometry =
+    new THREE.BufferGeometry();
+
 const starVertices = [];
 
-for (let i = 0; i < 2000; i++) {
+for(let i=0;i<2500;i++){
 
-  starVertices.push(
-    (Math.random() - 0.5) * 7000,
-    (Math.random() - 0.5) * 7000,
-    (Math.random() - 0.5) * 7000
-  );
+    starVertices.push(
+        (Math.random()-0.5)*8000,
+        (Math.random()-0.5)*8000,
+        (Math.random()-0.5)*8000
+    );
 
 }
 
 starsGeometry.setAttribute(
-  'position',
-  new THREE.Float32BufferAttribute(
-    starVertices,
-    3
-  )
+    'position',
+    new THREE.Float32BufferAttribute(
+        starVertices,
+        3
+    )
 );
 
-const starsMaterial = new THREE.PointsMaterial({
-  color: 0xffffff,
-  size: 1.4,
-  transparent: true,
-  opacity: 0.8
-});
+const starsMaterial =
+    new THREE.PointsMaterial({
 
-const starField = new THREE.Points(
-  starsGeometry,
-  starsMaterial
-);
+        color:0xffffff,
+        size:1.4,
+        transparent:true,
+        opacity:0.8
+
+    });
+
+const starField =
+    new THREE.Points(
+        starsGeometry,
+        starsMaterial
+    );
 
 scene.add(starField);
-  .graphData(gData)
-  .nodeThreeObject(node=>{
-    const group = new THREE.Group();
 
-    const starCanvas = document.createElement('canvas');
-    starCanvas.width = starCanvas.height = 64;
-    const ctx = starCanvas.getContext('2d');
-    const gradient = ctx.createRadialGradient(32,32,0,32,32,32);
-    gradient.addColorStop(0,'rgba(255,255,200,1)');
-    gradient.addColorStop(0.3,'rgba(255,220,120,0.8)');
-    gradient.addColorStop(0.6,'rgba(255,180,60,0.5)');
-    gradient.addColorStop(1,'rgba(255,180,60,0)');
+// ==============================================
+// NODES
+// ==============================================
+
+Graph.nodeThreeObject(node => {
+
+    const group =
+        new THREE.Group();
+
+    const starCanvas =
+        document.createElement('canvas');
+
+    starCanvas.width = 64;
+    starCanvas.height = 64;
+
+    const ctx =
+        starCanvas.getContext('2d');
+
+    const gradient =
+        ctx.createRadialGradient(
+            32,32,0,
+            32,32,32
+        );
+
+    gradient.addColorStop(
+        0,
+        'rgba(255,255,220,1)'
+    );
+
+    gradient.addColorStop(
+        0.3,
+        'rgba(255,220,120,0.9)'
+    );
+
+    gradient.addColorStop(
+        0.6,
+        'rgba(255,180,60,0.45)'
+    );
+
+    gradient.addColorStop(
+        1,
+        'rgba(255,180,60,0)'
+    );
+
     ctx.fillStyle = gradient;
     ctx.fillRect(0,0,64,64);
-    const texture = new THREE.CanvasTexture(starCanvas);
-    const material = new THREE.SpriteMaterial({map:texture,transparent:true});
-    const sprite = new THREE.Sprite(material);
-    sprite.scale.set(STAR_SIZE, STAR_SIZE, 1);
+
+    const texture =
+        new THREE.CanvasTexture(
+            starCanvas
+        );
+
+    const sprite =
+        new THREE.Sprite(
+
+            new THREE.SpriteMaterial({
+                map:texture,
+                transparent:true
+            })
+
+        );
+
+    sprite.scale.set(
+        STAR_SIZE,
+        STAR_SIZE,
+        1
+    );
+
     group.add(sprite);
 
-    const labelCanvas = document.createElement('canvas');
-    const labelCtx = labelCanvas.getContext('2d');
-    labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
+    // LABEL
+
+    const labelCanvas =
+        document.createElement('canvas');
+
+    const labelCtx =
+        labelCanvas.getContext('2d');
+
+    labelCtx.font =
+        `${LABEL_FONT_SIZE}px MyCustomFont`;
+
     const text = node.skill;
-    const textWidth = labelCtx.measureText(text).width;
-    labelCanvas.width = textWidth+20;
-    labelCanvas.height = LABEL_FONT_SIZE+10;
-    labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
-    labelCtx.fillStyle = '#cce6ff';
-    labelCtx.fillText(text,5,LABEL_FONT_SIZE);
-    const labelTexture = new THREE.CanvasTexture(labelCanvas);
-    const labelMaterial = new THREE.SpriteMaterial({map:labelTexture,transparent:true});
-    const label = new THREE.Sprite(labelMaterial);
-    label.position.set(0,LABEL_FONT_SIZE*0.2,0);
-    label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
-label.visible = false;
 
-group.add(label);
+    const width =
+        labelCtx.measureText(text).width;
 
-node.__label = label;
+    labelCanvas.width =
+        width + 20;
 
-    node.__threeObj = group; // save reference for refresh
+    labelCanvas.height =
+        LABEL_FONT_SIZE + 15;
+
+    labelCtx.font =
+        `${LABEL_FONT_SIZE}px MyCustomFont`;
+
+    labelCtx.fillStyle =
+        '#cce6ff';
+
+    labelCtx.fillText(
+        text,
+        5,
+        LABEL_FONT_SIZE
+    );
+
+    const labelTexture =
+        new THREE.CanvasTexture(
+            labelCanvas
+        );
+
+    const label =
+        new THREE.Sprite(
+
+            new THREE.SpriteMaterial({
+
+                map:labelTexture,
+                transparent:true
+
+            })
+
+        );
+
+    label.position.set(
+        0,
+        15,
+        0
+    );
+
+    label.scale.set(
+        labelCanvas.width * 0.06,
+        labelCanvas.height * 0.06,
+        1
+    );
+
+    label.visible = false;
+
+    group.add(label);
+
+    node.__label = label;
+    node.__threeObj = group;
+
     return group;
-  })
-  .linkWidth(1)
-  .linkColor(() => 'rgba(120,170,255,0.12)')
-  .linkOpacity(1)
-  .linkDirectionalParticles(2)
-  .linkDirectionalParticleWidth(PARTICLE_WIDTH)
-  .linkDirectionalParticleSpeed(()=> PARTICLE_SPEED)
-  .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
-  .onNodeHover(node => {
-
-  document.body.style.cursor =
-    node ? 'pointer' : null;
-
-  Graph.graphData().nodes.forEach(n => {
-
-    if(n.__label)
-      n.__label.visible = false;
-
-  });
-
-  if(node && node.__label)
-    node.__label.visible = true;
 
 });
 
-Graph.d3Force('link').distance(45);
-Graph.d3Force('charge').strength(-25);
+// ==============================================
+// LINKS
+// ==============================================
 
-// ======================================
-// CAMERA & CONTROLS
-// ======================================
-
-// ======================================
-// CAMERA & CONTROLS
-// ======================================
-
-const initialZ = 900;
-
-Graph.cameraPosition({
-  x: 0,
-  y: 0,
-  z: initialZ
-});
-
-Graph.renderer().setPixelRatio(
-  Math.min(window.devicePixelRatio, 2)
+Graph
+.linkWidth(1)
+.linkColor(
+    () =>
+    'rgba(120,170,255,0.12)'
+)
+.linkOpacity(1)
+.linkDirectionalParticles(2)
+.linkDirectionalParticleWidth(1)
+.linkDirectionalParticleSpeed(
+    () => 0.001
+)
+.linkDirectionalParticleColor(
+    () =>
+    'rgba(255,246,200,0.30)'
 );
 
-const controls = Graph.controls();
+// ==============================================
+// HOVER LABELS
+// ==============================================
+
+Graph.onNodeHover(node => {
+
+    document.body.style.cursor =
+        node ? 'pointer' : null;
+
+    Graph.graphData().nodes.forEach(n => {
+
+        if(n.__label)
+            n.__label.visible = false;
+
+    });
+
+    if(node?.__label)
+        node.__label.visible = true;
+
+});
+
+// ==============================================
+// CLICK TO FLY
+// ==============================================
+
+Graph.onNodeClick(node => {
+
+    const distance = 120;
+
+    const distRatio =
+        1 + distance /
+        Math.hypot(
+            node.x || 1,
+            node.y || 1,
+            node.z || 1
+        );
+
+    Graph.cameraPosition(
+
+        {
+            x: node.x * distRatio,
+            y: node.y * distRatio,
+            z: node.z * distRatio
+        },
+
+        node,
+
+        2500
+
+    );
+
+    userInteraction();
+
+});
+
+// ==============================================
+// FORCE SETTINGS
+// ==============================================
+
+Graph.d3Force('link')
+.distance(45);
+
+Graph.d3Force('charge')
+.strength(-25);
+
+// ==============================================
+// CONTROLS
+// ==============================================
+
+Graph.cameraPosition({
+    x:0,
+    y:0,
+    z:900
+});
+
+const controls =
+    Graph.controls();
 
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
@@ -352,126 +499,129 @@ controls.panSpeed = 0.7;
 controls.minDistance = 80;
 controls.maxDistance = 3000;
 
-controls.screenSpacePanning = true;
+const cam =
+    Graph.camera();
 
-const cam = Graph.camera();
+// ==============================================
+// CINEMATIC ORBIT
+// ==============================================
 
-let lastInteractionTime = Date.now();
+let lastInteractionTime =
+    Date.now();
+
 let autoOrbitEnabled = true;
 
-function userInteraction() {
+function userInteraction(){
 
-  lastInteractionTime = Date.now();
-  autoOrbitEnabled = false;
+    lastInteractionTime =
+        Date.now();
 
+    autoOrbitEnabled =
+        false;
 }
 
-controls.addEventListener('start', userInteraction);
-controls.addEventListener('change', userInteraction);
+controls.addEventListener(
+    'start',
+    userInteraction
+);
 
-// ======================================
-// CINEMATIC GALAXY ORBIT
-// ======================================
+controls.addEventListener(
+    'change',
+    userInteraction
+);
 
 let orbitAngle = 0;
 
-function autoOrbit() {
+function autoOrbit(){
 
-  if (Date.now() - lastInteractionTime > 15000) {
-    autoOrbitEnabled = true;
-  }
+    if(
+      Date.now() -
+      lastInteractionTime >
+      15000
+    ){
+        autoOrbitEnabled =
+            true;
+    }
 
-  if (!autoOrbitEnabled) return;
+    if(!autoOrbitEnabled)
+        return;
 
-  orbitAngle += 0.00008;
+    orbitAngle += 0.00008;
 
-  const radius = 900;
+    const radius = 900;
 
-  cam.position.x = Math.cos(orbitAngle) * radius;
-  cam.position.z = Math.sin(orbitAngle) * radius;
+    cam.position.x =
+        Math.cos(orbitAngle)
+        * radius;
 
-  cam.lookAt(0,0,0);
+    cam.position.z =
+        Math.sin(orbitAngle)
+        * radius;
+
+    cam.lookAt(0,0,0);
+}
+
+// ==============================================
+// STAR PULSE
+// ==============================================
+
+function animateStars(){
+
+    const t =
+        Date.now()*0.001;
+
+    Graph.graphData()
+    .nodes
+    .forEach(node => {
+
+        if(!node.__threeObj)
+            return;
+
+        const scale =
+            1 +
+            Math.sin(
+                t + node.id
+            ) * 0.04;
+
+        node.__threeObj.scale.set(
+            scale,
+            scale,
+            scale
+        );
+
+    });
 
 }
 
-// ======================================
-// LIVING STARS
-// ======================================
-
-function animateStars() {
-
-  const time = Date.now() * 0.001;
-
-  Graph.graphData().nodes.forEach(node => {
-
-    if (!node.__threeObj) return;
-
-    const scale =
-      1 + Math.sin(time + node.id) * 0.04;
-
-    node.__threeObj.scale.set(
-      scale,
-      scale,
-      scale
-    );
-
-  });
-
-}
-
-// ======================================
-// FLY TO SKILL
-// ======================================
-
-Graph.onNodeClick(node => {
-
-  const distance = 120;
-
-  const distRatio =
-    1 + distance /
-    Math.hypot(
-      node.x || 1,
-      node.y || 1,
-      node.z || 1
-    );
-
-  Graph.cameraPosition(
-    {
-      x: node.x * distRatio,
-      y: node.y * distRatio,
-      z: node.z * distRatio
-    },
-    node,
-    2500
-  );
-
-  userInteraction();
-
-});
-
-// ======================================
+// ==============================================
 // MAIN LOOP
-// ======================================
+// ==============================================
 
-function animateLoop() {
+function animateLoop(){
 
-  requestAnimationFrame(animateLoop);
+    requestAnimationFrame(
+        animateLoop
+    );
 
-  autoOrbit();
+    autoOrbit();
 
-  animateStars();
-
+    animateStars();
 }
 
 animateLoop();
-</script>
-<script>
-document.getElementById('refreshBtn')
+
+// ==============================================
+// REFRESH BUTTON
+// ==============================================
+
+document
+.getElementById('refreshBtn')
 .addEventListener('click', () => {
 
-  Graph.zoomToFit(1500);
+    Graph.zoomToFit(1500);
 
 });
+
 </script>
 
 </body>
