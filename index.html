@@ -1,122 +1,66 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-
+  <meta charset="utf-8" />
   <title>Mohammad Mujahid's 3-D Skills Constellation Chart</title>
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  >
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
 
   <style>
-    @font-face {
-      font-family: "FoundationTitlesHand";
-      src: url("./FoundationTitlesHand.ttf") format("truetype");
-      font-weight: normal;
-      font-style: normal;
-      font-display: block;
-    }
-
-    :root {
-      color-scheme: dark;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
+    html, body {
       width: 100%;
       height: 100%;
       margin: 0;
       overflow: hidden;
-      overscroll-behavior: none;
-      background:
-        radial-gradient(
-          circle at 50% 48%,
-          #0b0b2d 0%,
-          #07071e 30%,
-          #040414 60%,
-          #010108 100%
-        );
-    }
-
-    body {
-      position: relative;
-      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at center, #090922 0%, #040414 45%, #01010a 100%);
     }
 
     #3d-graph {
-      position: fixed;
-      inset: 0;
       width: 100vw;
       height: 100vh;
       display: block;
-      cursor: grab;
       touch-action: none;
-      -webkit-tap-highlight-color: transparent;
+      cursor: grab;
     }
 
     #3d-graph:active {
       cursor: grabbing;
     }
 
-    #spaceVignette {
-      position: fixed;
-      inset: 0;
-      z-index: 5;
-      pointer-events: none;
-      background:
-        radial-gradient(
-          circle at center,
-          rgba(13, 18, 60, 0) 40%,
-          rgba(3, 3, 18, 0.16) 72%,
-          rgba(0, 0, 8, 0.48) 100%
-        );
+    @font-face {
+      font-family: "MyCustomFont";
+      src: url("FoundationTitlesHand.ttf") format("truetype");
+      font-display: swap;
     }
 
-    #introFlash {
+    #refreshBtn {
       position: fixed;
-      inset: 0;
-      z-index: 15;
-      pointer-events: none;
-      opacity: 1;
-      transform-origin: center;
-      background:
-        radial-gradient(
-          circle at center,
-          rgba(255, 255, 255, 0.96) 0%,
-          rgba(215, 238, 255, 0.55) 2%,
-          rgba(130, 188, 255, 0.24) 8%,
-          rgba(64, 95, 210, 0.10) 19%,
-          rgba(0, 0, 0, 0) 48%
-        );
-      animation: bigBangFlash 3.2s ease-out forwards;
+      bottom: 20px;
+      right: 20px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(7px);
+      color: #ffffff;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(140,180,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      z-index: 20;
     }
 
-    @keyframes bigBangFlash {
-      0% {
-        opacity: 1;
-        transform: scale(0.04);
-      }
+    #refreshBtn:hover {
+      transform: scale(1.1);
+      background: rgba(255,255,255,0.16);
+      box-shadow: 0 6px 24px rgba(180,210,255,0.55);
+    }
 
-      25% {
-        opacity: 0.86;
-        transform: scale(0.5);
-      }
-
-      58% {
-        opacity: 0.34;
-        transform: scale(1.35);
-      }
-
-      100% {
-        opacity: 0;
-        transform: scale(2.8);
-      }
+    #refreshBtn:active {
+      transform: scale(0.95);
     }
 
     #hint {
@@ -124,86 +68,27 @@
       left: 18px;
       bottom: 18px;
       z-index: 20;
-      color: rgba(222, 238, 255, 0.68);
+      color: rgba(220,235,255,0.65);
       font-family: Arial, sans-serif;
       font-size: 12px;
-      line-height: 1.4;
-      letter-spacing: 0.25px;
+      letter-spacing: 0.3px;
       user-select: none;
       pointer-events: none;
-      text-shadow: 0 0 12px rgba(100, 165, 255, 0.55);
-      transition: opacity 0.8s ease;
-    }
-
-    #resetBtn {
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
-      z-index: 20;
-
-      width: 52px;
-      height: 52px;
-      padding: 0;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      border: 1px solid rgba(190, 220, 255, 0.14);
-      border-radius: 50%;
-
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.09);
-
-      backdrop-filter: blur(9px);
-      -webkit-backdrop-filter: blur(9px);
-
-      font-size: 24px;
-      line-height: 1;
-      cursor: pointer;
-
-      box-shadow:
-        0 4px 18px rgba(115, 165, 255, 0.28),
-        inset 0 0 12px rgba(255, 255, 255, 0.05);
-
-      transition:
-        transform 0.2s ease,
-        background 0.2s ease,
-        box-shadow 0.2s ease;
-    }
-
-    #resetBtn:hover {
-      transform: scale(1.08);
-      background: rgba(255, 255, 255, 0.15);
-      box-shadow:
-        0 6px 24px rgba(155, 195, 255, 0.48),
-        inset 0 0 14px rgba(255, 255, 255, 0.08);
-    }
-
-    #resetBtn:active {
-      transform: scale(0.95);
+      text-shadow: 0 0 10px rgba(120,170,255,0.4);
     }
 
     @media (max-width: 768px) {
       #hint {
+        font-size: 11px;
         left: 12px;
-        bottom: 13px;
-        max-width: calc(100vw - 90px);
-        font-size: 10px;
+        bottom: 12px;
       }
 
-      #resetBtn {
-        right: 15px;
-        bottom: 15px;
+      #refreshBtn {
         width: 48px;
         height: 48px;
-        font-size: 22px;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      #introFlash {
-        display: none;
+        bottom: 16px;
+        right: 16px;
       }
     }
   </style>
@@ -211,75 +96,33 @@
 
 <body>
   <div id="3d-graph"></div>
-
-  <div id="spaceVignette"></div>
-  <div id="introFlash"></div>
-
-  <div id="hint">
-    Drag to explore • Scroll or pinch to fly • Select a skill to focus
-  </div>
-
-  <button
-    id="resetBtn"
-    type="button"
-    title="Reset galaxy view"
-    aria-label="Reset galaxy view"
-  >
-    &#x21bb;
-  </button>
+  <button id="refreshBtn" title="Reset View">&#x21bb;</button>
+  <div id="hint">Drag to explore • Scroll/pinch to fly • Tap a star to focus</div>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
 
   <script>
-    "use strict";
-
     // =====================================================
-    // DEVICE AND PERFORMANCE SETTINGS
+    // CONFIG
     // =====================================================
 
-    const isMobile =
-      window.matchMedia("(max-width: 768px)").matches ||
-      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isMobile = window.innerWidth <= 768;
 
-    const prefersReducedMotion =
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const STAR_SIZE = isMobile ? 7.5 : 9;
+    const LABEL_FONT_SIZE = isMobile ? 38 : 60;
 
-    /*
-      Stars are deliberately smaller so the glow does not
-      overpower the skill names.
-    */
-    const STAR_SIZE = isMobile ? 5.0 : 6.0;
-
-    /*
-      Text is rendered at a high canvas resolution and then
-      scaled down inside the Three.js world for sharpness.
-    */
-    const LABEL_FONT_SIZE = isMobile ? 48 : 68;
-    const LABEL_WORLD_SCALE = isMobile ? 0.046 : 0.049;
-
-    const PARTICLE_WIDTH = isMobile ? 0.62 : 0.82;
+    const PARTICLE_WIDTH = isMobile ? 0.8 : 1.0;
     const PARTICLE_SPEED = 0.001;
-    const PARTICLE_OPACITY = 0.30;
+    const PARTICLE_OPACITY = 0.32;
 
-    /*
-      Close initial and reset distances.
+    const AUTO_ORBIT_IDLE_DELAY = 9000;
+    const AUTO_ORBIT_SPEED = 0.00007;
 
-      There is deliberately no automatic zoomToFit because
-      visible labels can make zoomToFit place the camera too far.
-    */
-    const INITIAL_CAMERA_Z = isMobile ? 760 : 590;
-    const RESET_CAMERA_Z = isMobile ? 700 : 540;
-
-    const AUTO_ROTATE_IDLE_DELAY = 10000;
-    const BIG_BANG_DURATION = prefersReducedMotion ? 1 : 4000;
-
-    const NEAR_STAR_COUNT = isMobile ? 1500 : 3200;
-    const FAR_STAR_COUNT = isMobile ? 750 : 1600;
-    const DUST_PARTICLE_COUNT = isMobile ? 400 : 900;
+    const SHOW_LABELS = true;
 
     // =====================================================
-    // PASTE YOUR COMPLETE SKILLS ARRAY HERE
+    // PASTE YOUR FULL SKILLS ARRAY HERE
     // =====================================================
 
     const skills = [
@@ -371,231 +214,101 @@
   "Vendor Risk Assessment", "Power Automate", "Google App Script", "Power Apps", "Month-End Closing", "Statutory Compliance Reporting"
     ];
 
-    /*
-      Important:
-
-      Inside JavaScript strings, use normal ampersands:
-
-      "Charts & Graphs"
-
-      Do not write:
-
-      "Charts &amp; Graphs"
-    */
-
     // =====================================================
     // GRAPH DATA
     // =====================================================
 
-    const graphNodes = skills.map((skill, index) => {
-      /*
-        All nodes begin close to the centre.
+    const N = skills.length;
 
-        The force simulation pushes the constellation outward,
-        creating the opening Big Bang expansion.
-      */
-      const initialRadius = 2 + Math.random() * 5;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
+    const gData = {
+      nodes: [...Array(N).keys()].map(i => ({
+        id: i,
+        skill: skills[i]
+      })),
 
-      return {
-        id: index,
-        skill: skill,
-
-        x:
-          initialRadius *
-          Math.sin(phi) *
-          Math.cos(theta),
-
-        y:
-          initialRadius *
-          Math.sin(phi) *
-          Math.sin(theta),
-
-        z:
-          initialRadius *
-          Math.cos(phi),
-
-        phase: Math.random() * Math.PI * 2
-      };
-    });
-
-    const graphLinks = graphNodes
-      .filter(node => node.id > 0)
-      .map(node => {
-        return {
-          source: node.id,
-          target: Math.floor(Math.random() * node.id)
-        };
-      });
-
-    const graphData = {
-      nodes: graphNodes,
-      links: graphLinks
+      links: [...Array(N).keys()]
+        .filter(i => i)
+        .map(i => ({
+          source: i,
+          target: Math.round(Math.random() * (i - 1))
+        }))
     };
 
-    // =====================================================
-    // GLOBAL OBJECTS
-    // =====================================================
-
-    let Graph = null;
-    let camera = null;
-    let controls = null;
-
-    let nearStarfield = null;
-    let farStarfield = null;
-    let galaxyDust = null;
-    let constellationRoot = null;
-
-    let userInteracting = false;
-    let lastInteractionTime = Date.now();
-
-    let introStartTime = performance.now();
-    let pageVisible = true;
+    let Graph;
+    let cam;
+    let controls;
+    let galaxyStars;
+    let farNebulaStars;
 
     // =====================================================
-    // FONT LOADING
+    // START AFTER FONT LOAD
     // =====================================================
 
-    async function loadFoundationFont() {
-      if (!document.fonts) {
-        return;
-      }
-
-      try {
-        await document.fonts.load(
-          `${LABEL_FONT_SIZE}px "FoundationTitlesHand"`
-        );
-
-        await document.fonts.ready;
-      } catch (error) {
-        console.warn(
-          "FoundationTitlesHand.ttf could not be loaded.",
-          error
-        );
-      }
+    if (document.fonts) {
+      document.fonts.ready.then(initGalaxy);
+    } else {
+      initGalaxy();
     }
 
-    loadFoundationFont().then(initializeGalaxy);
+    function initGalaxy() {
+      // =====================================================
+      // CREATE GRAPH
+      // =====================================================
 
-    // =====================================================
-    // CREATE GALAXY
-    // =====================================================
-
-    function initializeGalaxy() {
-      Graph = ForceGraph3D({
-        controlType: "orbit"
-      })(document.getElementById("3d-graph"));
-
-      Graph
-        .width(window.innerWidth)
-        .height(window.innerHeight)
-        .showNavInfo(false)
-        .backgroundColor("rgba(0,0,0,0)")
-        .graphData(graphData)
-
-        /*
-          The simulation runs continuously so the custom
-          oscillation stays active.
-
-          The force levels are intentionally very low.
-        */
-        .cooldownTime(Infinity)
-        .d3AlphaDecay(0.025)
-        .d3VelocityDecay(0.34);
-
-      const renderer = Graph.renderer();
-
-      renderer.setPixelRatio(
-        Math.min(
-          window.devicePixelRatio || 1,
-          isMobile ? 1.3 : 1.8
-        )
+      Graph = ForceGraph3D({ controlType: "orbit" })(
+        document.getElementById("3d-graph")
       );
 
-      if ("outputColorSpace" in renderer) {
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-      }
+      Graph
+        .graphData(gData)
+        .backgroundColor("rgba(0,0,0,0)")
+        .cooldownTicks(180)
+        .d3AlphaDecay(0.018)
+        .d3VelocityDecay(0.28);
+
+      Graph.renderer().setPixelRatio(
+        Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2)
+      );
+
+      // =====================================================
+      // DEEP SPACE BACKGROUND
+      // =====================================================
 
       const scene = Graph.scene();
 
-      scene.fog = new THREE.FogExp2(
-        0x040414,
-        isMobile ? 0.00036 : 0.00032
-      );
+      scene.fog = new THREE.FogExp2(0x040414, 0.00042);
 
-      scene.add(
-        new THREE.AmbientLight(0xffffff, 0.75)
-      );
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      scene.add(ambientLight);
 
-      createDeepSpaceBackground(scene);
-      configureNodeAppearance();
-      configureConstellationLinks();
-      configureForces();
-      configureCamera();
-      configureInteractions();
-      configureResetButton();
+      createGalaxyStarfield(scene);
 
-      /*
-        Find the graph's internal Three.js root.
+      // =====================================================
+      // NODE OBJECTS - ORIGINAL GLOWING STAR STYLE PRESERVED
+      // =====================================================
 
-        This root is used only for an extremely subtle rotation.
-        Node positions and user controls remain unaffected.
-      */
-      constellationRoot = Graph.scene().children.find(
-        object =>
-          object.type === "Group" &&
-          object !== nearStarfield &&
-          object !== farStarfield &&
-          object !== galaxyDust
-      ) || null;
-
-      introStartTime = performance.now();
-
-      Graph.d3ReheatSimulation();
-
-      requestAnimationFrame(animationLoop);
-
-      setTimeout(() => {
-        const hint = document.getElementById("hint");
-
-        if (hint) {
-          hint.style.opacity = "0.42";
-        }
-      }, 9000);
-    }
-
-    // =====================================================
-    // STAR AND LABEL APPEARANCE
-    // =====================================================
-
-    function configureNodeAppearance() {
       const starTextureCache = new Map();
 
       const starPalettes = [
         {
+          core: "rgba(255,255,220,1)",
+          mid: "rgba(255,225,125,0.88)",
+          outer: "rgba(255,180,60,0)"
+        },
+        {
+          core: "rgba(230,250,255,1)",
+          mid: "rgba(120,220,255,0.78)",
+          outer: "rgba(80,170,255,0)"
+        },
+        {
+          core: "rgba(255,245,255,1)",
+          mid: "rgba(210,170,255,0.75)",
+          outer: "rgba(160,110,255,0)"
+        },
+        {
           core: "rgba(255,255,230,1)",
-          middle: "rgba(255,222,115,0.77)",
-          glow: "rgba(255,180,60,0.16)",
-          outer: "rgba(255,170,40,0)"
-        },
-        {
-          core: "rgba(238,252,255,1)",
-          middle: "rgba(110,215,255,0.70)",
-          glow: "rgba(65,155,255,0.15)",
-          outer: "rgba(50,140,255,0)"
-        },
-        {
-          core: "rgba(255,246,255,1)",
-          middle: "rgba(206,165,255,0.66)",
-          glow: "rgba(150,95,255,0.14)",
-          outer: "rgba(140,85,255,0)"
-        },
-        {
-          core: "rgba(246,255,242,1)",
-          middle: "rgba(168,246,203,0.64)",
-          glow: "rgba(70,220,153,0.13)",
-          outer: "rgba(60,205,140,0)"
+          mid: "rgba(190,255,210,0.70)",
+          outer: "rgba(80,255,180,0)"
         }
       ];
 
@@ -606,1132 +319,396 @@
 
         const palette = starPalettes[paletteIndex];
 
-        const canvas =
-          document.createElement("canvas");
+        const starCanvas = document.createElement("canvas");
+        starCanvas.width = 96;
+        starCanvas.height = 96;
 
-        canvas.width = 96;
-        canvas.height = 96;
+        const ctx = starCanvas.getContext("2d");
 
-        const context =
-          canvas.getContext("2d");
-
-        const gradient =
-          context.createRadialGradient(
-            48,
-            48,
-            0,
-            48,
-            48,
-            48
-          );
-
+        const gradient = ctx.createRadialGradient(48, 48, 0, 48, 48, 48);
         gradient.addColorStop(0, palette.core);
-        gradient.addColorStop(0.13, palette.core);
-        gradient.addColorStop(0.34, palette.middle);
-        gradient.addColorStop(0.58, palette.glow);
+        gradient.addColorStop(0.20, palette.core);
+        gradient.addColorStop(0.45, palette.mid);
+        gradient.addColorStop(0.72, "rgba(255,200,90,0.28)");
         gradient.addColorStop(1, palette.outer);
 
-        context.fillStyle = gradient;
-        context.fillRect(0, 0, 96, 96);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 96, 96);
 
-        const texture =
-          new THREE.CanvasTexture(canvas);
-
-        if ("colorSpace" in texture) {
-          texture.colorSpace =
-            THREE.SRGBColorSpace;
-        }
-
+        const texture = new THREE.CanvasTexture(starCanvas);
         texture.needsUpdate = true;
 
-        starTextureCache.set(
-          paletteIndex,
-          texture
-        );
+        starTextureCache.set(paletteIndex, texture);
 
         return texture;
       }
 
       function createLabelTexture(text) {
-        const canvas =
-          document.createElement("canvas");
+        const labelCanvas = document.createElement("canvas");
+        const labelCtx = labelCanvas.getContext("2d");
 
-        const context =
-          canvas.getContext("2d");
+        labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont, Arial, sans-serif`;
 
-        const fontDefinition =
-          `${LABEL_FONT_SIZE}px "FoundationTitlesHand"`;
+        const textWidth = Math.ceil(labelCtx.measureText(text).width);
 
-        context.font = fontDefinition;
+        labelCanvas.width = textWidth + 36;
+        labelCanvas.height = LABEL_FONT_SIZE + 26;
 
-        const measuredWidth =
-          Math.ceil(
-            context.measureText(text).width
-          );
+        labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont, Arial, sans-serif`;
+        labelCtx.textBaseline = "middle";
 
-        canvas.width = Math.min(
-          Math.max(measuredWidth + 52, 120),
-          2048
-        );
+        labelCtx.shadowColor = "rgba(120,190,255,0.85)";
+        labelCtx.shadowBlur = 14;
 
-        canvas.height =
-          LABEL_FONT_SIZE + 38;
+        labelCtx.fillStyle = "rgba(218,238,255,0.96)";
+        labelCtx.fillText(text, 18, labelCanvas.height / 2);
 
-        /*
-          Canvas settings reset after changing its dimensions,
-          so the custom TTF font is applied again.
-        */
-        context.font = fontDefinition;
-        context.textAlign = "left";
-        context.textBaseline = "middle";
-
-        context.shadowColor =
-          "rgba(85,155,255,0.62)";
-
-        context.shadowBlur =
-          isMobile ? 6 : 8;
-
-        context.fillStyle =
-          "rgba(229,243,255,0.98)";
-
-        context.fillText(
-          text,
-          26,
-          canvas.height / 2
-        );
-
-        const texture =
-          new THREE.CanvasTexture(canvas);
-
-        if ("colorSpace" in texture) {
-          texture.colorSpace =
-            THREE.SRGBColorSpace;
-        }
-
-        texture.minFilter =
-          THREE.LinearFilter;
-
-        texture.magFilter =
-          THREE.LinearFilter;
-
+        const texture = new THREE.CanvasTexture(labelCanvas);
         texture.needsUpdate = true;
 
         return {
-          texture: texture,
-          width: canvas.width,
-          height: canvas.height
+          texture,
+          width: labelCanvas.width,
+          height: labelCanvas.height
         };
       }
 
       Graph.nodeThreeObject(node => {
-        const group =
-          new THREE.Group();
+        const group = new THREE.Group();
 
-        const paletteIndex =
-          node.id % starPalettes.length;
+        const paletteIndex = node.id % starPalettes.length;
+        const starTexture = createStarTexture(paletteIndex);
 
-        const starMaterial =
-          new THREE.SpriteMaterial({
-            map: createStarTexture(paletteIndex),
-            transparent: true,
-            opacity: 0,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending
-          });
+        const starMaterial = new THREE.SpriteMaterial({
+          map: starTexture,
+          transparent: true,
+          opacity: 0.95,
+          depthWrite: false
+        });
 
-        const starSprite =
-          new THREE.Sprite(starMaterial);
+        const sprite = new THREE.Sprite(starMaterial);
 
-        const majorStar =
-          node.id % 19 === 0;
+        const majorStar = node.id % 17 === 0;
+        const mediumStar = node.id % 7 === 0;
 
-        const mediumStar =
-          !majorStar &&
-          node.id % 8 === 0;
+        const nodeScale = majorStar ? 1.85 : mediumStar ? 1.35 : 1;
 
-        const importanceScale =
-          majorStar
-            ? 1.45
-            : mediumStar
-              ? 1.17
-              : 1;
-
-        starSprite.scale.set(
-          STAR_SIZE * importanceScale,
-          STAR_SIZE * importanceScale,
+        sprite.scale.set(
+          STAR_SIZE * nodeScale,
+          STAR_SIZE * nodeScale,
           1
         );
 
-        group.add(starSprite);
+        group.add(sprite);
 
-        // ---------------------------------------------
-        // SKILL LABEL
-        // ---------------------------------------------
+        if (SHOW_LABELS) {
+          const labelData = createLabelTexture(node.skill);
 
-        const labelData =
-          createLabelTexture(node.skill);
-
-        const labelMaterial =
-          new THREE.SpriteMaterial({
+          const labelMaterial = new THREE.SpriteMaterial({
             map: labelData.texture,
             transparent: true,
-            opacity: 0,
+            opacity: isMobile ? 0.82 : 0.9,
             depthWrite: false
           });
 
-        const labelSprite =
-          new THREE.Sprite(labelMaterial);
+          const label = new THREE.Sprite(labelMaterial);
 
-        /*
-          Position is close enough to visually connect the
-          skill name to its star.
-        */
-        labelSprite.position.set(
-          0,
-          isMobile ? 7.2 : 8.2,
-          0
-        );
+          label.position.set(0, LABEL_FONT_SIZE * 0.22, 0);
 
-        labelSprite.scale.set(
-          labelData.width * LABEL_WORLD_SCALE,
-          labelData.height * LABEL_WORLD_SCALE,
-          1
-        );
+          label.scale.set(
+            labelData.width * 0.055,
+            labelData.height * 0.055,
+            1
+          );
 
-        group.add(labelSprite);
+          group.add(label);
 
-        /*
-          Start nearly invisible for the Big Bang reveal.
-        */
-        group.scale.set(
-          0.001,
-          0.001,
-          0.001
-        );
+          node.__label = label;
+          node.__labelMaterial = labelMaterial;
+        }
 
         node.__threeObj = group;
-        node.__starSprite = starSprite;
-        node.__starMaterial = starMaterial;
-        node.__labelSprite = labelSprite;
-        node.__labelMaterial = labelMaterial;
-        node.__importanceScale = importanceScale;
+        node.__sprite = sprite;
+        node.__baseScale = nodeScale;
 
         return group;
       });
 
-      Graph.nodeThreeObjectExtend(false);
-    }
+      // =====================================================
+      // CONSTELLATION LINKS
+      // =====================================================
 
-    // =====================================================
-    // CONSTELLATION LINKS
-    // =====================================================
-
-    function configureConstellationLinks() {
       Graph
-        .linkWidth(isMobile ? 0.58 : 0.78)
-        .linkColor(
-          () => "rgba(124,166,238,0.14)"
-        )
+        .linkWidth(1)
+        .linkColor(() => "rgba(135,175,255,0.13)")
         .linkOpacity(1)
-        .linkDirectionalParticles(
-          isMobile ? 1 : 2
-        )
-        .linkDirectionalParticleWidth(
-          PARTICLE_WIDTH
-        )
-        .linkDirectionalParticleSpeed(
-          () => PARTICLE_SPEED
-        )
+        .linkDirectionalParticles(isMobile ? 1 : 2)
+        .linkDirectionalParticleWidth(PARTICLE_WIDTH)
+        .linkDirectionalParticleSpeed(() => PARTICLE_SPEED)
         .linkDirectionalParticleColor(
-          () =>
-            `rgba(255,246,207,${PARTICLE_OPACITY})`
-        );
-    }
-
-    // =====================================================
-    // FORCE SIMULATION
-    // =====================================================
-
-    function configureForces() {
-      const linkForce =
-        Graph.d3Force("link");
-
-      const chargeForce =
-        Graph.d3Force("charge");
-
-      if (linkForce) {
-        /*
-          More compact than the previous version.
-        */
-        linkForce.distance(
-          isMobile ? 34 : 39
-        );
-      }
-
-      if (chargeForce) {
-        chargeForce.strength(
-          isMobile ? -15 : -21
+          () => `rgba(255,246,205,${PARTICLE_OPACITY})`
         );
 
-        if (
-          typeof chargeForce.distanceMax ===
-          "function"
-        ) {
-          chargeForce.distanceMax(
-            isMobile ? 300 : 370
-          );
-        }
-      }
+      Graph.d3Force("link").distance(isMobile ? 42 : 48);
+      Graph.d3Force("charge").strength(isMobile ? -18 : -26);
 
-      // ---------------------------------------------
-      // INSIDE-OUT OSCILLATION
-      // ---------------------------------------------
+      // =====================================================
+      // CAMERA AND CONTROLS
+      // =====================================================
 
-      let oscillatingNodes = [];
+      Graph.cameraPosition({ x: 0, y: 0, z: isMobile ? 1100 : 950 });
 
-      function constellationOscillation(alpha) {
-        const time =
-          performance.now() * 0.00038;
-
-        const baseStrength =
-          isMobile ? 0.007 : 0.0095;
-
-        const activeAlpha =
-          Math.max(alpha, 0.08);
-
-        for (
-          let index = 0;
-          index < oscillatingNodes.length;
-          index++
-        ) {
-          const node =
-            oscillatingNodes[index];
-
-          const x = node.x || 0;
-          const y = node.y || 0;
-          const z = node.z || 0;
-
-          const distance =
-            Math.hypot(x, y, z) || 1;
-
-          const wave =
-            Math.sin(
-              time +
-              node.phase +
-              distance * 0.009
-            );
-
-          const force =
-            wave *
-            baseStrength *
-            activeAlpha;
-
-          node.vx +=
-            (x / distance) * force;
-
-          node.vy +=
-            (y / distance) * force;
-
-          node.vz +=
-            (z / distance) * force;
-
-          /*
-            Very soft galactic swirl.
-          */
-          const swirlStrength =
-            isMobile
-              ? 0.000006
-              : 0.000009;
-
-          node.vx +=
-            -z *
-            swirlStrength *
-            activeAlpha;
-
-          node.vz +=
-            x *
-            swirlStrength *
-            activeAlpha;
-        }
-      }
-
-      constellationOscillation.initialize =
-        function(nodes) {
-          oscillatingNodes = nodes;
-        };
-
-      Graph.d3Force(
-        "constellationOscillation",
-        constellationOscillation
-      );
-    }
-
-    // =====================================================
-    // CAMERA AND CONTROLS
-    // =====================================================
-
-    function configureCamera() {
-      Graph.cameraPosition({
-        x: 0,
-        y: isMobile ? 10 : 15,
-        z: INITIAL_CAMERA_Z
-      });
-
-      camera = Graph.camera();
+      cam = Graph.camera();
       controls = Graph.controls();
 
       controls.enableDamping = true;
-      controls.dampingFactor = 0.055;
+      controls.dampingFactor = 0.075;
 
       controls.enableRotate = true;
       controls.enableZoom = true;
       controls.enablePan = true;
 
-      controls.rotateSpeed =
-        isMobile ? 0.46 : 0.56;
+      controls.rotateSpeed = 0.62;
+      controls.zoomSpeed = 1.05;
+      controls.panSpeed = 0.75;
 
-      controls.zoomSpeed =
-        isMobile ? 0.82 : 0.96;
-
-      controls.panSpeed =
-        isMobile ? 0.54 : 0.64;
-
-      controls.minDistance = 60;
-      controls.maxDistance = 2200;
-
+      controls.minDistance = 80;
+      controls.maxDistance = 3200;
       controls.screenSpacePanning = true;
 
-      /*
-        OrbitControls auto-rotation preserves the exact camera
-        distance chosen by the user.
+      // =====================================================
+      // INTERACTION STATE
+      // =====================================================
 
-        It does not snap back to a fixed radius.
-      */
-      controls.autoRotate = false;
-      controls.autoRotateSpeed = 0.14;
+      let lastInteractionTime = Date.now();
+      let userInteracting = false;
+      let autoOrbitEnabled = true;
+      let orbitAngle = 0;
 
-      controls.target.set(0, 0, 0);
-      controls.update();
-    }
-
-    // =====================================================
-    // USER INTERACTION
-    // =====================================================
-
-    function beginUserInteraction() {
-      userInteracting = true;
-      lastInteractionTime = Date.now();
-
-      if (controls) {
-        controls.autoRotate = false;
+      function userInteraction() {
+        lastInteractionTime = Date.now();
+        userInteracting = true;
+        autoOrbitEnabled = false;
       }
-    }
 
-    function endUserInteraction() {
-      userInteracting = false;
-      lastInteractionTime = Date.now();
-    }
+      function endInteraction() {
+        userInteracting = false;
+        lastInteractionTime = Date.now();
+      }
 
-    function configureInteractions() {
-      controls.addEventListener(
-        "start",
-        beginUserInteraction
-      );
+      controls.addEventListener("start", userInteraction);
+      controls.addEventListener("change", userInteraction);
+      controls.addEventListener("end", endInteraction);
 
-      controls.addEventListener(
-        "end",
-        endUserInteraction
-      );
-
-      const graphElement =
-        document.getElementById("3d-graph");
-
-      graphElement.addEventListener(
-        "wheel",
-        () => {
-          lastInteractionTime =
-            Date.now();
-
-          controls.autoRotate = false;
-        },
-        {
-          passive: true
-        }
-      );
-
-      graphElement.addEventListener(
-        "touchstart",
-        beginUserInteraction,
-        {
-          passive: true
-        }
-      );
-
-      graphElement.addEventListener(
-        "pointerdown",
-        beginUserInteraction,
-        {
-          passive: true
-        }
-      );
+      // =====================================================
+      // HOVER EFFECT
+      // =====================================================
 
       Graph.onNodeHover(node => {
-        document.body.style.cursor =
-          node ? "pointer" : "grab";
+        document.body.style.cursor = node ? "pointer" : "grab";
 
-        const nodes =
-          Graph.graphData().nodes;
-
-        for (
-          let index = 0;
-          index < nodes.length;
-          index++
-        ) {
-          const graphNode =
-            nodes[index];
-
-          if (
-            graphNode.__labelMaterial
-          ) {
-            graphNode.__labelMaterial.opacity =
-              isMobile ? 0.88 : 0.94;
+        Graph.graphData().nodes.forEach(n => {
+          if (n.__labelMaterial) {
+            n.__labelMaterial.opacity = isMobile ? 0.78 : 0.88;
           }
-        }
+        });
 
-        if (
-          node &&
-          node.__labelMaterial
-        ) {
+        if (node && node.__labelMaterial) {
           node.__labelMaterial.opacity = 1;
         }
       });
 
+      // =====================================================
+      // CLICK TO FLY INTO A SKILL
+      // =====================================================
+
       Graph.onNodeClick(node => {
-        if (!node) {
-          return;
-        }
+        if (!node) return;
 
-        beginUserInteraction();
+        const distance = isMobile ? 160 : 130;
 
-        const x =
-          Number.isFinite(node.x)
-            ? node.x
-            : 1;
+        const length = Math.hypot(
+          node.x || 1,
+          node.y || 1,
+          node.z || 1
+        );
 
-        const y =
-          Number.isFinite(node.y)
-            ? node.y
-            : 1;
-
-        const z =
-          Number.isFinite(node.z)
-            ? node.z
-            : 1;
-
-        const nodeDistance =
-          Math.hypot(x, y, z) || 1;
-
-        const focusDistance =
-          isMobile ? 130 : 110;
-
-        const distanceRatio =
-          1 +
-          focusDistance /
-          nodeDistance;
+        const distRatio = 1 + distance / length;
 
         Graph.cameraPosition(
           {
-            x: x * distanceRatio,
-            y: y * distanceRatio,
-            z: z * distanceRatio
+            x: (node.x || 1) * distRatio,
+            y: (node.y || 1) * distRatio,
+            z: (node.z || 1) * distRatio
           },
-          {
-            x: x,
-            y: y,
-            z: z
-          },
-          prefersReducedMotion
-            ? 0
-            : 1600
+          node,
+          2200
         );
 
-        setTimeout(
-          endUserInteraction,
-          prefersReducedMotion
-            ? 50
-            : 1700
-        );
+        userInteraction();
       });
-    }
 
-    // =====================================================
-    // RESET VIEW
-    // =====================================================
+      // =====================================================
+      // REFRESH BUTTON - RESET VIEW, NO PAGE RELOAD
+      // =====================================================
 
-    function configureResetButton() {
-      const resetButton =
-        document.getElementById("resetBtn");
+      document.getElementById("refreshBtn").addEventListener("click", () => {
+        Graph.zoomToFit(1600, 120);
+      });
 
-      resetButton.addEventListener(
-        "click",
-        () => {
-          beginUserInteraction();
+      // =====================================================
+      // ANIMATION LOOP
+      // =====================================================
 
-          controls.target.set(0, 0, 0);
+      function cinematicOrbit() {
+        const idleTime = Date.now() - lastInteractionTime;
 
-          Graph.cameraPosition(
-            {
-              x: 0,
-              y: isMobile ? 10 : 15,
-              z: RESET_CAMERA_Z
-            },
-            {
-              x: 0,
-              y: 0,
-              z: 0
-            },
-            prefersReducedMotion
-              ? 0
-              : 1250
-          );
-
-          setTimeout(
-            endUserInteraction,
-            prefersReducedMotion
-              ? 50
-              : 1350
-          );
+        if (idleTime > AUTO_ORBIT_IDLE_DELAY) {
+          autoOrbitEnabled = true;
         }
-      );
-    }
 
-    // =====================================================
-    // BIG BANG AND STAR ANIMATION
-    // =====================================================
+        if (!autoOrbitEnabled || userInteracting) return;
 
-    function clamp(
-      value,
-      minimum,
-      maximum
-    ) {
-      return Math.min(
-        Math.max(value, minimum),
-        maximum
-      );
-    }
+        orbitAngle += AUTO_ORBIT_SPEED;
 
-    function easeOutExpo(value) {
-      if (value >= 1) {
-        return 1;
+        const radius = isMobile ? 1050 : 950;
+
+        cam.position.x = Math.cos(orbitAngle) * radius;
+        cam.position.z = Math.sin(orbitAngle) * radius;
+        cam.position.y = Math.sin(orbitAngle * 0.45) * 120;
+
+        cam.lookAt(0, 0, 0);
       }
 
-      return 1 - Math.pow(
-        2,
-        -10 * value
-      );
-    }
+      function animateNodes() {
+        const time = Date.now() * 0.001;
 
-    function animateConstellation(
-      currentTime
-    ) {
-      const elapsed =
-        currentTime -
-        introStartTime;
+        Graph.graphData().nodes.forEach(node => {
+          if (!node.__threeObj) return;
 
-      const time =
-        currentTime * 0.001;
+          const breathe =
+            1 + Math.sin(time * 1.15 + node.id * 0.7) * 0.035;
 
-      const nodes =
-        Graph.graphData().nodes;
+          node.__threeObj.scale.set(breathe, breathe, breathe);
+        });
+      }
 
-      for (
-        let index = 0;
-        index < nodes.length;
-        index++
-      ) {
-        const node = nodes[index];
-
-        if (!node.__threeObj) {
-          continue;
+      function animateBackground() {
+        if (galaxyStars) {
+          galaxyStars.rotation.y += 0.000025;
+          galaxyStars.rotation.x += 0.000006;
         }
 
-        /*
-          Staggered reveal makes the Big Bang travel across
-          the constellation instead of appearing at once.
-        */
-        const nodeDelay =
-          (node.id % 90) * 6;
-
-        const rawProgress =
-          (elapsed - nodeDelay) /
-          BIG_BANG_DURATION;
-
-        const introProgress =
-          easeOutExpo(
-            clamp(
-              rawProgress,
-              0,
-              1
-            )
-          );
-
-        /*
-          Two independent frequencies prevent the entire
-          network from pulsing as one rigid object.
-        */
-        const primaryPulse =
-          Math.sin(
-            time * 0.72 +
-            node.phase
-          ) * 0.018;
-
-        const secondaryPulse =
-          Math.sin(
-            time * 0.27 +
-            node.id * 0.13
-          ) * 0.009;
-
-        const visibleScale =
-          Math.max(
-            0.001,
-            introProgress *
-            (
-              1 +
-              primaryPulse +
-              secondaryPulse
-            )
-          );
-
-        node.__threeObj.scale.set(
-          visibleScale,
-          visibleScale,
-          visibleScale
-        );
-
-        if (node.__starMaterial) {
-          node.__starMaterial.opacity =
-            introProgress *
-            (
-              0.80 +
-              Math.sin(
-                time * 0.90 +
-                node.phase
-              ) * 0.07
-            );
-        }
-
-        if (node.__labelMaterial) {
-          node.__labelMaterial.opacity =
-            introProgress *
-            (
-              isMobile
-                ? 0.88
-                : 0.94
-            );
+        if (farNebulaStars) {
+          farNebulaStars.rotation.y -= 0.000012;
+          farNebulaStars.rotation.z += 0.000004;
         }
       }
+
+      function animateLoop() {
+        requestAnimationFrame(animateLoop);
+
+        cinematicOrbit();
+        animateNodes();
+        animateBackground();
+      }
+
+      animateLoop();
+
+      // Initial smooth fit after layout starts
+      setTimeout(() => {
+        Graph.zoomToFit(1800, 140);
+      }, 1200);
     }
 
     // =====================================================
-    // DEEP-SPACE BACKGROUND
+    // GALAXY STARFIELD
     // =====================================================
 
-    function createDeepSpaceBackground(
-      scene
-    ) {
-      const nearGeometry =
-        new THREE.BufferGeometry();
-
+    function createGalaxyStarfield(scene) {
+      const nearGeometry = new THREE.BufferGeometry();
       const nearPositions = [];
       const nearColors = [];
 
-      const availableColors = [
-        new THREE.Color("#ffffff"),
-        new THREE.Color("#91cbff"),
-        new THREE.Color("#fff1a3"),
-        new THREE.Color("#c9a8ff")
-      ];
+      const colorA = new THREE.Color("#ffffff");
+      const colorB = new THREE.Color("#9edbff");
+      const colorC = new THREE.Color("#fff2a6");
 
-      for (
-        let index = 0;
-        index < NEAR_STAR_COUNT;
-        index++
-      ) {
-        const radius =
-          1200 +
-          Math.random() * 5600;
+      const nearCount = isMobile ? 1800 : 3600;
 
-        const theta =
-          Math.random() *
-          Math.PI *
-          2;
-
-        const phi =
-          Math.acos(
-            2 *
-            Math.random() -
-            1
-          );
-
+      for (let i = 0; i < nearCount; i++) {
         nearPositions.push(
-          radius *
-          Math.sin(phi) *
-          Math.cos(theta),
-
-          radius *
-          Math.sin(phi) *
-          Math.sin(theta),
-
-          radius *
-          Math.cos(phi)
+          (Math.random() - 0.5) * 7600,
+          (Math.random() - 0.5) * 7600,
+          (Math.random() - 0.5) * 7600
         );
 
-        const color =
-          availableColors[
-            index %
-            availableColors.length
-          ];
+        const color = i % 3 === 0 ? colorA : i % 3 === 1 ? colorB : colorC;
 
-        nearColors.push(
-          color.r,
-          color.g,
-          color.b
-        );
+        nearColors.push(color.r, color.g, color.b);
       }
 
       nearGeometry.setAttribute(
         "position",
-        new THREE.Float32BufferAttribute(
-          nearPositions,
-          3
-        )
+        new THREE.Float32BufferAttribute(nearPositions, 3)
       );
 
       nearGeometry.setAttribute(
         "color",
-        new THREE.Float32BufferAttribute(
-          nearColors,
-          3
-        )
+        new THREE.Float32BufferAttribute(nearColors, 3)
       );
 
-      const nearMaterial =
-        new THREE.PointsMaterial({
-          size: isMobile
-            ? 0.95
-            : 1.15,
+      const nearMaterial = new THREE.PointsMaterial({
+        size: isMobile ? 1.2 : 1.45,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.82,
+        depthWrite: false
+      });
 
-          vertexColors: true,
-          transparent: true,
-          opacity: 0.74,
-          depthWrite: false,
-          sizeAttenuation: true
-        });
+      galaxyStars = new THREE.Points(nearGeometry, nearMaterial);
+      scene.add(galaxyStars);
 
-      nearStarfield =
-        new THREE.Points(
-          nearGeometry,
-          nearMaterial
-        );
-
-      scene.add(nearStarfield);
-
-      // ---------------------------------------------
-      // FAR STARFIELD
-      // ---------------------------------------------
-
-      const farGeometry =
-        new THREE.BufferGeometry();
-
+      const farGeometry = new THREE.BufferGeometry();
       const farPositions = [];
 
-      for (
-        let index = 0;
-        index < FAR_STAR_COUNT;
-        index++
-      ) {
-        const radius =
-          5500 +
-          Math.random() * 8000;
+      const farCount = isMobile ? 900 : 1800;
 
-        const theta =
-          Math.random() *
-          Math.PI *
-          2;
-
-        const phi =
-          Math.acos(
-            2 *
-            Math.random() -
-            1
-          );
-
+      for (let i = 0; i < farCount; i++) {
         farPositions.push(
-          radius *
-          Math.sin(phi) *
-          Math.cos(theta),
-
-          radius *
-          Math.sin(phi) *
-          Math.sin(theta),
-
-          radius *
-          Math.cos(phi)
+          (Math.random() - 0.5) * 14000,
+          (Math.random() - 0.5) * 14000,
+          (Math.random() - 0.5) * 14000
         );
       }
 
       farGeometry.setAttribute(
         "position",
-        new THREE.Float32BufferAttribute(
-          farPositions,
-          3
-        )
+        new THREE.Float32BufferAttribute(farPositions, 3)
       );
 
-      const farMaterial =
-        new THREE.PointsMaterial({
-          size: isMobile
-            ? 0.55
-            : 0.70,
+      const farMaterial = new THREE.PointsMaterial({
+        size: isMobile ? 0.75 : 0.95,
+        color: "#7fa8ff",
+        transparent: true,
+        opacity: 0.45,
+        depthWrite: false
+      });
 
-          color: "#7898d8",
-          transparent: true,
-          opacity: 0.36,
-          depthWrite: false,
-          sizeAttenuation: true
-        });
-
-      farStarfield =
-        new THREE.Points(
-          farGeometry,
-          farMaterial
-        );
-
-      scene.add(farStarfield);
-
-      // ---------------------------------------------
-      // CENTRAL GALACTIC DUST
-      // ---------------------------------------------
-
-      const dustGeometry =
-        new THREE.BufferGeometry();
-
-      const dustPositions = [];
-      const dustColors = [];
-
-      const blueDust =
-        new THREE.Color("#5274ce");
-
-      const violetDust =
-        new THREE.Color("#855fc7");
-
-      for (
-        let index = 0;
-        index < DUST_PARTICLE_COUNT;
-        index++
-      ) {
-        const armAngle =
-          Math.random() *
-          Math.PI *
-          8;
-
-        const distance =
-          60 +
-          Math.random() *
-          1400;
-
-        const spread =
-          (Math.random() - 0.5) *
-          (
-            70 +
-            distance * 0.10
-          );
-
-        dustPositions.push(
-          Math.cos(armAngle) *
-          distance +
-          spread,
-
-          (Math.random() - 0.5) *
-          300,
-
-          Math.sin(armAngle) *
-          distance +
-          spread
-        );
-
-        const color =
-          index % 2 === 0
-            ? blueDust
-            : violetDust;
-
-        dustColors.push(
-          color.r,
-          color.g,
-          color.b
-        );
-      }
-
-      dustGeometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(
-          dustPositions,
-          3
-        )
-      );
-
-      dustGeometry.setAttribute(
-        "color",
-        new THREE.Float32BufferAttribute(
-          dustColors,
-          3
-        )
-      );
-
-      const dustMaterial =
-        new THREE.PointsMaterial({
-          size: isMobile
-            ? 1.15
-            : 1.45,
-
-          vertexColors: true,
-          transparent: true,
-          opacity: 0.14,
-          depthWrite: false,
-          blending:
-            THREE.AdditiveBlending
-        });
-
-      galaxyDust =
-        new THREE.Points(
-          dustGeometry,
-          dustMaterial
-        );
-
-      scene.add(galaxyDust);
+      farNebulaStars = new THREE.Points(farGeometry, farMaterial);
+      scene.add(farNebulaStars);
     }
-
-    // =====================================================
-    // BACKGROUND MOVEMENT
-    // =====================================================
-
-    function animateDeepSpace() {
-      if (prefersReducedMotion) {
-        return;
-      }
-
-      if (nearStarfield) {
-        nearStarfield.rotation.y +=
-          0.000022;
-
-        nearStarfield.rotation.x +=
-          0.000004;
-      }
-
-      if (farStarfield) {
-        farStarfield.rotation.y -=
-          0.000009;
-
-        farStarfield.rotation.z +=
-          0.000003;
-      }
-
-      if (galaxyDust) {
-        galaxyDust.rotation.y +=
-          0.000045;
-
-        galaxyDust.rotation.z +=
-          0.000005;
-      }
-    }
-
-    // =====================================================
-    // USER-FRIENDLY IDLE ROTATION
-    // =====================================================
-
-    function updateIdleRotation() {
-      if (!controls) {
-        return;
-      }
-
-      const idleDuration =
-        Date.now() -
-        lastInteractionTime;
-
-      controls.autoRotate =
-        !prefersReducedMotion &&
-        !userInteracting &&
-        idleDuration >
-          AUTO_ROTATE_IDLE_DELAY;
-    }
-
-    // =====================================================
-    // MAIN LOOP
-    // =====================================================
-
-    function animationLoop(currentTime) {
-      requestAnimationFrame(
-        animationLoop
-      );
-
-      if (
-        !pageVisible ||
-        !Graph
-      ) {
-        return;
-      }
-
-      animateConstellation(currentTime);
-      animateDeepSpace();
-      updateIdleRotation();
-    }
-
-    // =====================================================
-    // PAGE VISIBILITY
-    // =====================================================
-
-    document.addEventListener(
-      "visibilitychange",
-      () => {
-        pageVisible =
-          !document.hidden;
-
-        if (pageVisible) {
-          lastInteractionTime =
-            Date.now();
-        }
-      }
-    );
 
     // =====================================================
     // RESPONSIVE RESIZE
     // =====================================================
 
-    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      if (!Graph) return;
 
-    window.addEventListener(
-      "resize",
-      () => {
-        clearTimeout(
-          resizeTimer
-        );
-
-        resizeTimer =
-          setTimeout(() => {
-            if (!Graph) {
-              return;
-            }
-
-            Graph
-              .width(
-                window.innerWidth
-              )
-              .height(
-                window.innerHeight
-              );
-          }, 100);
-      }
-    );
+      Graph.width(window.innerWidth);
+      Graph.height(window.innerHeight);
+    });
   </script>
 </body>
 </html>
