@@ -1,79 +1,132 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Mohammad Mujahid's Skill Galaxy</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <title>Mohammad Mujahid's 3-D Skills Constellation Chart</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-<style>
-html, body{
-    width:100%;
-    height:100%;
-    margin:0;
-    overflow:hidden;
-    background:#040414;
-}
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #090922 0%, #040414 45%, #01010a 100%);
+    }
 
-#3d-graph{
-    width:100vw;
-    height:100vh;
-    touch-action:none;
-}
+    #3d-graph {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      touch-action: none;
+      cursor: grab;
+    }
 
-#refreshBtn{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    width:50px;
-    height:50px;
-    border:none;
-    border-radius:50%;
-    background:rgba(255,255,255,.08);
-    color:#fff;
-    font-size:22px;
-    cursor:pointer;
-    backdrop-filter:blur(6px);
-    box-shadow:0 4px 15px rgba(255,255,255,.2);
-    z-index:999;
-}
+    #3d-graph:active {
+      cursor: grabbing;
+    }
 
-#refreshBtn:hover{
-    transform:scale(1.1);
-}
+    @font-face {
+      font-family: "MyCustomFont";
+      src: url("FoundationTitlesHand.ttf") format("truetype");
+      font-display: swap;
+    }
 
-@font-face{
-    font-family:"MyCustomFont";
-    src:url("FoundationTitlesHand.ttf")
-    format("truetype");
-}
-</style>
+    #refreshBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(7px);
+      color: #ffffff;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(140,180,255,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      z-index: 20;
+    }
 
+    #refreshBtn:hover {
+      transform: scale(1.1);
+      background: rgba(255,255,255,0.16);
+      box-shadow: 0 6px 24px rgba(180,210,255,0.55);
+    }
+
+    #refreshBtn:active {
+      transform: scale(0.95);
+    }
+
+    #hint {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      z-index: 20;
+      color: rgba(220,235,255,0.65);
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+      user-select: none;
+      pointer-events: none;
+      text-shadow: 0 0 10px rgba(120,170,255,0.4);
+    }
+
+    @media (max-width: 768px) {
+      #hint {
+        font-size: 11px;
+        left: 12px;
+        bottom: 12px;
+      }
+
+      #refreshBtn {
+        width: 48px;
+        height: 48px;
+        bottom: 16px;
+        right: 16px;
+      }
+    }
+  </style>
 </head>
+
 <body>
+  <div id="3d-graph"></div>
+  <button id="refreshBtn" title="Reset View">&#x21bb;</button>
+  <div id="hint">Drag to explore • Scroll/pinch to fly • Tap a star to focus</div>
 
-<div id="3d-graph"></div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
 
-<button id="refreshBtn">↻</button>
+  <script>
+    // =====================================================
+    // CONFIG
+    // =====================================================
 
-/three@0.150.1/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
+    const isMobile = window.innerWidth <= 768;
 
-<script>
+    const STAR_SIZE = isMobile ? 7.5 : 9;
+    const LABEL_FONT_SIZE = isMobile ? 38 : 60;
 
-// ==============================================
-// CONFIG
-// ==============================================
+    const PARTICLE_WIDTH = isMobile ? 0.8 : 1.0;
+    const PARTICLE_SPEED = 0.001;
+    const PARTICLE_OPACITY = 0.32;
 
-const STAR_SIZE = 9;
-const LABEL_FONT_SIZE = 38;
+    const AUTO_ORBIT_IDLE_DELAY = 9000;
+    const AUTO_ORBIT_SPEED = 0.00007;
 
-// ==============================================
-// PASTE YOUR ENTIRE SKILLS ARRAY HERE
-// ==============================================
+    const SHOW_LABELS = true;
 
-const skills = [
+    // =====================================================
+    // PASTE YOUR FULL SKILLS ARRAY HERE
+    // =====================================================
 
-"Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable",
+    const skills = [
+      "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable",
   "ACH Processing", "Wire Payment Processing", "Check Processing", "NSF Handling",
   "Remittance Matching", "Customer Communication",
   "Credit Management", "Invoice Distribution", "Collections",
@@ -159,470 +212,503 @@ const skills = [
   "Strengths-Based Coaching", "Gallup Strengths Mapping", 
   "Dispute Resolution Management", "SLA Management", "Invoice Discrepancy Investigation", "Supplier Reconciliation", "Customer Credit Analysis",
   "Vendor Risk Assessment", "Power Automate", "Google App Script", "Power Apps", "Month-End Closing", "Statutory Compliance Reporting"
+    ];
 
-];
+    // =====================================================
+    // GRAPH DATA
+    // =====================================================
 
-// ==============================================
+    const N = skills.length;
 
-const N = skills.length;
-
-const gData = {
-
-    nodes: [...Array(N).keys()].map(i => ({
+    const gData = {
+      nodes: [...Array(N).keys()].map(i => ({
         id: i,
         skill: skills[i]
-    })),
-
-    links: [...Array(N).keys()]
-    .filter(i => i)
-    .map(i => ({
-        source: i,
-        target: Math.round(Math.random()*(i-1))
-    }))
-};
-
-// ==============================================
-// CREATE GRAPH
-// ==============================================
-
-const Graph = ForceGraph3D({
-    controlType:'orbit'
-})(document.getElementById('3d-graph'));
-
-Graph.graphData(gData);
-
-Graph.renderer().setPixelRatio(
-    Math.min(window.devicePixelRatio,2)
-);
-
-// ==============================================
-// DEEP SPACE STARFIELD
-// ==============================================
-
-const scene = Graph.scene();
-
-const starsGeometry =
-    new THREE.BufferGeometry();
-
-const starVertices = [];
-
-for(let i=0;i<2500;i++){
-
-    starVertices.push(
-        (Math.random()-0.5)*8000,
-        (Math.random()-0.5)*8000,
-        (Math.random()-0.5)*8000
-    );
-
-}
-
-starsGeometry.setAttribute(
-    'position',
-    new THREE.Float32BufferAttribute(
-        starVertices,
-        3
-    )
-);
-
-const starsMaterial =
-    new THREE.PointsMaterial({
-
-        color:0xffffff,
-        size:1.4,
-        transparent:true,
-        opacity:0.8
-
-    });
-
-const starField =
-    new THREE.Points(
-        starsGeometry,
-        starsMaterial
-    );
-
-scene.add(starField);
-
-// ==============================================
-// NODES
-// ==============================================
-
-Graph.nodeThreeObject(node => {
-
-    const group =
-        new THREE.Group();
-
-    const starCanvas =
-        document.createElement('canvas');
-
-    starCanvas.width = 64;
-    starCanvas.height = 64;
-
-    const ctx =
-        starCanvas.getContext('2d');
-
-    const gradient =
-        ctx.createRadialGradient(
-            32,32,0,
-            32,32,32
-        );
-
-    gradient.addColorStop(
-        0,
-        'rgba(255,255,220,1)'
-    );
-
-    gradient.addColorStop(
-        0.3,
-        'rgba(255,220,120,0.9)'
-    );
-
-    gradient.addColorStop(
-        0.6,
-        'rgba(255,180,60,0.45)'
-    );
-
-    gradient.addColorStop(
-        1,
-        'rgba(255,180,60,0)'
-    );
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0,0,64,64);
-
-    const texture =
-        new THREE.CanvasTexture(
-            starCanvas
-        );
-
-    const sprite =
-        new THREE.Sprite(
-
-            new THREE.SpriteMaterial({
-                map:texture,
-                transparent:true
-            })
-
-        );
-
-    sprite.scale.set(
-        STAR_SIZE,
-        STAR_SIZE,
-        1
-    );
-
-    group.add(sprite);
-
-    // LABEL
-
-    const labelCanvas =
-        document.createElement('canvas');
-
-    const labelCtx =
-        labelCanvas.getContext('2d');
-
-    labelCtx.font =
-        `${LABEL_FONT_SIZE}px MyCustomFont`;
-
-    const text = node.skill;
-
-    const width =
-        labelCtx.measureText(text).width;
-
-    labelCanvas.width =
-        width + 20;
-
-    labelCanvas.height =
-        LABEL_FONT_SIZE + 15;
-
-    labelCtx.font =
-        `${LABEL_FONT_SIZE}px MyCustomFont`;
-
-    labelCtx.fillStyle =
-        '#cce6ff';
-
-    labelCtx.fillText(
-        text,
-        5,
-        LABEL_FONT_SIZE
-    );
-
-    const labelTexture =
-        new THREE.CanvasTexture(
-            labelCanvas
-        );
-
-    const label =
-        new THREE.Sprite(
-
-            new THREE.SpriteMaterial({
-
-                map:labelTexture,
-                transparent:true
-
-            })
-
-        );
-
-    label.position.set(
-        0,
-        15,
-        0
-    );
-
-    label.scale.set(
-        labelCanvas.width * 0.06,
-        labelCanvas.height * 0.06,
-        1
-    );
-
-    label.visible = false;
-
-    group.add(label);
-
-    node.__label = label;
-    node.__threeObj = group;
-
-    return group;
-
-});
-
-// ==============================================
-// LINKS
-// ==============================================
-
-Graph
-.linkWidth(1)
-.linkColor(
-    () =>
-    'rgba(120,170,255,0.12)'
-)
-.linkOpacity(1)
-.linkDirectionalParticles(2)
-.linkDirectionalParticleWidth(1)
-.linkDirectionalParticleSpeed(
-    () => 0.001
-)
-.linkDirectionalParticleColor(
-    () =>
-    'rgba(255,246,200,0.30)'
-);
-
-// ==============================================
-// HOVER LABELS
-// ==============================================
-
-Graph.onNodeHover(node => {
-
-    document.body.style.cursor =
-        node ? 'pointer' : null;
-
-    Graph.graphData().nodes.forEach(n => {
-
-        if(n.__label)
-            n.__label.visible = false;
-
-    });
-
-    if(node?.__label)
-        node.__label.visible = true;
-
-});
-
-// ==============================================
-// CLICK TO FLY
-// ==============================================
-
-Graph.onNodeClick(node => {
-
-    const distance = 120;
-
-    const distRatio =
-        1 + distance /
-        Math.hypot(
-            node.x || 1,
-            node.y || 1,
-            node.z || 1
-        );
-
-    Graph.cameraPosition(
-
-        {
-            x: node.x * distRatio,
-            y: node.y * distRatio,
-            z: node.z * distRatio
-        },
-
-        node,
-
-        2500
-
-    );
-
-    userInteraction();
-
-});
-
-// ==============================================
-// FORCE SETTINGS
-// ==============================================
-
-Graph.d3Force('link')
-.distance(45);
-
-Graph.d3Force('charge')
-.strength(-25);
-
-// ==============================================
-// CONTROLS
-// ==============================================
-
-Graph.cameraPosition({
-    x:0,
-    y:0,
-    z:900
-});
-
-const controls =
-    Graph.controls();
-
-controls.enableDamping = true;
-controls.dampingFactor = 0.1;
-
-controls.enableRotate = true;
-controls.enableZoom = true;
-controls.enablePan = true;
-
-controls.rotateSpeed = 0.6;
-controls.zoomSpeed = 0.9;
-controls.panSpeed = 0.7;
-
-controls.minDistance = 80;
-controls.maxDistance = 3000;
-
-const cam =
-    Graph.camera();
-
-// ==============================================
-// CINEMATIC ORBIT
-// ==============================================
-
-let lastInteractionTime =
-    Date.now();
-
-let autoOrbitEnabled = true;
-
-function userInteraction(){
-
-    lastInteractionTime =
-        Date.now();
-
-    autoOrbitEnabled =
-        false;
-}
-
-controls.addEventListener(
-    'start',
-    userInteraction
-);
-
-controls.addEventListener(
-    'change',
-    userInteraction
-);
-
-let orbitAngle = 0;
-
-function autoOrbit(){
-
-    if(
-      Date.now() -
-      lastInteractionTime >
-      15000
-    ){
-        autoOrbitEnabled =
-            true;
+      })),
+
+      links: [...Array(N).keys()]
+        .filter(i => i)
+        .map(i => ({
+          source: i,
+          target: Math.round(Math.random() * (i - 1))
+        }))
+    };
+
+    let Graph;
+    let cam;
+    let controls;
+    let galaxyStars;
+    let farNebulaStars;
+
+    // =====================================================
+    // START AFTER FONT LOAD
+    // =====================================================
+
+    if (document.fonts) {
+      document.fonts.ready.then(initGalaxy);
+    } else {
+      initGalaxy();
     }
 
-    if(!autoOrbitEnabled)
-        return;
+    function initGalaxy() {
+      // =====================================================
+      // CREATE GRAPH
+      // =====================================================
 
-    orbitAngle += 0.00008;
+      Graph = ForceGraph3D({ controlType: "orbit" })(
+        document.getElementById("3d-graph")
+      );
 
-    const radius = 900;
+      Graph
+        .graphData(gData)
+        .backgroundColor("rgba(0,0,0,0)")
+        .cooldownTicks(180)
+        .d3AlphaDecay(0.018)
+        .d3VelocityDecay(0.28);
 
-    cam.position.x =
-        Math.cos(orbitAngle)
-        * radius;
+      Graph.renderer().setPixelRatio(
+        Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2)
+      );
 
-    cam.position.z =
-        Math.sin(orbitAngle)
-        * radius;
+      // =====================================================
+      // DEEP SPACE BACKGROUND
+      // =====================================================
 
-    cam.lookAt(0,0,0);
-}
+      const scene = Graph.scene();
 
-// ==============================================
-// STAR PULSE
-// ==============================================
+      scene.fog = new THREE.FogExp2(0x040414, 0.00042);
 
-function animateStars(){
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+      scene.add(ambientLight);
 
-    const t =
-        Date.now()*0.001;
+      createGalaxyStarfield(scene);
 
-    Graph.graphData()
-    .nodes
-    .forEach(node => {
+      // =====================================================
+      // NODE OBJECTS - ORIGINAL GLOWING STAR STYLE PRESERVED
+      // =====================================================
 
-        if(!node.__threeObj)
-            return;
+      const starTextureCache = new Map();
 
-        const scale =
-            1 +
-            Math.sin(
-                t + node.id
-            ) * 0.04;
+      const starPalettes = [
+        {
+          core: "rgba(255,255,220,1)",
+          mid: "rgba(255,225,125,0.88)",
+          outer: "rgba(255,180,60,0)"
+        },
+        {
+          core: "rgba(230,250,255,1)",
+          mid: "rgba(120,220,255,0.78)",
+          outer: "rgba(80,170,255,0)"
+        },
+        {
+          core: "rgba(255,245,255,1)",
+          mid: "rgba(210,170,255,0.75)",
+          outer: "rgba(160,110,255,0)"
+        },
+        {
+          core: "rgba(255,255,230,1)",
+          mid: "rgba(190,255,210,0.70)",
+          outer: "rgba(80,255,180,0)"
+        }
+      ];
 
-        node.__threeObj.scale.set(
-            scale,
-            scale,
-            scale
+      function createStarTexture(paletteIndex) {
+        if (starTextureCache.has(paletteIndex)) {
+          return starTextureCache.get(paletteIndex);
+        }
+
+        const palette = starPalettes[paletteIndex];
+
+        const starCanvas = document.createElement("canvas");
+        starCanvas.width = 96;
+        starCanvas.height = 96;
+
+        const ctx = starCanvas.getContext("2d");
+
+        const gradient = ctx.createRadialGradient(48, 48, 0, 48, 48, 48);
+        gradient.addColorStop(0, palette.core);
+        gradient.addColorStop(0.20, palette.core);
+        gradient.addColorStop(0.45, palette.mid);
+        gradient.addColorStop(0.72, "rgba(255,200,90,0.28)");
+        gradient.addColorStop(1, palette.outer);
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 96, 96);
+
+        const texture = new THREE.CanvasTexture(starCanvas);
+        texture.needsUpdate = true;
+
+        starTextureCache.set(paletteIndex, texture);
+
+        return texture;
+      }
+
+      function createLabelTexture(text) {
+        const labelCanvas = document.createElement("canvas");
+        const labelCtx = labelCanvas.getContext("2d");
+
+        labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont, Arial, sans-serif`;
+
+        const textWidth = Math.ceil(labelCtx.measureText(text).width);
+
+        labelCanvas.width = textWidth + 36;
+        labelCanvas.height = LABEL_FONT_SIZE + 26;
+
+        labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont, Arial, sans-serif`;
+        labelCtx.textBaseline = "middle";
+
+        labelCtx.shadowColor = "rgba(120,190,255,0.85)";
+        labelCtx.shadowBlur = 14;
+
+        labelCtx.fillStyle = "rgba(218,238,255,0.96)";
+        labelCtx.fillText(text, 18, labelCanvas.height / 2);
+
+        const texture = new THREE.CanvasTexture(labelCanvas);
+        texture.needsUpdate = true;
+
+        return {
+          texture,
+          width: labelCanvas.width,
+          height: labelCanvas.height
+        };
+      }
+
+      Graph.nodeThreeObject(node => {
+        const group = new THREE.Group();
+
+        const paletteIndex = node.id % starPalettes.length;
+        const starTexture = createStarTexture(paletteIndex);
+
+        const starMaterial = new THREE.SpriteMaterial({
+          map: starTexture,
+          transparent: true,
+          opacity: 0.95,
+          depthWrite: false
+        });
+
+        const sprite = new THREE.Sprite(starMaterial);
+
+        const majorStar = node.id % 17 === 0;
+        const mediumStar = node.id % 7 === 0;
+
+        const nodeScale = majorStar ? 1.85 : mediumStar ? 1.35 : 1;
+
+        sprite.scale.set(
+          STAR_SIZE * nodeScale,
+          STAR_SIZE * nodeScale,
+          1
         );
 
+        group.add(sprite);
+
+        if (SHOW_LABELS) {
+          const labelData = createLabelTexture(node.skill);
+
+          const labelMaterial = new THREE.SpriteMaterial({
+            map: labelData.texture,
+            transparent: true,
+            opacity: isMobile ? 0.82 : 0.9,
+            depthWrite: false
+          });
+
+          const label = new THREE.Sprite(labelMaterial);
+
+          label.position.set(0, LABEL_FONT_SIZE * 0.22, 0);
+
+          label.scale.set(
+            labelData.width * 0.055,
+            labelData.height * 0.055,
+            1
+          );
+
+          group.add(label);
+
+          node.__label = label;
+          node.__labelMaterial = labelMaterial;
+        }
+
+        node.__threeObj = group;
+        node.__sprite = sprite;
+        node.__baseScale = nodeScale;
+
+        return group;
+      });
+
+      // =====================================================
+      // CONSTELLATION LINKS
+      // =====================================================
+
+      Graph
+        .linkWidth(1)
+        .linkColor(() => "rgba(135,175,255,0.13)")
+        .linkOpacity(1)
+        .linkDirectionalParticles(isMobile ? 1 : 2)
+        .linkDirectionalParticleWidth(PARTICLE_WIDTH)
+        .linkDirectionalParticleSpeed(() => PARTICLE_SPEED)
+        .linkDirectionalParticleColor(
+          () => `rgba(255,246,205,${PARTICLE_OPACITY})`
+        );
+
+      Graph.d3Force("link").distance(isMobile ? 42 : 48);
+      Graph.d3Force("charge").strength(isMobile ? -18 : -26);
+
+      // =====================================================
+      // CAMERA AND CONTROLS
+      // =====================================================
+
+      Graph.cameraPosition({ x: 0, y: 0, z: isMobile ? 1100 : 950 });
+
+      cam = Graph.camera();
+      controls = Graph.controls();
+
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.075;
+
+      controls.enableRotate = true;
+      controls.enableZoom = true;
+      controls.enablePan = true;
+
+      controls.rotateSpeed = 0.62;
+      controls.zoomSpeed = 1.05;
+      controls.panSpeed = 0.75;
+
+      controls.minDistance = 80;
+      controls.maxDistance = 3200;
+      controls.screenSpacePanning = true;
+
+      // =====================================================
+      // INTERACTION STATE
+      // =====================================================
+
+      let lastInteractionTime = Date.now();
+      let userInteracting = false;
+      let autoOrbitEnabled = true;
+      let orbitAngle = 0;
+
+      function userInteraction() {
+        lastInteractionTime = Date.now();
+        userInteracting = true;
+        autoOrbitEnabled = false;
+      }
+
+      function endInteraction() {
+        userInteracting = false;
+        lastInteractionTime = Date.now();
+      }
+
+      controls.addEventListener("start", userInteraction);
+      controls.addEventListener("change", userInteraction);
+      controls.addEventListener("end", endInteraction);
+
+      // =====================================================
+      // HOVER EFFECT
+      // =====================================================
+
+      Graph.onNodeHover(node => {
+        document.body.style.cursor = node ? "pointer" : "grab";
+
+        Graph.graphData().nodes.forEach(n => {
+          if (n.__labelMaterial) {
+            n.__labelMaterial.opacity = isMobile ? 0.78 : 0.88;
+          }
+        });
+
+        if (node && node.__labelMaterial) {
+          node.__labelMaterial.opacity = 1;
+        }
+      });
+
+      // =====================================================
+      // CLICK TO FLY INTO A SKILL
+      // =====================================================
+
+      Graph.onNodeClick(node => {
+        if (!node) return;
+
+        const distance = isMobile ? 160 : 130;
+
+        const length = Math.hypot(
+          node.x || 1,
+          node.y || 1,
+          node.z || 1
+        );
+
+        const distRatio = 1 + distance / length;
+
+        Graph.cameraPosition(
+          {
+            x: (node.x || 1) * distRatio,
+            y: (node.y || 1) * distRatio,
+            z: (node.z || 1) * distRatio
+          },
+          node,
+          2200
+        );
+
+        userInteraction();
+      });
+
+      // =====================================================
+      // REFRESH BUTTON - RESET VIEW, NO PAGE RELOAD
+      // =====================================================
+
+      document.getElementById("refreshBtn").addEventListener("click", () => {
+        Graph.zoomToFit(1600, 120);
+      });
+
+      // =====================================================
+      // ANIMATION LOOP
+      // =====================================================
+
+      function cinematicOrbit() {
+        const idleTime = Date.now() - lastInteractionTime;
+
+        if (idleTime > AUTO_ORBIT_IDLE_DELAY) {
+          autoOrbitEnabled = true;
+        }
+
+        if (!autoOrbitEnabled || userInteracting) return;
+
+        orbitAngle += AUTO_ORBIT_SPEED;
+
+        const radius = isMobile ? 1050 : 950;
+
+        cam.position.x = Math.cos(orbitAngle) * radius;
+        cam.position.z = Math.sin(orbitAngle) * radius;
+        cam.position.y = Math.sin(orbitAngle * 0.45) * 120;
+
+        cam.lookAt(0, 0, 0);
+      }
+
+      function animateNodes() {
+        const time = Date.now() * 0.001;
+
+        Graph.graphData().nodes.forEach(node => {
+          if (!node.__threeObj) return;
+
+          const breathe =
+            1 + Math.sin(time * 1.15 + node.id * 0.7) * 0.035;
+
+          node.__threeObj.scale.set(breathe, breathe, breathe);
+        });
+      }
+
+      function animateBackground() {
+        if (galaxyStars) {
+          galaxyStars.rotation.y += 0.000025;
+          galaxyStars.rotation.x += 0.000006;
+        }
+
+        if (farNebulaStars) {
+          farNebulaStars.rotation.y -= 0.000012;
+          farNebulaStars.rotation.z += 0.000004;
+        }
+      }
+
+      function animateLoop() {
+        requestAnimationFrame(animateLoop);
+
+        cinematicOrbit();
+        animateNodes();
+        animateBackground();
+      }
+
+      animateLoop();
+
+      // Initial smooth fit after layout starts
+      setTimeout(() => {
+        Graph.zoomToFit(1800, 140);
+      }, 1200);
+    }
+
+    // =====================================================
+    // GALAXY STARFIELD
+    // =====================================================
+
+    function createGalaxyStarfield(scene) {
+      const nearGeometry = new THREE.BufferGeometry();
+      const nearPositions = [];
+      const nearColors = [];
+
+      const colorA = new THREE.Color("#ffffff");
+      const colorB = new THREE.Color("#9edbff");
+      const colorC = new THREE.Color("#fff2a6");
+
+      const nearCount = isMobile ? 1800 : 3600;
+
+      for (let i = 0; i < nearCount; i++) {
+        nearPositions.push(
+          (Math.random() - 0.5) * 7600,
+          (Math.random() - 0.5) * 7600,
+          (Math.random() - 0.5) * 7600
+        );
+
+        const color = i % 3 === 0 ? colorA : i % 3 === 1 ? colorB : colorC;
+
+        nearColors.push(color.r, color.g, color.b);
+      }
+
+      nearGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(nearPositions, 3)
+      );
+
+      nearGeometry.setAttribute(
+        "color",
+        new THREE.Float32BufferAttribute(nearColors, 3)
+      );
+
+      const nearMaterial = new THREE.PointsMaterial({
+        size: isMobile ? 1.2 : 1.45,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.82,
+        depthWrite: false
+      });
+
+      galaxyStars = new THREE.Points(nearGeometry, nearMaterial);
+      scene.add(galaxyStars);
+
+      const farGeometry = new THREE.BufferGeometry();
+      const farPositions = [];
+
+      const farCount = isMobile ? 900 : 1800;
+
+      for (let i = 0; i < farCount; i++) {
+        farPositions.push(
+          (Math.random() - 0.5) * 14000,
+          (Math.random() - 0.5) * 14000,
+          (Math.random() - 0.5) * 14000
+        );
+      }
+
+      farGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(farPositions, 3)
+      );
+
+      const farMaterial = new THREE.PointsMaterial({
+        size: isMobile ? 0.75 : 0.95,
+        color: "#7fa8ff",
+        transparent: true,
+        opacity: 0.45,
+        depthWrite: false
+      });
+
+      farNebulaStars = new THREE.Points(farGeometry, farMaterial);
+      scene.add(farNebulaStars);
+    }
+
+    // =====================================================
+    // RESPONSIVE RESIZE
+    // =====================================================
+
+    window.addEventListener("resize", () => {
+      if (!Graph) return;
+
+      Graph.width(window.innerWidth);
+      Graph.height(window.innerHeight);
     });
-
-}
-
-// ==============================================
-// MAIN LOOP
-// ==============================================
-
-function animateLoop(){
-
-    requestAnimationFrame(
-        animateLoop
-    );
-
-    autoOrbit();
-
-    animateStars();
-}
-
-animateLoop();
-
-// ==============================================
-// REFRESH BUTTON
-// ==============================================
-
-document
-.getElementById('refreshBtn')
-.addEventListener('click', () => {
-
-    Graph.zoomToFit(1500);
-
-});
-
-</script>
-
+  </script>
 </body>
 </html>
