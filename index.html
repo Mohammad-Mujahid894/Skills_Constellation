@@ -1,264 +1,80 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-
+  <meta charset="utf-8" />
   <title>Mohammad Mujahid's 3-D Skills Constellation Chart</title>
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes"
-  >
-
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
+    html, body { height:100%; margin:0; background-color:#040414; }
+    body {
+      background:
+        radial-gradient(ellipse at 16% 18%, rgba(56,92,180,.13) 0%, rgba(35,50,120,.055) 26%, transparent 52%),
+        radial-gradient(ellipse at 84% 28%, rgba(125,62,180,.105) 0%, rgba(78,37,125,.045) 28%, transparent 55%),
+        radial-gradient(ellipse at 55% 88%, rgba(23,124,155,.085) 0%, rgba(17,75,100,.035) 28%, transparent 54%),
+        radial-gradient(ellipse at 48% 46%, rgba(24,37,84,.08) 0%, transparent 62%),
+        linear-gradient(145deg, #02020d 0%, #040414 42%, #050318 72%, #02020c 100%);
+    }
+    #3d-graph { width:100vw; height:100vh; display:block; }
+    #starCanvas { display:none; width:256px; height:256px; }
+
     @font-face {
       font-family: "MyCustomFont";
       src: url("FoundationTitlesHand.ttf") format("truetype");
-      font-display: swap;
-    }
-
-    :root {
-      --space-base: #040414;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      overscroll-behavior: none;
-      background-color: var(--space-base);
-    }
-
-    body {
-      position: relative;
-
-      /*
-        Lightweight space/galaxy background.
-        No additional stars, canvases, images, or animations are used.
-      */
-      background:
-        radial-gradient(
-          ellipse at 16% 18%,
-          rgba(56, 92, 180, 0.13) 0%,
-          rgba(35, 50, 120, 0.055) 26%,
-          transparent 52%
-        ),
-        radial-gradient(
-          ellipse at 84% 28%,
-          rgba(125, 62, 180, 0.105) 0%,
-          rgba(78, 37, 125, 0.045) 28%,
-          transparent 55%
-        ),
-        radial-gradient(
-          ellipse at 55% 88%,
-          rgba(23, 124, 155, 0.085) 0%,
-          rgba(17, 75, 100, 0.035) 28%,
-          transparent 54%
-        ),
-        radial-gradient(
-          ellipse at 48% 46%,
-          rgba(24, 37, 84, 0.08) 0%,
-          transparent 62%
-        ),
-        linear-gradient(
-          145deg,
-          #02020d 0%,
-          #040414 42%,
-          #050318 72%,
-          #02020c 100%
-        );
-    }
-
-    #3d-graph {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-
-      width: 100%;
-      height: 100%;
-
-      display: block;
-
-      /*
-        Required for OrbitControls gestures on touch devices.
-      */
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    #3d-graph canvas {
-      display: block;
-      outline: none;
-    }
-
-    #starCanvas {
-      display: none;
-      width: 256px;
-      height: 256px;
     }
 
     #refreshBtn {
       position: fixed;
-      right: max(20px, env(safe-area-inset-right));
-      bottom: max(20px, env(safe-area-inset-bottom));
-      z-index: 10;
-
+      bottom: 20px;
+      right: 20px;
       width: 50px;
       height: 50px;
-      padding: 0;
-
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
+      color: #ffffff;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 50%;
-
-      background: rgba(255, 255, 255, 0.1);
-      -webkit-backdrop-filter: blur(5px);
-      backdrop-filter: blur(5px);
-
-      color: #ffffff;
-      font-family: Arial, sans-serif;
-      font-size: 24px;
-      line-height: 1;
-
-      cursor: pointer;
-
-      box-shadow:
-        0 4px 15px rgba(255, 255, 255, 0.22),
-        inset 0 0 12px rgba(255, 255, 255, 0.04);
-
-      transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background-color 0.2s ease;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    #refreshBtn:hover {
-      transform: scale(1.1);
+    #refreshBtn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(255, 255, 255, 0.5); }
+    #refreshBtn:active { transform: scale(0.95); }
+    html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+#3d-graph {
+  width: 100%;
+  height: 100%;
+  touch-action: none;  /* essential for mobile gestures */
+}
 
-      background: rgba(255, 255, 255, 0.14);
-
-      box-shadow:
-        0 6px 20px rgba(255, 255, 255, 0.38),
-        inset 0 0 14px rgba(255, 255, 255, 0.06);
-    }
-
-    #refreshBtn:active {
-      transform: scale(0.95);
-    }
-
-    #refreshBtn:focus-visible {
-      outline: 2px solid rgba(160, 220, 255, 0.9);
-      outline-offset: 4px;
-    }
-
-    @media (max-width: 600px) {
-      #refreshBtn {
-        right: max(14px, env(safe-area-inset-right));
-        bottom: max(14px, env(safe-area-inset-bottom));
-
-        width: 46px;
-        height: 46px;
-
-        font-size: 22px;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      #refreshBtn {
-        transition: none;
-      }
-    }
   </style>
 </head>
-
 <body>
-  <canvas
-    id="starCanvas"
-    width="256"
-    height="256"
-    aria-hidden="true"
-  ></canvas>
+<canvas id="starCanvas" width="256" height="256"></canvas>
+<div id="3d-graph"></div>
+<button id="refreshBtn" title="Refresh">&#x21bb;</button>
 
-  <div
-    id="3d-graph"
-    role="application"
-    aria-label="Interactive three-dimensional skills constellation"
-  ></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.js"></script>
+<script>
+// ========== CONFIG ==========
+const STAR_SIZE = 9;
+const LABEL_FONT_SIZE = 69;
+const PARTICLE_WIDTH = 1.0;
+const PARTICLE_SPEED = 0.001;
+const PARTICLE_OPACITY = 0.3;
 
-  <button
-    id="refreshBtn"
-    type="button"
-    title="Refresh constellation"
-    aria-label="Refresh constellation"
-  >
-    &#x21bb;
-  </button>
-
-  https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.jsscript>
-  https://cdn.jsdelivr.net/npm/3d-force-graph@1.77.0/dist/3d-force-graph.min.jsscript>
-
-  <script>
-    "use strict";
-
-    // =========================================================
-    // CONFIGURATION
-    // =========================================================
-
-    const STAR_SIZE = 9;
-    const LABEL_FONT_SIZE = 69;
-
-    const PARTICLE_WIDTH = 1.0;
-    const PARTICLE_SPEED = 0.001;
-    const PARTICLE_OPACITY = 0.3;
-
-    /*
-      This speed preserves the existing slow random movement.
-
-      A smaller value means gentler camera movement.
-      A larger value means faster camera movement.
-    */
-    const DRIFT_SPEED = 0.004;
-
-    /*
-      A tiny pause prevents automatic movement from beginning
-      in the exact frame that the user releases the mouse or screen.
-
-      It is intentionally short and does not create a long delay.
-    */
-    const DRIFT_RESUME_DELAY = 320;
-
-    /*
-      Controls how far the next random camera destination can be
-      from the position selected by the user.
-    */
-    const DRIFT_OFFSET_XY = 720;
-    const DRIFT_OFFSET_Z = 420;
-
-    /*
-      Paste your complete existing skills array below.
-
-      Example:
-
-      const skills = [
-        "Cash Application",
-        "Accounts Receivable",
-        "Power Automate"
-      ];
-    */
-
-    const skills = [
-      "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable",
+const skills = [
+  "Cash Application", "Invoice Processing", "Bank Reconciliation", "Accounts Receivable",
   "ACH Processing", "Wire Payment Processing", "Check Processing", "NSF Handling",
   "Remittance Matching", "Customer Communication",
   "Credit Management", "Invoice Distribution", "Collections",
@@ -344,641 +160,356 @@
   "Strengths-Based Coaching", "Gallup Strengths Mapping", 
   "Dispute Resolution Management", "SLA Management", "Invoice Discrepancy Investigation", "Supplier Reconciliation", "Customer Credit Analysis",
   "Vendor Risk Assessment", "Power Automate", "Google App Script", "Power Apps", "Month-End Closing", "Statutory Compliance Reporting"
-    ];
+];
+const N = skills.length;
+const gData = {
+  nodes: [...Array(N).keys()].map(i => ({ id: i, skill: skills[i % skills.length] })),
+  links: [...Array(N).keys()].filter(i => i).map(i => ({ source: i, target: Math.round(Math.random() * (i - 1)) }))
+};
 
-    // =========================================================
-    // GRAPH DATA
-    // =========================================================
+// ========== GLOW STAR ==========
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+const cx = canvas.width/2, cy = canvas.height/2;
+let burstProgress = 1;
+let targetBurstProgress = 1;
 
-    const N = skills.length;
+function drawGlowingStar() {
+    burstProgress += (targetBurstProgress - burstProgress) * 0.08;
 
-    const gData = {
-      nodes: [...Array(N).keys()].map((i) => ({
-        id: i,
-        skill: skills[i % skills.length]
-      })),
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-      links: [...Array(N).keys()]
-        .filter((i) => i)
-        .map((i) => ({
-          source: i,
-          target: Math.round(Math.random() * (i - 1))
-        }))
-    };
-
-    // =========================================================
-    // ORIGINAL GLOWING STAR TEXTURE
-    // =========================================================
-
-    const glowCanvas = document.getElementById("starCanvas");
-    const glowContext = glowCanvas.getContext("2d", {
-      alpha: true
-    });
-
-    const glowCenterX = glowCanvas.width / 2;
-    const glowCenterY = glowCanvas.height / 2;
-
-    let burstProgress = 1;
-    let targetBurstProgress = 1;
-
-    function drawGlowingStar() {
-      burstProgress +=
-        (targetBurstProgress - burstProgress) * 0.08;
-
-      glowContext.clearRect(
-        0,
-        0,
-        glowCanvas.width,
-        glowCanvas.height
-      );
-
-      for (let i = 8; i > 0; i -= 1) {
-        glowContext.save();
-
-        const baseRadius = 50 + i * 10;
-
-        const glowRadius =
-          baseRadius * burstProgress +
-          Math.sin(Date.now() / 900) * 2;
-
-        glowContext.globalAlpha =
-          0.06 * (i / 8) * burstProgress;
-
-        glowContext.shadowBlur =
-          (30 + i * 5) * burstProgress;
-
-        glowContext.beginPath();
-
-        glowContext.arc(
-          glowCenterX,
-          glowCenterY,
-          glowRadius,
-          0,
-          Math.PI * 2
-        );
-
-        glowContext.closePath();
-
-        glowContext.fillStyle =
-          i % 2 === 0
-            ? "rgba(62, 189, 255, 0.7)"
-            : "rgba(255, 236, 128, 0.3)";
-
-        glowContext.shadowColor =
-          i % 2 === 0
-            ? "#60ecff"
-            : "#fffadc";
-
-        glowContext.fill();
-        glowContext.restore();
-      }
-
-      glowContext.save();
-
-      const glowGradient =
-        glowContext.createRadialGradient(
-          glowCenterX,
-          glowCenterY,
-          5,
-          glowCenterX,
-          glowCenterY,
-          20 * burstProgress
-        );
-
-      glowGradient.addColorStop(0, "#ffffff");
-      glowGradient.addColorStop(0.3, "#fff6b5");
-      glowGradient.addColorStop(1, "#fffacd11");
-
-      glowContext.beginPath();
-
-      glowContext.arc(
-        glowCenterX,
-        glowCenterY,
-        20 * burstProgress,
-        0,
-        Math.PI * 2
-      );
-
-      glowContext.closePath();
-
-      glowContext.fillStyle = glowGradient;
-      glowContext.shadowColor = "gold";
-      glowContext.shadowBlur = 30 * burstProgress;
-
-      glowContext.fill();
-      glowContext.restore();
-
-      requestAnimationFrame(drawGlowingStar);
+    for(let i=8;i>0;i--){
+        ctx.save();
+        const baseRadius = 50 + i*10;
+        const glowRadius = baseRadius * burstProgress + Math.sin(Date.now()/900)*2;
+        ctx.globalAlpha = 0.06*(i/8)*burstProgress;
+        ctx.shadowBlur = (30+i*5)*burstProgress;
+        ctx.beginPath();
+        ctx.arc(cx,cy,glowRadius,0,Math.PI*2);
+        ctx.closePath();
+        ctx.fillStyle = i%2===0?'rgba(62,189,255,0.7)':'rgba(255,236,128,0.3)';
+        ctx.shadowColor = i%2===0?'#60ecff':'#fffadc';
+        ctx.fill();
+        ctx.restore();
     }
 
-    drawGlowingStar();
+    ctx.save();
+    const grad = ctx.createRadialGradient(cx,cy,5,cx,cy,20*burstProgress);
+    grad.addColorStop(0,'#fff');
+    grad.addColorStop(0.3,'#fff6b5');
+    grad.addColorStop(1,'#fffacd11');
+    ctx.beginPath();
+    ctx.arc(cx,cy,20*burstProgress,0,Math.PI*2);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.shadowColor='gold';
+    ctx.shadowBlur = 30*burstProgress;
+    ctx.fill();
+    ctx.restore();
 
-    // Kept from the original implementation.
-    const starTexture = new THREE.CanvasTexture(glowCanvas);
+    requestAnimationFrame(drawGlowingStar);
+}
+drawGlowingStar();
+const starTexture = new THREE.CanvasTexture(canvas);
 
-    // =========================================================
-    // REUSABLE NODE STAR TEXTURE
-    // =========================================================
+// ========== 3D GRAPH ==========
+const Graph = ForceGraph3D({ controlType:'orbit' })(document.getElementById('3d-graph'))
+  .backgroundColor("rgba(0, 0, 0, 0)")
+  .graphData(gData)
+  .nodeThreeObject(node=>{
+    const group = new THREE.Group();
 
-    /*
-      The visual appearance remains the same, but all nodes can reuse
-      this one star texture instead of creating a duplicate texture
-      for every skill.
-    */
+    const starCanvas = document.createElement('canvas');
+    starCanvas.width = starCanvas.height = 64;
+    const ctx = starCanvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(32,32,0,32,32,32);
+    gradient.addColorStop(0,'rgba(255,255,200,1)');
+    gradient.addColorStop(0.3,'rgba(255,220,120,0.8)');
+    gradient.addColorStop(0.6,'rgba(255,180,60,0.5)');
+    gradient.addColorStop(1,'rgba(255,180,60,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0,0,64,64);
+    const texture = new THREE.CanvasTexture(starCanvas);
+    const material = new THREE.SpriteMaterial({map:texture,transparent:true});
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(STAR_SIZE, STAR_SIZE, 1);
+    group.add(sprite);
 
-    function createNodeStarTexture() {
-      const nodeStarCanvas = document.createElement("canvas");
+    const labelCanvas = document.createElement('canvas');
+    const labelCtx = labelCanvas.getContext('2d');
+    labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
+    const text = node.skill;
+    const textWidth = labelCtx.measureText(text).width;
+    labelCanvas.width = textWidth+20;
+    labelCanvas.height = LABEL_FONT_SIZE+10;
+    labelCtx.font = `${LABEL_FONT_SIZE}px MyCustomFont`;
+    labelCtx.fillStyle = '#cce6ff';
+    labelCtx.fillText(text,5,LABEL_FONT_SIZE);
+    const labelTexture = new THREE.CanvasTexture(labelCanvas);
+    const labelMaterial = new THREE.SpriteMaterial({map:labelTexture,transparent:true});
+    const label = new THREE.Sprite(labelMaterial);
+    label.position.set(0,LABEL_FONT_SIZE*0.2,0);
+    label.scale.set(labelCanvas.width*0.06,labelCanvas.height*0.06,1);
+    group.add(label);
 
-      nodeStarCanvas.width = 64;
-      nodeStarCanvas.height = 64;
+    node.__label = label;
+    node.__threeObj = group; // save reference for refresh
+    return group;
+  })
+  .linkWidth(1)
+  .linkColor(()=> 'rgba(160,200,220,0.08)')
+  .linkOpacity(1)
+  .linkDirectionalParticles(1)
+  .linkDirectionalParticleWidth(PARTICLE_WIDTH)
+  .linkDirectionalParticleSpeed(()=> PARTICLE_SPEED)
+  .linkDirectionalParticleColor(()=> `rgba(255,246,200,${PARTICLE_OPACITY})`)
+  .onNodeHover(node=>document.body.style.cursor=node?'pointer':null);
 
-      const nodeStarContext =
-        nodeStarCanvas.getContext("2d", {
-          alpha: true
-        });
+Graph.d3Force('link').distance(45);
+Graph.d3Force('charge').strength(-25);
 
-      const gradient =
-        nodeStarContext.createRadialGradient(
-          32,
-          32,
-          0,
-          32,
-          32,
-          32
-        );
+const initialZ = 900;
+Graph.cameraPosition({ x:0, y:0, z:initialZ });
 
-      gradient.addColorStop(
-        0,
-        "rgba(255, 255, 200, 1)"
-      );
+const controls = Graph.controls();
+controls.enableDamping = true;
+controls.dampingFactor = 0.005;
+controls.zoomSpeed = 0.5;
+controls.minDistance = 150;
+controls.maxDistance = 2000;
+controls.enableRotate = true;
+controls.enablePan = true;
+controls.screenSpacePanning = true;
+  controls.enableZoom = true;  // make sure zoom works
 
-      gradient.addColorStop(
-        0.3,
-        "rgba(255, 220, 120, 0.8)"
-      );
+let userInteracting = false;
+let lastInteractionEndedAt = 0;
+const DRIFT_RESUME_DELAY = 260;
+const driftSpeed = 0.0018;
+const targetDriftSpeed = 0.00135;
+const cam = Graph.camera();
 
-      gradient.addColorStop(
-        0.6,
-        "rgba(255, 180, 60, 0.5)"
-      );
+let camTarget = new THREE.Vector3();
+let lookTarget = controls.target.clone();
+let lookDestination = controls.target.clone();
+let visibilityFrame = 0;
 
-      gradient.addColorStop(
-        1,
-        "rgba(255, 180, 60, 0)"
-      );
+// One uninterrupted cinematic zoom from the original opening distance.
+let openingActive = true;
+const OPENING_DURATION = 5600;
+const openingStartedAt = performance.now();
+const openingStartPosition = cam.position.clone();
+const openingLookTarget = controls.target.clone();
+const openingEndDistance = 455;
 
-      nodeStarContext.fillStyle = gradient;
+const openingDirection = openingStartPosition.clone().sub(openingLookTarget).normalize();
+const openingWorldUp = new THREE.Vector3(0, 1, 0);
+let openingSide = new THREE.Vector3().crossVectors(openingDirection, openingWorldUp);
+if (openingSide.lengthSq() < 0.0001) openingSide.set(1, 0, 0);
+else openingSide.normalize();
 
-      nodeStarContext.fillRect(
-        0,
-        0,
-        nodeStarCanvas.width,
-        nodeStarCanvas.height
-      );
+// A very gentle arc makes the continuous zoom feel cinematic, not mechanical.
+const openingEndDirection = openingDirection.clone()
+  .applyAxisAngle(openingWorldUp, 0.20)
+  .applyAxisAngle(openingSide, -0.07)
+  .normalize();
+const openingEndPosition = openingLookTarget.clone().add(
+  openingEndDirection.multiplyScalar(openingEndDistance)
+);
 
-      const texture =
-        new THREE.CanvasTexture(nodeStarCanvas);
+const projectedNodePosition = new THREE.Vector3();
+const worldNodePosition = new THREE.Vector3();
+const cameraForward = new THREE.Vector3();
+const cameraToNode = new THREE.Vector3();
 
-      texture.minFilter = THREE.LinearFilter;
-      texture.magFilter = THREE.LinearFilter;
-      texture.generateMipmaps = false;
+function randomSigned(min, max) {
+  const value = min + Math.random() * (max - min);
+  return Math.random() < 0.5 ? -value : value;
+}
 
-      return texture;
+function cinematicEase(t) {
+  const x = THREE.MathUtils.clamp(t, 0, 1);
+  return x < 0.5
+    ? 4 * x * x * x
+    : 1 - Math.pow(-2 * x + 2, 3) / 2;
+}
+
+function updateOpeningJourney(now) {
+  if (!openingActive || userInteracting) return;
+
+  const progress = THREE.MathUtils.clamp(
+    (now - openingStartedAt) / OPENING_DURATION,
+    0,
+    1
+  );
+  const eased = cinematicEase(progress);
+
+  // A single continuous interpolation: no stops, steps or simulated wheel clicks.
+  cam.position.lerpVectors(openingStartPosition, openingEndPosition, eased);
+  cam.lookAt(openingLookTarget);
+
+  if (progress >= 1) {
+    openingActive = false;
+    lookTarget.copy(controls.target);
+    lookDestination.copy(controls.target);
+    pickImmersiveTargetFromCurrentView();
+  }
+}
+
+// Creates an immersive destination from the user's latest camera and zoom.
+function pickImmersiveTargetFromCurrentView() {
+  const currentLook = controls.target.clone();
+  const radial = cam.position.clone().sub(currentLook);
+  let currentDistance = radial.length();
+
+  if (!Number.isFinite(currentDistance) || currentDistance < 1) {
+    radial.set(0, 0, 1);
+    currentDistance = 700;
+  }
+
+  const direction = radial.normalize();
+  const worldUp = new THREE.Vector3(0, 1, 0);
+  let side = new THREE.Vector3().crossVectors(direction, worldUp);
+  if (side.lengthSq() < 0.0001) side.set(1, 0, 0);
+  else side.normalize();
+
+  const localUp = new THREE.Vector3().crossVectors(side, direction).normalize();
+  direction.applyAxisAngle(localUp, randomSigned(0.38, 1.05));
+  direction.applyAxisAngle(side, randomSigned(0.18, 0.62));
+  direction.normalize();
+
+  let distanceMultiplier;
+  const travelMode = Math.random();
+  if (travelMode < 0.42) distanceMultiplier = 0.58 + Math.random() * 0.22;
+  else if (travelMode < 0.78) distanceMultiplier = 1.22 + Math.random() * 0.38;
+  else distanceMultiplier = 0.92 + Math.random() * 0.16;
+
+  const nextDistance = THREE.MathUtils.clamp(
+    currentDistance * distanceMultiplier,
+    controls.minDistance + 35,
+    Math.min(controls.maxDistance, 1650)
+  );
+
+  const focusRange = Math.min(170, Math.max(70, currentDistance * 0.16));
+  lookDestination.copy(currentLook).add(new THREE.Vector3(
+    (Math.random() - 0.5) * focusRange,
+    (Math.random() - 0.5) * focusRange,
+    (Math.random() - 0.5) * focusRange * 0.7
+  ));
+
+  camTarget.copy(lookDestination).add(direction.multiplyScalar(nextDistance));
+}
+
+controls.addEventListener('start', () => {
+  userInteracting = true;
+  openingActive = false;
+  camTarget.copy(cam.position);
+  lookTarget.copy(controls.target);
+  lookDestination.copy(controls.target);
+});
+
+controls.addEventListener('change', () => {
+  if (!userInteracting) return;
+  camTarget.copy(cam.position);
+  lookTarget.copy(controls.target);
+  lookDestination.copy(controls.target);
+});
+
+controls.addEventListener('end', () => {
+  userInteracting = false;
+  lastInteractionEndedAt = performance.now();
+  lookTarget.copy(controls.target);
+  pickImmersiveTargetFromCurrentView();
+});
+
+// Only labels in the current forward view are candidates.
+// Within that view, only the nearest 65% appear; deeper labels stay hidden
+// and automatically appear as the camera enters their region.
+function updateFrontLabelVisibility() {
+  const nodes = Graph.graphData().nodes;
+  const visibleCandidates = [];
+
+  cam.getWorldDirection(cameraForward);
+
+  for (const node of nodes) {
+    if (!node.__label || !Number.isFinite(node.x) || !Number.isFinite(node.y) || !Number.isFinite(node.z)) continue;
+
+    worldNodePosition.set(node.x, node.y, node.z);
+    cameraToNode.copy(worldNodePosition).sub(cam.position);
+    const forwardDepth = cameraToNode.dot(cameraForward);
+
+    if (forwardDepth <= 0) {
+      node.__label.visible = false;
+      continue;
     }
 
-    const sharedNodeStarTexture =
-      createNodeStarTexture();
+    projectedNodePosition.copy(worldNodePosition).project(cam);
+    const onScreen =
+      projectedNodePosition.z >= -1 && projectedNodePosition.z <= 1 &&
+      Math.abs(projectedNodePosition.x) <= 1.02 &&
+      Math.abs(projectedNodePosition.y) <= 1.02;
 
-    // =========================================================
-    // LABEL CREATION
-    // =========================================================
-
-    function createSkillLabel(text) {
-      const labelCanvas =
-        document.createElement("canvas");
-
-      const labelContext =
-        labelCanvas.getContext("2d", {
-          alpha: true
-        });
-
-      labelContext.font =
-        `${LABEL_FONT_SIZE}px MyCustomFont`;
-
-      const measuredWidth =
-        Math.ceil(labelContext.measureText(text).width);
-
-      labelCanvas.width = Math.max(
-        2,
-        measuredWidth + 20
-      );
-
-      labelCanvas.height =
-        LABEL_FONT_SIZE + 10;
-
-      /*
-        Canvas width/height resets the context, so the font
-        must be assigned again.
-      */
-      labelContext.font =
-        `${LABEL_FONT_SIZE}px MyCustomFont`;
-
-      labelContext.textBaseline = "alphabetic";
-      labelContext.fillStyle = "#cce6ff";
-
-      labelContext.fillText(
-        text,
-        5,
-        LABEL_FONT_SIZE
-      );
-
-      const labelTexture =
-        new THREE.CanvasTexture(labelCanvas);
-
-      labelTexture.minFilter = THREE.LinearFilter;
-      labelTexture.magFilter = THREE.LinearFilter;
-      labelTexture.generateMipmaps = false;
-
-      const labelMaterial =
-        new THREE.SpriteMaterial({
-          map: labelTexture,
-          transparent: true,
-          depthWrite: false
-        });
-
-      const label =
-        new THREE.Sprite(labelMaterial);
-
-      label.position.set(
-        0,
-        LABEL_FONT_SIZE * 0.2,
-        0
-      );
-
-      label.scale.set(
-        labelCanvas.width * 0.06,
-        labelCanvas.height * 0.06,
-        1
-      );
-
-      return label;
+    if (!onScreen) {
+      node.__label.visible = false;
+      continue;
     }
 
-    // =========================================================
-    // 3-D FORCE GRAPH
-    // =========================================================
+    visibleCandidates.push({ node, depth: forwardDepth });
+  }
 
-    const graphElement =
-      document.getElementById("3d-graph");
+  if (!visibleCandidates.length) return;
 
-    const Graph =
-      ForceGraph3D({
-        controlType: "orbit"
-      })(graphElement)
-        .graphData(gData)
+  visibleCandidates.sort((a, b) => a.depth - b.depth);
+  const visibleCount = Math.max(1, Math.ceil(visibleCandidates.length * 0.65));
 
-        .nodeThreeObject((node) => {
-          const group = new THREE.Group();
+  for (let i = 0; i < visibleCandidates.length; i += 1) {
+    const label = visibleCandidates[i].node.__label;
+    label.visible = i < visibleCount;
 
-          const starMaterial =
-            new THREE.SpriteMaterial({
-              map: sharedNodeStarTexture,
-              transparent: true,
-              depthWrite: false
-            });
-
-          const sprite =
-            new THREE.Sprite(starMaterial);
-
-          sprite.scale.set(
-            STAR_SIZE,
-            STAR_SIZE,
-            1
-          );
-
-          group.add(sprite);
-
-          const label =
-            createSkillLabel(node.skill);
-
-          group.add(label);
-
-          node.__threeObj = group;
-
-          return group;
-        })
-
-        .linkWidth(1)
-
-        .linkColor(() =>
-          "rgba(160, 200, 220, 0.08)"
-        )
-
-        .linkOpacity(1)
-
-        .linkDirectionalParticles(1)
-
-        .linkDirectionalParticleWidth(
-          PARTICLE_WIDTH
-        )
-
-        .linkDirectionalParticleSpeed(
-          () => PARTICLE_SPEED
-        )
-
-        .linkDirectionalParticleColor(
-          () =>
-            `rgba(255, 246, 200, ${PARTICLE_OPACITY})`
-        )
-
-        .onNodeHover((node) => {
-          document.body.style.cursor =
-            node ? "pointer" : "default";
-        });
-
-    Graph.d3Force("link").distance(45);
-    Graph.d3Force("charge").strength(-25);
-
-    // =========================================================
-    // ORIGINAL OPENING POSITION
-    // =========================================================
-
-    /*
-      This is intentionally unchanged so the constellation opens
-      from the same original camera position.
-    */
-
-    const INITIAL_CAMERA_Z = 900;
-
-    Graph.cameraPosition({
-      x: 0,
-      y: 0,
-      z: INITIAL_CAMERA_Z
-    });
-
-    // =========================================================
-    // ORBIT CONTROLS
-    // =========================================================
-
-    const controls = Graph.controls();
-    const camera = Graph.camera();
-
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.005;
-
-    controls.zoomSpeed = 0.5;
-
-    controls.minDistance = 150;
-    controls.maxDistance = 2000;
-
-    controls.enableRotate = true;
-    controls.enablePan = true;
-    controls.enableZoom = true;
-
-    controls.screenSpacePanning = true;
-
-    /*
-      Preserve the existing center of attention.
-    */
-    controls.target.set(0, 0, 0);
-    controls.update();
-
-    // =========================================================
-    // USER-PRIORITY FREE-FLOW CAMERA
-    // =========================================================
-
-    let userInteracting = false;
-    let lastInteractionEndedAt = 0;
-
-    let cameraDestination =
-      new THREE.Vector3();
-
-    /*
-      This is the main correction.
-
-      Every destination is generated RELATIVE TO THE CURRENT
-      CAMERA POSITION.
-
-      It is not generated from a fixed absolute location.
-      Therefore, after user interaction, the camera does not
-      return to its previous random destination.
-    */
-    function pickNewDestinationFromCurrentPosition() {
-      const currentPosition =
-        camera.position.clone();
-
-      /*
-        Horizontal and vertical random flow.
-      */
-      const offsetX =
-        (Math.random() - 0.5) * DRIFT_OFFSET_XY;
-
-      const offsetY =
-        (Math.random() - 0.5) * DRIFT_OFFSET_XY;
-
-      /*
-        Depth movement is intentionally smaller so zoom changes
-        remain softer and less aggressive.
-      */
-      const offsetZ =
-        (Math.random() - 0.5) * DRIFT_OFFSET_Z;
-
-      cameraDestination.set(
-        currentPosition.x + offsetX,
-        currentPosition.y + offsetY,
-        currentPosition.z + offsetZ
-      );
-
-      /*
-        Respect the same minimum and maximum zoom boundaries.
-        The destination is adjusted without changing the user's
-        current camera position.
-      */
-      const destinationFromTarget =
-        cameraDestination
-          .clone()
-          .sub(controls.target);
-
-      let destinationDistance =
-        destinationFromTarget.length();
-
-      if (destinationDistance === 0) {
-        destinationFromTarget.set(0, 0, 1);
-        destinationDistance = 1;
-      }
-
-      const safeDistance =
-        THREE.MathUtils.clamp(
-          destinationDistance,
-          controls.minDistance,
-          controls.maxDistance
-        );
-
-      destinationFromTarget
-        .normalize()
-        .multiplyScalar(safeDistance);
-
-      cameraDestination
-        .copy(controls.target)
-        .add(destinationFromTarget);
+    if (label.visible && label.material) {
+      // Soft edge at the depth boundary, while the deep background stays fully hidden.
+      const rank = visibleCount <= 1 ? 0 : i / (visibleCount - 1);
+      label.material.opacity = rank > 0.82
+        ? THREE.MathUtils.lerp(1, 0.42, (rank - 0.82) / 0.18)
+        : 1;
     }
+  }
+}
 
-    /*
-      Initial random destination.
+function autoDrift(now) {
+  if (openingActive) {
+    updateOpeningJourney(now);
+    return;
+  }
 
-      This preserves the existing behavior when the page first opens:
-      the graph starts from its original camera position and then
-      naturally begins its random movement.
-    */
-    pickNewDestinationFromCurrentPosition();
+  if (userInteracting) return;
+  if (now - lastInteractionEndedAt < DRIFT_RESUME_DELAY) return;
 
-    controls.addEventListener(
-      "start",
-      () => {
-        userInteracting = true;
+  cam.position.lerp(camTarget, driftSpeed);
+  lookTarget.lerp(lookDestination, targetDriftSpeed);
+  controls.target.copy(lookTarget);
+  cam.lookAt(lookTarget);
 
-        /*
-          Immediately cancel the practical relevance of the previous
-          automatic destination.
+  const cameraArrived = cam.position.distanceTo(camTarget) < 26;
+  const focusArrived = lookTarget.distanceTo(lookDestination) < 8;
+  if (cameraArrived && focusArrived) pickImmersiveTargetFromCurrentView();
+}
 
-          The camera is now completely controlled by the user.
-        */
-        cameraDestination.copy(
-          camera.position
-        );
-      }
-    );
+(function animateLoop(now) {
+  requestAnimationFrame(animateLoop);
+  autoDrift(now);
 
-    controls.addEventListener(
-      "change",
-      () => {
-        if (!userInteracting) {
-          return;
-        }
+  visibilityFrame += 1;
+  if (visibilityFrame % 6 === 0) updateFrontLabelVisibility();
+})(performance.now());
 
-        /*
-          Continuously remember the exact camera position selected
-          by the user while rotating, panning, or zooming.
-        */
-        cameraDestination.copy(
-          camera.position
-        );
-      }
-    );
+</script>
+<script>
+document.getElementById('refreshBtn').addEventListener('click', () => {
+    location.reload(); // this will reload the entire page
+});
+</script>
 
-    controls.addEventListener(
-      "end",
-      () => {
-        userInteracting = false;
-        lastInteractionEndedAt =
-          performance.now();
-
-        /*
-          The old automatic destination is permanently discarded.
-
-          The next movement begins from the exact position and zoom
-          where the user released the mouse or touch gesture.
-        */
-        pickNewDestinationFromCurrentPosition();
-      }
-    );
-
-    function autoDrift(currentTime) {
-      if (userInteracting) {
-        return;
-      }
-
-      if (
-        currentTime - lastInteractionEndedAt <
-        DRIFT_RESUME_DELAY
-      ) {
-        return;
-      }
-
-      /*
-        Smoothly approach the fresh destination.
-
-        Because the destination was generated from the current
-        user-selected camera position, this does not pull the camera
-        back toward an old random point.
-      */
-      camera.position.lerp(
-        cameraDestination,
-        DRIFT_SPEED
-      );
-
-      /*
-        Keep the camera focused on the current OrbitControls target.
-
-        Unlike the previous hard-coded camera.lookAt(0, 0, 0),
-        this respects any target adjustment caused by user panning.
-      */
-      camera.lookAt(controls.target);
-
-      /*
-        Select another destination only after naturally approaching
-        the current one.
-      */
-      if (
-        camera.position.distanceTo(
-          cameraDestination
-        ) < 20
-      ) {
-        pickNewDestinationFromCurrentPosition();
-      }
-    }
-
-    function animationLoop(currentTime) {
-      requestAnimationFrame(animationLoop);
-      autoDrift(currentTime);
-    }
-
-    requestAnimationFrame(animationLoop);
-
-    // =========================================================
-    // RESPONSIVE RESIZING
-    // =========================================================
-
-    function resizeGraph() {
-      Graph.width(window.innerWidth);
-      Graph.height(window.innerHeight);
-    }
-
-    window.addEventListener(
-      "resize",
-      resizeGraph,
-      {
-        passive: true
-      }
-    );
-
-    window.addEventListener(
-      "orientationchange",
-      () => {
-        window.setTimeout(
-          resizeGraph,
-          150
-        );
-      },
-      {
-        passive: true
-      }
-    );
-
-    resizeGraph();
-
-    // =========================================================
-    // REFRESH BUTTON
-    // =========================================================
-
-    document
-      .getElementById("refreshBtn")
-      .addEventListener(
-        "click",
-        () => {
-          window.location.reload();
-        }
-      );
-  </script>
 </body>
-</html>
+</html> 
